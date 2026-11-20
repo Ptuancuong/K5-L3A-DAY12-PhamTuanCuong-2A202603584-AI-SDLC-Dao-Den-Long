@@ -18,7 +18,7 @@ jobs:
       - run: npm test
       - name: Headless verify (scenarios + determinism) and proof matches committed evidence
         env:
-          PHASE: phase-2
+          PHASE: phase-3
         run: |
           node scripts/verify.mjs $PHASE
           git diff --exit-code -- docs/proof/$PHASE/verify-report.md docs/proof/$PHASE/runs

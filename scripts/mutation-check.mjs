@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { checkScenario, listScenarios, ROOT } from './scenario-lib.mjs';
 
-const phase = process.argv[2] ?? 'phase-2';
+const phase = process.argv[2] ?? 'phase-3';
 const file = join(ROOT, 'game.contract.json');
 const original = readFileSync(file, 'utf8');
 const MUTATIONS = [
@@ -20,6 +20,12 @@ const MUTATIONS = [
   ['dash_cooldown_s', 1],
   ['safe_radius', 5],
   ['shade_speed', 5],
+  ['fuel_decay_per_s', 2],
+  ['relight_cost', 4],
+  ['drain_per_s', 4],
+  ['low_fuel_threshold', 25],
+  ['win_ratio', 0.8],
+  ['capacity_max', 18],
 ];
 const build = () => spawnSync('npm', ['run', 'build:headless', '--silent'], { cwd: ROOT, shell: true });
 const lines = [`# Mutation check — ${phase}`, '', '| Mutation | Failing scenarios |', '|---|---|'];

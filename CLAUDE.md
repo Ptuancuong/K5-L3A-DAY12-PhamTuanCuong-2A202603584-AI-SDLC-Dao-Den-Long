@@ -1,6 +1,6 @@
 # Đảo Đèn Lồng — agent guide
 
-3D third-person game (TypeScript + Three.js + Vite) with a headless mode graded by Test Contract **v1.1** (3 nights).
+3D third-person game (TypeScript + Three.js + Vite) with a headless mode graded by Test Contract **v1.2** (3 nights, lantern fuel, dawn win). Design decisions: `docs/adr/`.
 Requirements: `docs/lab/phase-N-*.md` (PRD-0, tickets). Assumptions: `docs/notes/assumptions.md`.
 
 ## Commands
@@ -17,6 +17,7 @@ Requirements: `docs/lab/phase-N-*.md` (PRD-0, tickets). Assumptions: `docs/notes
 ## Layout
 
 - `src/core/sim.ts` follows the mandatory 12-step tick order of Ticket-02 (numbered comments). `src/core/maps.ts` = standard maps + ground/wall functions.
+- Lantern safe zone is derived: `hasZone(w, l)` = lit && fuel >= low_fuel_threshold. Fuel is integer 1/60 units (`fuel60`).
 - `src/core/` pure deterministic rules. `src/render/` Three.js view only. `src/headless/` CLI.
 - `game.contract.json` is the ONLY source of tuning numbers; core imports it. Never hardcode a tuning value (a hardcoded shade speed slipped in once; mutation-check caught it).
 - Non-contract constants live in `STD` in `src/core/config.ts` (ticket standard numbers + my marked choices) and must be listed in assumptions.md.

@@ -32,6 +32,9 @@ async function press(key, ms = 200) {
   await page.keyboard.up(key);
 }
 
+// ---- Phase 2 set (Ticket-02). Shots 13-15 rely on the early win removed by Ticket-03, so this set only
+// runs for phase-2; its PNGs stay valid for the code at tag phase-2.
+if (phase === 'phase-2') {
 await page.goto(`${url}?seed=1`);
 await page.waitForTimeout(1200);
 await shot('01-menu.png', 'Menu chính');
@@ -92,6 +95,25 @@ await shot('15-dawn.png', 'Thắng Đêm 3 → màn hình Bình Minh với tổn
 await page.goto(game(1, { ...OFF, random_shades: false, time_left_s: 25 }));
 await page.waitForTimeout(1200);
 await shot('16-timer-danger.png', 'Đồng hồ đỏ #FF5A5F, nhấp nháy khi ≤ 30 s');
+
+}
+
+// ---- Phase 3 (Ticket-03) ----
+if (phase === 'phase-3') {
+  const P3 = { ...OFF, random_shades: false, player: { pos: [0, 0, 16] }, lanterns: [{ id: 'L1', lit: true, fuel: 80 }, { id: 'L2', lit: true, fuel: 25 }, { id: 'L5', lit: false, ever_lit: true }] };
+  await page.goto(game(1, P3));
+  await page.waitForTimeout(1500);
+  await shot('p3-01-fuel-bars.png', 'Thanh dầu trên đèn sáng (L1 80, L2 25 nhấp nháy 1 Hz, mất vòng an toàn); HUD "giữ ≥ 3 tới bình minh", "Mang 0/10"');
+  await page.goto(game(1, { ...OFF, random_shades: false, player: { pos: [0, 0, 14] }, lanterns: [{ id: 'L1', lit: true, fuel: 22 }], shades: [{ id: 'S1', pos: [0.8, 1, 23.5], state: 'drain', target_lantern_id: 'L1' }] }));
+  await page.waitForTimeout(1500);
+  await shot('p3-02-drain.png', 'Bóng Mực trạng thái drain đứng hút dầu ở đèn yếu (fuel < 30)');
+  await page.goto(game(1, { ...P3, time_left_s: 25, shades: [{ id: 'S1', pos: [3, 1, 22] }] }) + '&cb=1');
+  await page.waitForTimeout(1500);
+  await shot('p3-03-colorblind.png', 'Bảng màu dễ phân biệt: viền/mắt Bóng Mực #00B3FF, đồng hồ cảnh báo trắng kèm ⚠, đèn tắt xẹp 20% + vết rách');
+  await page.goto(game(1, { ...OFF, random_shades: false, player: { pos: [0, 0, -20] }, time_left_s: 1, lanterns: ['L1', 'L2', 'L3'].map((id) => ({ id, lit: true })) }));
+  await page.waitForTimeout(2500);
+  await shot('p3-04-dawn-survived.png', 'Hết giờ với 3/5 đèn sáng → thắng dawn_survived (không còn thắng sớm)');
+}
 
 await browser.close();
 await server.httpServer.close();
