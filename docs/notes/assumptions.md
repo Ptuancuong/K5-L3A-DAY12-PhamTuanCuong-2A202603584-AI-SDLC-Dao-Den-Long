@@ -66,8 +66,32 @@
 | 6 Điểm thắng | Cộng tại tick game_over, end gồm thưởng | Khớp (A13) |
 | 7 Vùng an toàn | Thường chỉ đèn đã thắp; sau khi thắp không để bóng trong vùng | Khớp A9 sau khi **sửa lỗi Bóng Mực đang choáng** (ai-log #7) |
 
-## Thông tin giảng viên đã nói trước cho phase sau (CHƯA làm ở Phase 1, chờ ticket)
+## Thông tin giảng viên đã nói trước cho phase sau (Phase 2: đã làm theo Ticket-02)
 - Bóng Mực có trạng thái `spawning` 1.0 s (60 tick): không gây sát thương, mờ dần hiện ra, rồi sang `wander`. Bóng Mực do scenario dựng sẵn bỏ qua spawning, bắt đầu ở `wander`.
 - Điểm xuất phát: Đêm 2 tại (0, 0, 0) (tâm đảo A), Đêm 3 tại (0, 0, −15), đều quay mặt về +Z.
 - Snapshot có `invuln` (boolean). Scenario có `invuln_ticks` để dựng tình huống.
 - Event `night_start` ghi ở tick 1 (test có dung sai ±2 tick).
+
+## Phase 2 — Ticket-02 + Contract v1.1
+
+Số chuẩn và bản đồ chuẩn thay toàn bộ giả định số liệu của Phase 1. Spec và tiêu chí nghiệm thu: [spec-phase2.md](spec-phase2.md).
+
+### Giả định cho chỗ ticket chưa nói
+| # | Chỗ mơ hồ | Giả định |
+|---|---|---|
+| B1 | "Tăng tốc/dừng trong ≤ 0.1 s" | Đạt tốc độ ngay trong 1 tick (0 s ≤ 0.1 s). |
+| B2 | Bóng Mực ở trạng thái wander | Bay chậm 1.5 m/s tới một điểm ngẫu nhiên (seed) cách 2–6 m. |
+| B3 | Độ cao Bóng Mực / Gió Lạc | Lơ lửng cố định trên mặt đất bên dưới (Bóng Mực giữ khoảng cao lúc tạo, mặc định 1 m); bay được qua vách và biển mây. "Chênh cao" khi chạm = y tâm bóng − y chân Mây. |
+| B4 | Bóng Mực ở trạng thái nào thì gây hit | Chỉ wander/chase và không đang bị đẩy khỏi vùng sáng. |
+| B5 | Sau choáng / recoil | Về chase nếu cách ≤ 12 m, ngược lại wander. |
+| B6 | Mục tiêu của Tỏa Sáng | Mọi Bóng Mực trong 5 m (3D), kể cả đang spawning/recoil. Gió Lạc idle không bị ảnh hưởng. |
+| B7 | Rơi khỏi đảo: trường `dropped` / `lost` | `dropped: 0` (không rơi ra đất), `lost` = số đom đóm mất. Khi chờ hồi sinh, Mây đứng yên tại chỗ rơi, không nhặt, không bị chạm. |
+| B8 | Bục nhảy kích hoạt khi nào | Mây đứng trên mặt đất, XZ ≤ 1 m tâm bục, cùng độ cao bục. |
+| B9 | Vách / dốc | Mặt cao hơn chân Mây > 0.35 m là vách (trượt theo trục còn lại). Dốc tuyến tính; bước xuống mép tầng thì rơi tự do xuống tầng dưới (không phải "rơi khỏi đảo"). |
+| B10 | Gió | Cơn đầu ở sim tick 1800, rồi mỗi 1800; hướng ngẫu nhiên theo seed (độ nguyên); `dir_deg` là `null` khi không có gió. Chỉ Đêm 3. |
+| B11 | Gió Lạc "tối đa 2 con" | Tối đa 2 con chưa `removed` cùng lúc. Điểm sinh = điểm sinh Bóng Mực ("điểm sương"). Không có event khi Gió Lạc xuất hiện (contract không có). |
+| B12 | Đom đóm "điểm trống" | Điểm chưa có đom đóm random đứng trên đó. "Dưới 30" tính mọi đom đóm (cả loại rơi). |
+| B13 | Bóng Mực sinh khi chưa có điểm cách người chơi ≥ 15 m | Bỏ lượt. |
+| B14 | Scenario v1.1 | `motes` nhận `[x,y,z]` hoặc `{pos, kind, ttl_s}`. `charms[]` nhận `{id, pos?, available?, respawn_ticks?\|respawn_s?}`. `drifters[]` nhận `{id?, pos, state?, stolen?}`. Trạng thái lạ → mã 2. |
+| B15 | Pause trong snapshot / end | `state: "paused"`; dòng `end` cũng có thể là `paused`. |
+| B16 | Tổng điểm game | Giao diện cộng điểm các Đêm đã thắng. Headless chạy một Đêm nên `score` là điểm của Đêm đó. |

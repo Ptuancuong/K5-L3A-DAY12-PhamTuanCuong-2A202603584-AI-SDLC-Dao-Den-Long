@@ -16,46 +16,54 @@ npm start          # mở http://localhost:4173 trong trình duyệt
 
 ## Điều khiển
 
-| Phím            | Hành động                                                         |
-| --------------- | ----------------------------------------------------------------- |
-| W A S D         | Đi (theo hướng camera)                                            |
-| Kéo chuột / ← → | Xoay camera                                                       |
-| Space           | Nhảy                                                              |
-| E               | Nạp đom đóm vào Đèn Lồng Lớn gần nhất (trong 3 m)                 |
-| F               | Tỏa sáng: tốn 2 đom đóm, làm choáng và đẩy lùi Bóng Mực trong 8 m |
-| R / Enter       | Chơi lại khi thắng hoặc thua (Shift+R: chơi lại ngay)             |
+| Phím | Hành động |
+|---|---|
+| W A S D | Đi (theo hướng camera) |
+| Kéo chuột / ← → | Xoay camera (độ nhạy chỉnh trong Cài đặt) |
+| Space | Nhảy |
+| Shift | Lướt (14 m/s trong 0.2 s, hồi chiêu 1.5 s) |
+| E | Nạp ánh sáng vào Đèn Lồng Lớn gần nhất (trong 2 m) |
+| F | Tỏa Sáng: tốn 3 đom đóm, làm choáng và đẩy lùi Bóng Mực trong 5 m |
+| Esc / P | Tạm dừng (Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu) |
+| Enter / R | Ở màn kết quả: Đêm kế tiếp / chơi lại Đêm |
 
-## Luật chơi và cách tính điểm
+## Ba Đêm
 
-- Đi qua đom đóm (≤ 1.5 m) là nhặt, mang tối đa **10**. Mỗi đèn cần **5** đom đóm.
-- Bóng Mực đuổi theo Mây (4 m/s, Mây chạy 6 m/s). Bị chạm (≤ 1 m): mất **1 ngọn lửa** và đánh rơi **một nửa** số đom đóm
-  đang mang (làm tròn xuống), sau đó bất tử 1.5 s. Mây có **3 ngọn lửa**.
-- Bóng Mực **không vào được vòng sáng 6 m** quanh một đèn **đã thắp**.
-- Đêm dài **300 s**. Thắp đủ 5 đèn thì **thắng**. Hết lửa hoặc trời sáng mà chưa thắp đủ thì **thua**.
+| Đêm | Đảo | Thời gian | Đèn | Điểm mới |
+|---|---|---|---|---|
+| 1 | Đảo Bến: đảo tròn 40 m | 300 s | 5 | |
+| 2 | Đảo Cau: hai đảo nối bằng cầu tre | 330 s | 6 | Bục nhảy, Gió Lạc, Bùa Gió |
+| 3 | Đảo Chuông: 3 tầng, dốc, tháp chuông | 360 s | 7 | Gió mạnh mỗi 30 s, Bóng Mực nhanh hơn |
 
-| Sự kiện                                      | Điểm |
-| -------------------------------------------- | ---- |
-| Nhặt 1 đom đóm                               | +10  |
-| Thắp 1 đèn                                   | +100 |
-| Mỗi Bóng Mực bị làm choáng bằng tỏa sáng     | +25  |
-| Khi thắng: mỗi giây còn lại (làm tròn xuống) | +2   |
-| Khi thắng: mỗi ngọn lửa còn lại              | +50  |
+## Luật chơi và cách tính điểm (số chuẩn Ticket-02)
 
-Mọi con số nằm trong [game.contract.json](game.contract.json). Code đọc trực tiếp từ file này nên con số khai báo luôn trùng với con số game dùng.
-`fall_enabled = false`: đảo có mép chắn, Mây không thể rơi (không có sự kiện `player_hit` với `by: "fall"`). Không có trường tuning nào là `null`.
+- Đi qua đom đóm (≤ 1 m) là nhặt, mang tối đa **10**. Mỗi đèn cần **10** đom đóm, nạp nhiều lần được.
+- Bóng Mực hiện ra (1 s), lang thang, thấy Mây trong 12 m thì đuổi (4 m/s, Đêm 3: 4.5), cách 18 m thì bỏ.
+  Bị chạm: mất **1 Ngọn Lửa**, rơi **một nửa** đom đóm ra quanh Mây (nhặt lại được trong 8 s), bất tử 1.5 s.
+- **Gió Lạc** (Đêm 2, 3) đuổi khi Mây mang ≥ 5 đom đóm, chạm thì cướp 3. Tỏa Sáng làm nó bỏ chạy hoặc đánh rơi đồ đã cướp.
+- **Bùa Gió**: 10 s chạy nhanh 7.2 m/s và lướt không hồi chiêu.
+- Rơi khỏi đảo: mất 1 Ngọn Lửa và toàn bộ đom đóm, hồi sinh ở điểm xuất phát.
+- Bóng Mực không vào được vòng sáng 6 m quanh đèn đã thắp.
 
-## Giả định chính (đầy đủ: [docs/notes/assumptions.md](docs/notes/assumptions.md))
+| Sự kiện | Điểm |
+|---|---|
+| Nạp 1 đom đóm | +10 |
+| Thắp 1 đèn | +100 |
+| Mỗi Bóng Mực trúng Tỏa Sáng | +5 |
+| Khi thắng: mỗi giây còn lại (làm tròn xuống) | +2 |
+| Khi thắng: mỗi Ngọn Lửa còn lại | +50 |
 
-- **Nhặt đom đóm:** tự động khi trong `pickup_radius`. Khi đã mang đủ `carry_capacity` thì đi qua **không nhặt**, đom đóm vẫn nằm đó.
-- **Nạp đèn:** bấm E cạnh đèn chưa thắp gần nhất, nạp `min(carried, lantern_cost − deposited)`, phần dư giữ lại.
-- **Tỏa sáng:** tốn `pulse_cost` đom đóm. Không đủ hoặc đang hồi chiêu thì không kích hoạt và không có event `pulse`.
-- **Bị chạm:** `dropped = floor(carried × hit_drop_ratio)`. Đom đóm rơi **biến mất** (không thành mote trên đất).
-- **Vùng an toàn:** chỉ quanh đèn **đã thắp**. Bóng Mực (kể cả đang choáng) bị đẩy ra ngay mép vùng ở mỗi tick, kể cả tick đèn vừa thắp.
-- **Điểm:** thưởng thời gian và lửa chỉ cộng khi **thắng**, cộng ngay ở tick có `game_over`. Khi thua không có thưởng.
-- **Thứ tự trong một tick:** di chuyển → nhặt → nạp đèn (→ thắng?) → Bóng Mực di chuyển → tỏa sáng → bị chạm → sinh thêm → bình minh.
-  Event ghi trước snapshot cùng tick. Dòng `end` luôn là dòng cuối.
+Tổng điểm game là tổng điểm các Đêm đã thắng. Mọi con số nằm trong [game.contract.json](game.contract.json) (contract v1.1). Code đọc trực tiếp file này.
 
-## Chế độ headless (Test Contract v1.0)
+## Giả định chính
+
+Đầy đủ ở [docs/notes/assumptions.md](docs/notes/assumptions.md); tiêu chí nghiệm thu Phase 2 ở [docs/notes/spec-phase2.md](docs/notes/spec-phase2.md).
+- Khi đã mang đủ 10 thì đi qua đom đóm **không nhặt**. Đom đóm rơi khi bị đánh nằm trên đất 480 tick.
+- Bóng Mực wander bay chậm 1.5 m/s. Bóng Mực và Gió Lạc lơ lửng trên mặt đất bên dưới, bay qua vách được.
+- Thưởng thời gian và lửa chỉ cộng khi thắng, ngay ở tick `game_over`.
+- Thứ tự trong một tick theo đúng 12 bước của Ticket-02; event ghi trước snapshot cùng tick; `end` luôn là dòng cuối.
+
+## Chế độ headless (Test Contract v1.1)
 
 ```bash
 npm ci && npm run build                               # build_cmd
@@ -68,9 +76,10 @@ Mã thoát: `0` thành công · `2` file inputs/scenario sai định dạng · `
 ## Kiểm thử và bằng chứng
 
 ```bash
-npm test                    # typecheck + unit test + 19 scenario headless + tính tất định + mã lỗi CLI
-npm run verify -- phase-1   # chạy mọi scenario qua CLI thật, ghi docs/proof/phase-1/verify-report.md
-npm run shot -- phase-1     # (cần: npx playwright install chromium) chụp ảnh game thật
+npm test                    # typecheck + unit test + 45 scenario headless + tính tất định + mã lỗi CLI
+npm run verify -- phase-2   # chạy mọi scenario qua CLI thật, ghi docs/proof/phase-2/verify-report.md
+node scripts/mutation-check.mjs phase-2   # đổi từng số tuning, chứng minh test có thể đỏ
+npm run shot -- phase-2     # (cần: npx playwright install chromium) chụp ảnh game thật
 ```
 
 - Bảng truy vết yêu cầu → bằng chứng: [docs/proof/README.md](docs/proof/README.md)
@@ -90,7 +99,10 @@ Phase 1 ưu tiên phần lõi. Các chi tiết nhỏ chỉ có ở lớp hiển 
 - Vòng tiến độ quanh đèn chưa thắp cho thấy đã nạp bao nhiêu/5. Đèn đã thắp có vòng sáng vẽ đúng `safe_radius`.
 - Sương tan dần và bầu trời sáng lên theo số đèn đã thắp.
 
-Bằng chứng phần cũ vẫn đúng: toàn bộ scenario headless đạt (xem [verify-report](docs/proof/phase-1/verify-report.md)).
+- Lời thoại riêng của Ông Đăng ở màn giới thiệu từng Đêm và màn Bình Minh.
+- Âm thanh tổng hợp hoàn toàn bằng WebAudio (không dùng file âm thanh ngoài).
+
+Bằng chứng phần lõi vẫn đúng: toàn bộ scenario headless đạt (xem [verify-report](docs/proof/phase-2/verify-report.md)). Mọi phần thêm chỉ nằm ở `src/render/`, không đổi output headless.
 
 ## Cấu trúc
 

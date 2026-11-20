@@ -26,3 +26,29 @@ Mọi bằng chứng tái lập được ở tag tương ứng: `npm ci && npm r
 | 17  | Test không "luôn đạt"                                      | Cố tình đổi `pickup_radius` và `invuln_s`        | [mutation-check.txt](phase-1/mutation-check.txt): 2 scenario đỏ đúng chỗ                                                              | Đạt                     |
 
 Máy chạy bằng chứng: xem [phase-1/env.txt](phase-1/env.txt).
+
+## Phase 2 (tag `phase-2`) — Ticket-02, Contract v1.1
+
+Chi tiết tiêu chí nghiệm thu từng mục: [docs/notes/spec-phase2.md](../notes/spec-phase2.md).
+Báo cáo chạy: [phase-2/verify-report.md](phase-2/verify-report.md) (45 scenario + tất định 3 Đêm) · [phase-2/mutation-check.md](phase-2/mutation-check.md) · [ảnh](phase-2/screenshots/README.md).
+
+| # | Yêu cầu | Cách kiểm chứng | Bằng chứng | Kết quả |
+|---|---|---|---|---|
+| 1 | Số liệu chuẩn trong contract v1.1, code dùng đúng số đó | Unit test + mutation check | `core.test.ts › contract file v1.1`, mutation-check 0/9 lọt | Đạt |
+| 2 | Hồi quy Phase 1 với số chuẩn | 18 scenario `p1-*` tính lại bằng tay; 1 scenario nghỉ hưu có lý do | verify-report, [tests/scenarios/_retired](../../tests/scenarios/_retired/README.md) | Đạt |
+| 3 | Thứ tự 12 bước trong tick, pause đóng băng | Scenario | `p2-pause`, `p2-safe-evict`, `p2-drifter-pulse-*` | Đạt |
+| 4 | Lướt | Scenario | `p2-dash`, `p2-dash-air` | Đạt |
+| 5 | Bóng Mực: trạng thái, lịch sinh, recoil, vùng an toàn | Scenario + unit | `p2-shade-*`, `p1-safe-radius`, `p2-safe-evict` | Đạt |
+| 6 | Bị đánh rơi đom đóm ra vành, TTL 480 | Scenario | `p2-drop-ttl` | Đạt |
+| 7 | Rơi khỏi đảo, hồi sinh, thua khi hết lửa | Scenario | `p2-fall-respawn`, `p2-fall-last-flame` | Đạt |
+| 8 | Đêm 2: hai đảo, cầu, bục nhảy | Scenario + ảnh | `p2-night2-*`, ảnh 09 | Đạt |
+| 9 | Đêm 3: tầng, vách, dốc, bục, tháp, gió | Scenario + unit + ảnh | `p2-night3-*`, `core.test.ts › standard maps`, ảnh 11, 12 | Đạt |
+| 10 | Gió Lạc | Scenario + ảnh | `p2-drifter-*`, ảnh 10 | Đạt |
+| 11 | Bùa Gió | Scenario + ảnh | `p2-charm`, ảnh 09, 12 | Đạt |
+| 12 | Chuỗi 3 Đêm, giới thiệu, kết quả, Bình Minh | Playwright | ảnh 01, 02, 13, 14, 15 | Đạt |
+| 13 | Tạm dừng + menu, Cài đặt lưu giữa các lần mở | Playwright + scenario | `p2-pause`, ảnh 07, 08 | Đạt (lưu `localStorage`: kiểm tay) |
+| 14 | Âm thanh (nhạc nền + 10 loại hiệu ứng) | Code review + nghe thử | `src/render/audio.ts` | Chưa có bằng chứng ghi âm; sẽ có trong video Phase 4 |
+| 15 | HUD đầy đủ, bảng màu chuẩn, ánh sáng môi trường theo công thức | Ảnh + code | ảnh 03, 04, 05, 16; hằng `C`, `ambient.intensity` trong `src/render/main.ts` | Đạt |
+| 16 | Headless một Đêm đầy đủ (21 600 tick) ≤ 30 s | Unit test đo thời gian cả 3 Đêm | `core.test.ts › performance` | Đạt |
+| 17 | ≥ 30 FPS trung bình ở 1280×720 | Bộ đếm FPS trong game (`?fps=1`) trên máy thật | — | **Chưa đo**: ảnh chụp chạy bằng WebGL phần mềm nên không đại diện. Cần đo trên máy có GPU |
+| 18 | Mỗi tính năng mới có ≥ 1 scenario headless | Danh sách scenario `p2-*` | 27 scenario `p2-*` | Đạt |

@@ -35,4 +35,25 @@ Harness: `CLAUDE.md`, skill `verify`, subagent `reviewer`, Stop hook chạy `npm
 - Phase 1 (gồm chuẩn bị + plan): khoảng 2–3 triệu token input (phần lớn đọc lại từ cache ngữ cảnh) và khoảng 50 nghìn token output.
   _Số thật: cập nhật từ `/cost` hoặc trang usage khi kết thúc phiên._
 - Cách tiết kiệm: đọc toàn bộ đề bài một lần rồi lập kế hoạch; viết core + test trong ít lượt lớn; dùng script
+
+## Phase 2
+
+### Lời nhắc chính
+- "Đã cập nhật nội dung phase 2 @docs/lab/phase-2-ticket02.md" → agent ưu tiên theo điểm: lõi contract v1.1 + test trước, giao diện sau.
+
+### Cách làm
+- Viết lại `sim.ts` theo đúng thứ tự 12 bước của ticket (comment đánh số), bản đồ tách ra `maps.ts` (dữ liệu + hàm mặt đất).
+- `scripts/gen-scenarios.mjs` là nguồn duy nhất của scenario; kỳ vọng tính tay, phép tính ghi trong `note`.
+- Harness mới: `scripts/mutation-check.mjs` đổi từng số tuning, build lại và ghi scenario nào đỏ.
+
+### Lỗi của AI và cách phát hiện
+| # | Lỗi | Phát hiện bằng | Sửa / chỉnh harness |
+|---|---|---|---|
+| 8 | Tốc độ Bóng Mực viết cứng trong `maps.ts` thay vì đọc `shade_speed` từ contract (đổi tuning không có tác dụng) | **Mutation check**: đổi `shade_speed` mà 0 scenario đỏ | Đêm 1/2 dùng `tuning.shade_speed`, chỉ Đêm 3 ghi đè 4.5; mutation check thành bước của skill `verify` |
+| 9 | Scenario chụp ảnh Bình Minh nhầm id đèn (L4/L5) nên không thắng | Mở ảnh `15-dawn` kiểm tra | Sửa scenario; nhắc lại trong skill: mở từng ảnh |
+| 10 | Chú thích ảnh 10 nói "đuổi" nhưng ảnh cho thấy đã cướp xong | Đối chiếu ảnh với chú thích | Sửa chú thích cho đúng ảnh |
+
+### Token / chi phí (ước tính)
+- Phase 2: khoảng 3–4 triệu token input (phần lớn từ cache) và khoảng 70 nghìn token output. _Số thật: cập nhật từ `/cost`._
+- Cách tiết kiệm: viết lõi + bộ sinh scenario thành vài file lớn trong ít lượt; chạy toàn bộ scenario bằng một lệnh và chỉ in phần lỗi; chụp ảnh bằng một script rồi chỉ mở các ảnh cần kiểm.
   (`verify.mjs`, `screenshot.mjs`) thay vì để agent chạy tay từng lệnh; không dùng subagent cho việc đọc/tìm.
