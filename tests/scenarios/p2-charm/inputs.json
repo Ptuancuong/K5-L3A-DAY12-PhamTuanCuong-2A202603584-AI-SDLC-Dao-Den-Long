@@ -1,0 +1,24 @@
+{
+  "frames": [
+    {
+      "tick": 20,
+      "move": [
+        1,
+        0
+      ],
+      "dash": true
+    },
+    {
+      "tick": 21,
+      "dash": false
+    },
+    {
+      "tick": 40,
+      "dash": true
+    },
+    {
+      "tick": 41,
+      "dash": false
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "note": "Standing still -> dash along facing (+Z): 12 ticks * 14/60 = 2.8 m. Cooldown 90 ticks from dash start (tick 1): press on tick 31 ignored, tick 91 works.",
+  "args": {
+    "seed": 1,
+    "ticks": 100
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "dash",
+      "data": {}
+    },
+    {
+      "tick": 91,
+      "name": "dash",
+      "data": {}
+    }
+  ],
+  "event_count": {
+    "dash": 2
+  },
+  "snapshots": [
+    {
+      "tick": 20,
+      "path": "player.pos",
+      "equals": [
+        0,
+        0,
+        2.8
+      ]
+    },
+    {
+      "tick": 20,
+      "path": "player.dash_cd_s",
+      "equals": 1.183
+    }
+  ]
+}

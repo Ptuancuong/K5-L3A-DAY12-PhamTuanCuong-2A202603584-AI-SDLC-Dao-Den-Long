@@ -1,5 +1,5 @@
 {
-  "note": "Interact fires only on false->true. Holding it does not deposit again.",
+  "note": "Interact fires only on false->true; holding does not deposit again. Lantern remembers 3/10.",
   "args": {
     "seed": 1,
     "ticks": 30

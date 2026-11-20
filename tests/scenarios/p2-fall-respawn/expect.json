@@ -1,0 +1,48 @@
+{
+  "note": "Leaves the island (r 40) on tick 1 and falls: y_k = -k(k+1)/360 < -10 first at k = 60 -> player_hit fall at tick 60 (-1 flame, lose all 4). Wait 60 ticks -> respawn at (0,0,0) on tick 120 with 90 ticks invuln.",
+  "args": {
+    "seed": 1,
+    "ticks": 130
+  },
+  "events": [
+    {
+      "tick": 60,
+      "name": "player_hit",
+      "data": {
+        "by": "fall",
+        "flames": 2,
+        "dropped": 0,
+        "lost": 4
+      }
+    }
+  ],
+  "event_count": {
+    "player_hit": 1
+  },
+  "snapshots": [
+    {
+      "tick": 90,
+      "path": "player.carried",
+      "equals": 0
+    },
+    {
+      "tick": 120,
+      "path": "player.pos",
+      "equals": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 120,
+      "path": "player.invuln",
+      "equals": true
+    },
+    {
+      "tick": 130,
+      "path": "player.flames",
+      "equals": 2
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "note": "Đêm 2 – Đảo Cau: start (0,0,0), 330 s, lanterns L1..L6 at standard positions, charm C1 available.",
+  "args": {
+    "seed": 1,
+    "ticks": 0,
+    "night": 2
+  },
+  "snapshots": [
+    {
+      "tick": 0,
+      "path": "night",
+      "equals": 2
+    },
+    {
+      "tick": 0,
+      "path": "time_left_s",
+      "equals": 330
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.length",
+      "equals": 6
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.4.pos",
+      "equals": [
+        87,
+        0,
+        -10
+      ]
+    },
+    {
+      "tick": 0,
+      "path": "charms.0.id",
+      "equals": "C1"
+    },
+    {
+      "tick": 0,
+      "path": "charms.0.available",
+      "equals": true
+    }
+  ]
+}

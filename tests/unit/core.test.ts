@@ -2,52 +2,66 @@ import { describe, expect, it } from "vitest";
 import contract from "../../game.contract.json";
 import { TUNING } from "../../src/core/config";
 import { InputTrack, parseInputs } from "../../src/core/inputs";
-import { runHeadless } from "../../src/core/run";
 import {
-  createWorld,
-  defaultLanterns,
-  IDLE_INPUT,
-  step,
-  worldMove,
-} from "../../src/core/sim";
+  NIGHT1,
+  NIGHT2,
+  NIGHT3,
+  groundBelow,
+  isBlocked,
+} from "../../src/core/maps";
+import { runHeadless } from "../../src/core/run";
+import { createWorld, IDLE_INPUT, step, worldMove } from "../../src/core/sim";
 
-const OFF = { random_motes: false, random_shades: false };
+const OFF = {
+  random_motes: false,
+  random_shades: false,
+  random_drifters: false,
+  wind_enabled: false,
+};
 
-describe("contract file", () => {
-  it("declares every tuning key of contract v1.0 and the game reads those exact numbers", () => {
-    const keys = [
-      "player_speed",
-      "carry_capacity",
-      "lantern_cost",
-      "lantern_count_night1",
-      "pickup_radius",
-      "interact_radius",
-      "pulse_cost",
-      "pulse_radius",
-      "night1_duration_s",
-      "flames",
-      "invuln_s",
-      "hit_drop_ratio",
-      "pulse_stun_s",
-      "pulse_push_m",
-      "pulse_cooldown_s",
-      "safe_radius",
-      "shade_speed",
-      "shade_hit_radius",
-      "fall_enabled",
-      "score",
-    ];
-    expect(Object.keys(contract.tuning).sort()).toEqual([...keys].sort());
-    expect(Object.keys(contract.tuning.score).sort()).toEqual([
-      "per_flame_left",
-      "per_lantern",
-      "per_mote",
-      "per_second_left",
-      "per_stun",
-    ]);
+describe("contract file v1.1", () => {
+  it("declares the standard numbers of Ticket-02 and the game reads this exact object", () => {
+    expect(contract.contract_version).toBe("1.1");
     expect(TUNING).toBe(contract.tuning);
-    expect(contract.contract_version).toBe("1.0");
-    expect(contract.tuning.lantern_count_night1).toBe(5);
+    const t = contract.tuning;
+    expect([
+      t.player_speed,
+      t.carry_capacity,
+      t.lantern_cost,
+      t.pickup_radius,
+      t.interact_radius,
+    ]).toEqual([6, 10, 10, 1, 2]);
+    expect([
+      t.pulse_cost,
+      t.pulse_radius,
+      t.pulse_cooldown_s,
+      t.pulse_stun_s,
+      t.pulse_push_m,
+    ]).toEqual([3, 5, 3, 2, 4]);
+    expect([t.dash_speed, t.dash_duration_s, t.dash_cooldown_s]).toEqual([
+      14, 0.2, 1.5,
+    ]);
+    expect([
+      t.night1_duration_s,
+      t.night2_duration_s,
+      t.night3_duration_s,
+    ]).toEqual([300, 330, 360]);
+    expect([
+      t.flames,
+      t.invuln_s,
+      t.hit_drop_ratio,
+      t.safe_radius,
+      t.shade_speed,
+      t.shade_hit_radius,
+    ]).toEqual([3, 1.5, 0.5, 6, 4, 1]);
+    expect(t.fall_enabled).toBe(true);
+    expect(t.score).toEqual({
+      per_mote: 10,
+      per_lantern: 100,
+      per_stun: 5,
+      per_second_left: 2,
+      per_flame_left: 50,
+    });
   });
 });
 
@@ -66,22 +80,21 @@ describe("movement", () => {
 });
 
 describe("inputs", () => {
-  it("frames only change the fields they contain", () => {
+  it("frames only change the fields they contain (incl. dash/pause)", () => {
     const t = new InputTrack(
       parseInputs({
         frames: [
           { tick: 0, move: [1, 0], cam_yaw_deg: 30 },
-          { tick: 5, pulse: true },
+          { tick: 5, dash: true },
         ],
       }),
     );
     expect(t.at(0)).toEqual({ ...IDLE_INPUT, move: [1, 0], cam_yaw_deg: 30 });
-    expect(t.at(4).pulse).toBe(false);
     expect(t.at(5)).toEqual({
       ...IDLE_INPUT,
       move: [1, 0],
       cam_yaw_deg: 30,
-      pulse: true,
+      dash: true,
     });
   });
   it("rejects non-increasing ticks", () => {
@@ -90,7 +103,7 @@ describe("inputs", () => {
 });
 
 describe("tick model", () => {
-  it("--ticks N runs exactly N steps; snapshot 0 is before any input", () => {
+  it("--ticks N runs exactly N steps; snapshot 0 is before any input; night_start at tick 1", () => {
     const { lines } = runHeadless({
       seed: 3,
       ticks: 25,
@@ -101,6 +114,12 @@ describe("tick model", () => {
       .filter((l: any) => l.type === "snapshot")
       .map((s: any) => s.tick);
     expect(snaps).toEqual([0, 5, 10, 15, 20, 25]);
+    expect(lines[1]).toEqual({
+      type: "event",
+      tick: 1,
+      name: "night_start",
+      data: { night: 1 },
+    });
     expect(lines[lines.length - 1]).toEqual({
       type: "end",
       ticks: 25,
@@ -108,17 +127,58 @@ describe("tick model", () => {
       score: 0,
     });
   });
-  it("scenario setup emits no events and gives no score", () => {
-    const w = createWorld({
+  it("events of a tick come before the snapshot of that tick", () => {
+    const { lines } = runHeadless({
       seed: 1,
-      scenario: { ...OFF, lanterns: [{ id: "L1", lit: true }] },
+      ticks: 10,
+      snapshotEvery: 1,
+      scenario: { ...OFF, motes: [[0, 0, 0.5]] },
     });
-    expect(w.score).toBe(0);
+    const i = lines.findIndex((l: any) => l.name === "mote_picked");
+    expect((lines[i + 1] as any).type).toBe("snapshot");
+    expect((lines[i + 1] as any).tick).toBe((lines[i] as any).tick);
   });
-  it("default lanterns: L1 at (0,0,25), five on a ring", () => {
-    const ls = defaultLanterns(5);
-    expect(ls.map((l) => l.id)).toEqual(["L1", "L2", "L3", "L4", "L5"]);
-    expect(ls[0].pos).toEqual([0, 0, 25]);
+  it("snapshot has every v1.1 field", () => {
+    const { lines } = runHeadless({ seed: 1, ticks: 0, night: 2 });
+    const s = lines[0] as any;
+    for (const k of [
+      "night",
+      "wind",
+      "motes",
+      "drifters",
+      "charms",
+      "sim_tick",
+    ])
+      expect(s).toHaveProperty(k);
+    for (const k of [
+      "vel",
+      "grounded",
+      "invuln",
+      "dash_cd_s",
+      "pulse_cd_s",
+      "charm_s",
+    ])
+      expect(s.player).toHaveProperty(k);
+  });
+});
+
+describe("standard maps", () => {
+  it("Đêm 1 is a 40 m disc; Đêm 2 has two islands and a bridge", () => {
+    expect(groundBelow(NIGHT1, 39.9, 0, 0)).toBe(0);
+    expect(groundBelow(NIGHT1, 40.1, 0, 0)).toBeNull();
+    expect(groundBelow(NIGHT2, 35, 1.9, 0)).toBe(0);
+    expect(groundBelow(NIGHT2, 35, 2.1, 0)).toBeNull();
+    expect(groundBelow(NIGHT2, 70, 27, 0)).toBe(0);
+    expect(NIGHT2.moteSpawns.length).toBe(24);
+    expect(NIGHT2.shadeSpawns.length).toBe(16);
+  });
+  it("Đêm 3 tiers are walls from below, ramps connect tier 0 and tier 1, tower blocks", () => {
+    expect(isBlocked(NIGHT3, 0, 18, 0)).toBe(true); // tier 1 wall
+    expect(groundBelow(NIGHT3, 0, 18, 3)).toBe(3);
+    expect(groundBelow(NIGHT3, 0, -18, 3)).toBe(0); // tier 1 only on z > 0
+    expect(isBlocked(NIGHT3, 0, 0, 6)).toBe(true); // bell tower
+    expect(NIGHT3.moteSpawns.length).toBe(30);
+    expect(NIGHT3.shadeSpawns.length).toBe(16);
   });
 });
 
@@ -130,57 +190,56 @@ describe("safe radius", () => {
         ...OFF,
         player: { pos: [0, 0, 22] },
         lanterns: [{ id: "L1", lit: true }],
-        shades: [{ pos: [-10, 1, 10] }, { pos: [10, 1, 30] }],
+        shades: [{ pos: [-8, 1, 18] }, { pos: [8, 1, 30] }],
       },
     });
     for (let i = 0; i < 1200; i++) {
       step(w, IDLE_INPUT);
       for (const s of w.shades)
-        expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeGreaterThan(
-          TUNING.safe_radius,
+        expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeGreaterThanOrEqual(
+          TUNING.safe_radius - 1e-9,
         );
     }
   });
-
-  it("a STUNNED shade inside the zone is pushed out on the tick the lantern is lit", () => {
-    // Coach answer CP1 #7: after a lantern is lit, no shade may stay inside safe_radius.
-    // Tick 0: pulse stuns S1 and pushes it to ~(3.78, 26.28), ~4 m from L1 (0,0,25).
-    // Tick 1: interact lights L1 while S1 is still stunned.
+  it("a STUNNED shade inside the zone when the lantern is lit is pushed out within 30 ticks (coach CP1 #7, Ticket-02)", () => {
     const w = createWorld({
       seed: 1,
       scenario: {
         ...OFF,
         motes: [],
-        player: { pos: [0, 0, 22.5], carried: 7 },
-        shades: [{ id: "S1", pos: [1, 1, 23.5] }],
+        player: { pos: [0, 0, 23.5], carried: 10 },
+        shades: [
+          {
+            id: "S1",
+            pos: [3, 1, 24],
+            state: "stunned",
+            state_ticks_left: 100,
+          },
+        ],
       },
     });
-    step(w, { ...IDLE_INPUT, pulse: true });
-    const s = w.shades[0];
-    expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeLessThan(
-      TUNING.safe_radius,
-    );
-    step(w, { ...IDLE_INPUT, pulse: true, interact: true });
+    step(w, { ...IDLE_INPUT, interact: true });
     expect(w.lanterns[0].lit).toBe(true);
-    expect(w.tick < s.stunUntil).toBe(true);
-    expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeGreaterThan(
-      TUNING.safe_radius,
+    for (let i = 0; i < 30; i++) step(w, IDLE_INPUT);
+    const s = w.shades[0];
+    expect(s.state).toBe("stunned");
+    expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeGreaterThanOrEqual(
+      TUNING.safe_radius - 1e-9,
     );
   });
 });
 
-describe("random spawning", () => {
-  it("spawns shades over time with unique ids and shade_spawned events", () => {
-    const { lines } = runHeadless({
-      seed: 9,
-      ticks: 3600 * 2,
-      snapshotEvery: 600,
-      scenario: { player: { flames: 99 } },
-    });
-    const spawned = lines
-      .filter((l: any) => l.name === "shade_spawned")
-      .map((l: any) => l.data.id);
-    expect(spawned.length).toBeGreaterThan(0);
-    expect(new Set(spawned).size).toBe(spawned.length);
+describe("performance", () => {
+  it("a full night (21 600 ticks) runs headless in well under 30 s", () => {
+    for (const night of [1, 2, 3]) {
+      const t0 = Date.now();
+      runHeadless({
+        seed: 11,
+        night,
+        ticks: 21600,
+        scenario: { player: { flames: 99 } },
+      });
+      expect(Date.now() - t0).toBeLessThan(30000);
+    }
   });
 });

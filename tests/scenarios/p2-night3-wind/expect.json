@@ -1,0 +1,43 @@
+{
+  "note": "Đêm 3 gust: starts at sim tick 1800 for 300 ticks (inactive again at 2100), pushes 2 m/s (~10 m unless a wall stops it).",
+  "args": {
+    "seed": 4,
+    "ticks": 2110,
+    "night": 3
+  },
+  "snapshots": [
+    {
+      "tick": 1790,
+      "path": "wind.active",
+      "equals": false
+    },
+    {
+      "tick": 1800,
+      "path": "wind.active",
+      "equals": true
+    },
+    {
+      "tick": 2090,
+      "path": "wind.active",
+      "equals": true
+    },
+    {
+      "tick": 2100,
+      "path": "wind.active",
+      "equals": false
+    }
+  ],
+  "xz_dist": [
+    {
+      "tick": 2100,
+      "path": "player.pos",
+      "to": [
+        0,
+        0,
+        -15
+      ],
+      "min": 6.5,
+      "max": 10.01
+    }
+  ]
+}

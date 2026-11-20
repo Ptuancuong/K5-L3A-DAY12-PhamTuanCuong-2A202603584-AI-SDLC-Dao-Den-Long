@@ -1,0 +1,62 @@
+{
+  "note": "Pause on tick 1: tick keeps counting but sim_tick/time freeze; resume on tick 31 (sim runs again).",
+  "args": {
+    "seed": 1,
+    "ticks": 40
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "night_start",
+      "data": {
+        "night": 1
+      }
+    },
+    {
+      "tick": 1,
+      "name": "paused",
+      "data": {}
+    },
+    {
+      "tick": 31,
+      "name": "resumed",
+      "data": {}
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "state",
+      "equals": "paused"
+    },
+    {
+      "tick": 10,
+      "path": "sim_tick",
+      "equals": 0
+    },
+    {
+      "tick": 10,
+      "path": "time_left_s",
+      "equals": 300
+    },
+    {
+      "tick": 40,
+      "path": "state",
+      "equals": "playing"
+    },
+    {
+      "tick": 40,
+      "path": "sim_tick",
+      "equals": 10
+    },
+    {
+      "tick": 40,
+      "path": "time_left_s",
+      "equals": 299.833
+    }
+  ],
+  "end": {
+    "ticks": 40,
+    "state": "playing"
+  }
+}

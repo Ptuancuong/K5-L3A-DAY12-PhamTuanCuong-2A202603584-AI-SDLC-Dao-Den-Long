@@ -1,5 +1,5 @@
 {
-  "note": "Player 1 m from L1 (interact_radius 3) with 5 = lantern_cost motes. Interact at tick 0 -> deposit + lit at tick 1, +100.",
+  "note": "v1.1: lantern_cost 10, interact 2 m (player 1 m from L1). 10 deposited -> lit. Score 10*10 + 100 = 200.",
   "args": {
     "seed": 1,
     "ticks": 10
@@ -10,8 +10,8 @@
       "name": "deposit",
       "data": {
         "lantern_id": "L1",
-        "amount": 5,
-        "deposited": 5
+        "amount": 10,
+        "deposited": 10
       }
     },
     {
@@ -36,6 +36,6 @@
   ],
   "end": {
     "state": "playing",
-    "score": 100
+    "score": 200
   }
 }

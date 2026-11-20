@@ -1,0 +1,65 @@
+{
+  "note": "Đêm 1 schedule: 2 shades at tick 300 (S1, S2), then 1 per 480 ticks (tick 780 -> S3). New shades are \"spawning\" for 60 ticks, then \"wander\" (spawn points are >= 15 m away).",
+  "args": {
+    "seed": 3,
+    "ticks": 800
+  },
+  "events": [
+    {
+      "tick": 300,
+      "name": "shade_spawned",
+      "data": {
+        "id": "S1"
+      }
+    },
+    {
+      "tick": 300,
+      "name": "shade_spawned",
+      "data": {
+        "id": "S2"
+      }
+    },
+    {
+      "tick": 780,
+      "name": "shade_spawned",
+      "data": {
+        "id": "S3"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 290,
+      "path": "shades.length",
+      "equals": 0
+    },
+    {
+      "tick": 300,
+      "path": "shades.0.state",
+      "equals": "spawning"
+    },
+    {
+      "tick": 350,
+      "path": "shades.1.state",
+      "equals": "spawning"
+    },
+    {
+      "tick": 360,
+      "path": "shades.0.state",
+      "equals": "wander"
+    }
+  ],
+  "xz_dist": [
+    {
+      "tick": 300,
+      "path": "shades.0.pos",
+      "to": [
+        0,
+        0,
+        0
+      ],
+      "min": 36.99,
+      "max": 37.01
+    }
+  ]
+}

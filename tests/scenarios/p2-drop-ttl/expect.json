@@ -1,0 +1,58 @@
+{
+  "note": "Hits at 1 (drop 3), 91 (drop 1), 181 (drop 1), 271 (drop 0). Dropped motes land 1.5-2.5 m away and live 480 ticks: the first 3 vanish at tick 481.",
+  "args": {
+    "seed": 1,
+    "ticks": 500
+  },
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "motes_active",
+      "equals": 3
+    },
+    {
+      "tick": 10,
+      "path": "motes.0.kind",
+      "equals": "dropped"
+    },
+    {
+      "tick": 10,
+      "path": "motes.0.ttl_s",
+      "equals": 7.85
+    },
+    {
+      "tick": 470,
+      "path": "motes_active",
+      "equals": 5
+    },
+    {
+      "tick": 490,
+      "path": "motes_active",
+      "equals": 2
+    }
+  ],
+  "xz_dist": [
+    {
+      "tick": 10,
+      "path": "motes.0.pos",
+      "to": [
+        0,
+        0,
+        0
+      ],
+      "min": 1.5,
+      "max": 2.5
+    },
+    {
+      "tick": 10,
+      "path": "motes.2.pos",
+      "to": [
+        0,
+        0,
+        0
+      ],
+      "min": 1.5,
+      "max": 2.5
+    }
+  ]
+}

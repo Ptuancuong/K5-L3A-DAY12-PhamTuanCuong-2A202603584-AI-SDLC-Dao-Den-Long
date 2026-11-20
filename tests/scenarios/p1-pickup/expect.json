@@ -1,12 +1,12 @@
 {
-  "note": "Moving +Z at 6 m/s = 0.1 m/tick. Pickup when 5 - z <= 1.5, i.e. z = 3.5 after 35 steps -> event tick 35.",
+  "note": "v1.1: pickup_radius 1.0 -> picked when z >= 4 (40 steps of 0.1 m) -> tick 40. Score 0: points now come from DEPOSITING (+10/mote), not picking up.",
   "args": {
     "seed": 1,
     "ticks": 60
   },
   "events": [
     {
-      "tick": 35,
+      "tick": 40,
       "name": "mote_picked",
       "data": {
         "carried": 1
@@ -26,12 +26,12 @@
     {
       "tick": 60,
       "path": "score",
-      "equals": 10
+      "equals": 0
     }
   ],
   "end": {
     "state": "playing",
     "ticks": 60,
-    "score": 10
+    "score": 0
   }
 }

@@ -1,0 +1,24 @@
+{
+  "note": "Shade 11 m away (<= 12) -> chase. Mây runs +X at 6 m/s, shade 4 m/s: gap 11 + k/30 > 18 after k > 210 -> wander.",
+  "args": {
+    "seed": 1,
+    "ticks": 230
+  },
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "shades.0.state",
+      "equals": "chase"
+    },
+    {
+      "tick": 200,
+      "path": "shades.0.state",
+      "equals": "chase"
+    },
+    {
+      "tick": 220,
+      "path": "shades.0.state",
+      "equals": "wander"
+    }
+  ]
+}

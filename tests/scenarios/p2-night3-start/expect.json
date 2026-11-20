@@ -1,0 +1,43 @@
+{
+  "note": "Đêm 3 – Đảo Chuông: start (0,0,-15), 360 s, 7 lanterns (L1 on tier 2 at y=6), 2 charms.",
+  "args": {
+    "seed": 1,
+    "ticks": 0,
+    "night": 3
+  },
+  "snapshots": [
+    {
+      "tick": 0,
+      "path": "player.pos",
+      "equals": [
+        0,
+        0,
+        -15
+      ]
+    },
+    {
+      "tick": 0,
+      "path": "time_left_s",
+      "equals": 360
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.length",
+      "equals": 7
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.0.pos",
+      "equals": [
+        0,
+        6,
+        6
+      ]
+    },
+    {
+      "tick": 0,
+      "path": "charms.length",
+      "equals": 2
+    }
+  ]
+}

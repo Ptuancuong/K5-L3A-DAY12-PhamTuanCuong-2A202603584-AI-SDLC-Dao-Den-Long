@@ -17,7 +17,15 @@
       "pulse": false
     },
     {
-      "tick": 130,
+      "tick": 178,
+      "pulse": true
+    },
+    {
+      "tick": 179,
+      "pulse": false
+    },
+    {
+      "tick": 180,
       "pulse": true
     }
   ]

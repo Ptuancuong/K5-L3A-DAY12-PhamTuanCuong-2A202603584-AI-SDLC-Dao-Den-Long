@@ -8,9 +8,11 @@ interface Frame {
   jump?: boolean;
   interact?: boolean;
   pulse?: boolean;
+  dash?: boolean;
+  pause?: boolean;
 }
 
-const BUTTONS = ["jump", "interact", "pulse"] as const;
+const BUTTONS = ["jump", "interact", "pulse", "dash", "pause"] as const;
 
 export function parseInputs(raw: unknown): Frame[] {
   if (

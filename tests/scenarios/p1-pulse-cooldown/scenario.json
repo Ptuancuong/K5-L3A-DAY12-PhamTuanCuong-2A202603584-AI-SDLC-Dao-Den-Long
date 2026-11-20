@@ -1,9 +1,11 @@
 {
   "random_motes": false,
   "random_shades": false,
+  "random_drifters": false,
+  "wind_enabled": false,
   "motes": [],
   "shades": [],
   "player": {
-    "carried": 6
+    "carried": 9
   }
 }

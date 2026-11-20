@@ -1,5 +1,5 @@
 {
-  "note": "pulse_cost = 2 but only 1 carried: no pulse happens.",
+  "note": "pulse_cost 3 but only 2 carried: no pulse, no event. The shade (5 m <= 12) chases.",
   "args": {
     "seed": 1,
     "ticks": 20
@@ -11,7 +11,7 @@
     {
       "tick": 20,
       "path": "player.carried",
-      "equals": 1
+      "equals": 2
     },
     {
       "tick": 20,

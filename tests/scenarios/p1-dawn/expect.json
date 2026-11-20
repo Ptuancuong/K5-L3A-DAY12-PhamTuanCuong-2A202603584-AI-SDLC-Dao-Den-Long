@@ -1,5 +1,5 @@
 {
-  "note": "1 s left -> after 60 steps time_left_s = 0 -> lost at dawn.",
+  "note": "1 s left -> after 60 steps time is 0 -> lost at dawn.",
   "args": {
     "seed": 1,
     "ticks": 100

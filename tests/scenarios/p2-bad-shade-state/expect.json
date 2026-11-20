@@ -1,0 +1,8 @@
+{
+  "note": "v1.1 shade states are spawning|wander|chase|recoil|stunned -> unknown state = malformed scenario -> exit 2.",
+  "args": {
+    "seed": 1,
+    "ticks": 5
+  },
+  "exit_code": 2
+}

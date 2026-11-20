@@ -1,0 +1,51 @@
+{
+  "note": "Shade is 3.6 m from L1 when it is lit: pushed out to the 6 m edge within 30 ticks, harmless meanwhile, then held at the edge -> never hits.",
+  "args": {
+    "seed": 1,
+    "ticks": 200
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "lantern_lit",
+      "data": {
+        "lantern_id": "L1"
+      }
+    }
+  ],
+  "no_events": [
+    "player_hit"
+  ],
+  "xz_dist": [
+    {
+      "tick": 10,
+      "path": "shades.0.pos",
+      "to": [
+        0,
+        0,
+        25
+      ],
+      "max": 5.99
+    },
+    {
+      "tick": 30,
+      "path": "shades.0.pos",
+      "to": [
+        0,
+        0,
+        25
+      ],
+      "min": 5.999
+    },
+    {
+      "tick": 200,
+      "path": "shades.0.pos",
+      "to": [
+        0,
+        0,
+        25
+      ],
+      "min": 5.999
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "note": "Jump, then dash on tick 11 at y = 0.861: altitude is held for the 12 dash ticks (11..22).",
+  "args": {
+    "seed": 1,
+    "ticks": 30,
+    "snapshot_every": 1
+  },
+  "events": [
+    {
+      "tick": 11,
+      "name": "dash",
+      "data": {}
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 11,
+      "path": "player.pos.1",
+      "equals": 0.861
+    },
+    {
+      "tick": 22,
+      "path": "player.pos.1",
+      "equals": 0.861
+    },
+    {
+      "tick": 22,
+      "path": "player.pos.2",
+      "equals": 2.8
+    }
+  ]
+}

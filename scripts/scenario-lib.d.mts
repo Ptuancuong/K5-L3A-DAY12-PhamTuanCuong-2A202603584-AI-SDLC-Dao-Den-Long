@@ -11,6 +11,7 @@ export interface CliRun {
 }
 export function runCli(o: {
   seed: number | string;
+  night?: number;
   ticks: number;
   scenario?: string;
   inputs?: string;

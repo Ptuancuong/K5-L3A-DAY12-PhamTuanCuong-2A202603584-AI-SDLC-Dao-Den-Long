@@ -1,5 +1,5 @@
 {
-  "note": "Shade within 1 m hits at tick 1 (drop floor(4*0.5)=2). invuln 1.5 s = 90 ticks -> next hits at 91 and 181; flames 3 -> 0 loses.",
+  "note": "Hit at tick 1 (drop floor(4/2)=2), shade recoils, invuln 90 ticks -> hits allowed again at 91 and 181 (shade is back by then). 3 flames -> lost at 181.",
   "args": {
     "seed": 1,
     "ticks": 600

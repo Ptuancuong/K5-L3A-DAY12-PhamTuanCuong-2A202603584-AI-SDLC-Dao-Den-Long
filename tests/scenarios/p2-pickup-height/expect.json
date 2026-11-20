@@ -1,0 +1,35 @@
+{
+  "note": "Pickup needs XZ <= 1.0 AND |feet y - mote ground y| <= 1.5: the mote 2 m up is not picked, the one 1.5 m up is (tick 1).",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "mote_picked",
+      "data": {
+        "carried": 1
+      }
+    }
+  ],
+  "event_count": {
+    "mote_picked": 1
+  },
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "motes_active",
+      "equals": 1
+    },
+    {
+      "tick": 10,
+      "path": "motes.0.pos",
+      "equals": [
+        0,
+        2,
+        0.5
+      ]
+    }
+  ]
+}

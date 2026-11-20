@@ -1,6 +1,8 @@
 {
   "random_motes": false,
   "random_shades": false,
+  "random_drifters": false,
+  "wind_enabled": false,
   "motes": [],
   "shades": [],
   "player": {
@@ -9,12 +11,12 @@
       0,
       23
     ],
-    "carried": 7
+    "carried": 10
   },
   "lanterns": [
     {
       "id": "L1",
-      "deposited": 1
+      "deposited": 4
     }
   ]
 }

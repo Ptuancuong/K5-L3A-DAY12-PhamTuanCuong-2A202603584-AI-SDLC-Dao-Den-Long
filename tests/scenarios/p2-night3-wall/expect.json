@@ -1,0 +1,28 @@
+{
+  "note": "Walking +Z from (0,0,-15) hits the vertical wall of tier 2 (r = 8, y = 6): Mây stops at r ~ 8 and stays at y = 0.",
+  "args": {
+    "seed": 1,
+    "ticks": 200,
+    "night": 3
+  },
+  "snapshots": [
+    {
+      "tick": 200,
+      "path": "player.pos.1",
+      "equals": 0
+    }
+  ],
+  "xz_dist": [
+    {
+      "tick": 200,
+      "path": "player.pos",
+      "to": [
+        0,
+        0,
+        0
+      ],
+      "min": 8,
+      "max": 8.11
+    }
+  ]
+}

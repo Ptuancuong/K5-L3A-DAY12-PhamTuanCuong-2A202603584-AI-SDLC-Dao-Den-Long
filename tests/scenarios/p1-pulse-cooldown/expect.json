@@ -1,5 +1,5 @@
 {
-  "note": "Cooldown 2 s = 120 ticks after the pulse at tick 1: the press at tick 60 is ignored, the press at tick 130 works.",
+  "note": "Cooldown 3 s = 180 ticks from the pulse at tick 1 -> ready at tick 181. Presses landing on ticks 61 and 179 are ignored; tick 181 works.",
   "args": {
     "seed": 1,
     "ticks": 200
@@ -13,7 +13,7 @@
       }
     },
     {
-      "tick": 131,
+      "tick": 181,
       "name": "pulse",
       "data": {
         "stunned_ids": []
@@ -27,7 +27,12 @@
     {
       "tick": 200,
       "path": "player.carried",
-      "equals": 2
+      "equals": 3
+    },
+    {
+      "tick": 10,
+      "path": "player.pulse_cd_s",
+      "equals": 2.85
     }
   ]
 }

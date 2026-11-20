@@ -1,25 +1,37 @@
 {
-  "note": "Jump 6 m/s, gravity 20 m/s^2: in the air at tick 10, back on the ground (y = 0) by tick 40.",
+  "note": "v1.1: jump 7 m/s, gravity 20: y after 10 ticks = (70 - 10*11/6)/60 = 0.861; airtime ~0.7 s -> grounded again by tick 50.",
   "args": {
     "seed": 1,
-    "ticks": 40
+    "ticks": 50
   },
-  "snapshot_gt": [
-    {
-      "tick": 10,
-      "path": "player.pos.1",
-      "gt": 0
-    }
-  ],
   "snapshots": [
     {
-      "tick": 40,
+      "tick": 10,
+      "path": "player.pos",
+      "equals": [
+        0,
+        0.861,
+        0
+      ]
+    },
+    {
+      "tick": 10,
+      "path": "player.grounded",
+      "equals": false
+    },
+    {
+      "tick": 50,
       "path": "player.pos",
       "equals": [
         0,
         0,
         0
       ]
+    },
+    {
+      "tick": 50,
+      "path": "player.grounded",
+      "equals": true
     }
   ]
 }

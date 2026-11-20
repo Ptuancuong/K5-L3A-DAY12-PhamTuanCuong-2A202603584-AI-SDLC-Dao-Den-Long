@@ -1,0 +1,31 @@
+{
+  "note": "Falling with the last flame loses immediately (no respawn).",
+  "args": {
+    "seed": 1,
+    "ticks": 300
+  },
+  "events": [
+    {
+      "tick": 60,
+      "name": "player_hit",
+      "data": {
+        "by": "fall",
+        "flames": 0,
+        "dropped": 0,
+        "lost": 0
+      }
+    },
+    {
+      "tick": 60,
+      "name": "game_over",
+      "data": {
+        "result": "lost",
+        "reason": "no_flames"
+      }
+    }
+  ],
+  "end": {
+    "state": "lost",
+    "ticks": 60
+  }
+}

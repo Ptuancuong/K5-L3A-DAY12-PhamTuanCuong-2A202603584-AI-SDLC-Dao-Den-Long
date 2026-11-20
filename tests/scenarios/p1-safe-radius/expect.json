@@ -1,5 +1,5 @@
 {
-  "note": "Player stands at lit L1. The shade chases but stops just outside safe_radius 6 (z = 25 - 6.001), so it never hits.",
+  "note": "Player at lit L1. The shade (10 m away -> chase) is held at the 6 m edge: z = 19; never hits.",
   "args": {
     "seed": 1,
     "ticks": 600
@@ -14,7 +14,7 @@
       "equals": [
         0,
         1,
-        18.999
+        19
       ]
     }
   ]

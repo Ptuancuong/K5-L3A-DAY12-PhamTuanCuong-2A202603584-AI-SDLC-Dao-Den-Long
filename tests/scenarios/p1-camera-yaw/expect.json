@@ -1,5 +1,5 @@
 {
-  "note": "theta = 90 deg: x = 0*cos + 1*sin = 1, z = 0 -> moves +X at 0.1 m/tick.",
+  "note": "theta = 90: x = 0*cos + 1*sin = 1, z = 0 -> +X at 0.1 m/tick.",
   "args": {
     "seed": 1,
     "ticks": 10

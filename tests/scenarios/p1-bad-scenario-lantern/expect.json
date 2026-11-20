@@ -1,5 +1,5 @@
 {
-  "note": "Unknown lantern id -> malformed scenario -> exit code 2.",
+  "note": "Unknown lantern id on night 1 -> exit code 2.",
   "args": {
     "seed": 1,
     "ticks": 10

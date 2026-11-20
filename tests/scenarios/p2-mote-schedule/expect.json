@@ -1,0 +1,34 @@
+{
+  "note": "Đêm 1 has 24 mote points: 20 at start, +1 at ticks 240, 480, 720, 960 -> 24, then no free point -> stays 24.",
+  "args": {
+    "seed": 5,
+    "ticks": 1200
+  },
+  "snapshots": [
+    {
+      "tick": 0,
+      "path": "motes_active",
+      "equals": 20
+    },
+    {
+      "tick": 240,
+      "path": "motes_active",
+      "equals": 21
+    },
+    {
+      "tick": 960,
+      "path": "motes_active",
+      "equals": 24
+    },
+    {
+      "tick": 1200,
+      "path": "motes_active",
+      "equals": 24
+    },
+    {
+      "tick": 0,
+      "path": "motes.0.kind",
+      "equals": "random"
+    }
+  ]
+}

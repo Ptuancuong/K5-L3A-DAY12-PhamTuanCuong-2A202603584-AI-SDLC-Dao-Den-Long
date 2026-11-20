@@ -1,0 +1,9 @@
+{
+  "note": "--night 4 is not a night -> non-zero exit (usage error = 1).",
+  "args": {
+    "seed": 1,
+    "ticks": 5,
+    "night": 4
+  },
+  "exit_code": 1
+}

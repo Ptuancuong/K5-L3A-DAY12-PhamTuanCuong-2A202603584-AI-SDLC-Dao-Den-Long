@@ -1,0 +1,37 @@
+{
+  "note": "Pulse hits a chasing drifter (4.005 m) -> it flees without stealing.",
+  "args": {
+    "seed": 1,
+    "ticks": 60,
+    "night": 2
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "pulse",
+      "data": {
+        "stunned_ids": []
+      }
+    }
+  ],
+  "no_events": [
+    "drifter_steal"
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "drifters.0.state",
+      "equals": "flee"
+    },
+    {
+      "tick": 10,
+      "path": "drifters.0.stolen",
+      "equals": 0
+    },
+    {
+      "tick": 10,
+      "path": "player.carried",
+      "equals": 3
+    }
+  ]
+}

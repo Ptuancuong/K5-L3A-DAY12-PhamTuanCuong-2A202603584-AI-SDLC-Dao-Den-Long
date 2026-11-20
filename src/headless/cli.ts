@@ -1,4 +1,4 @@
-// <headless_cmd> --seed <int> --night 1 [--scenario f] [--inputs f] --ticks <int> --out f [--snapshot-every n]
+// <headless_cmd> --seed <int> --night 1|2|3 [--scenario f] [--inputs f] --ticks <int> --out f [--snapshot-every n]
 import { readFileSync, writeFileSync } from "node:fs";
 import { runHeadless, toJsonl } from "../core/run";
 import { ScenarioError } from "../core/sim";
@@ -58,8 +58,7 @@ function main(): number {
     const a = parseArgs(process.argv.slice(2));
     const seed = int(a, "seed", true, -Infinity)!;
     const night = int(a, "night", true, 1)!;
-    if (night !== 1)
-      throw new UsageError(`night ${night} is not available (only 1)`);
+    if (night > 3) throw new UsageError(`night ${night} is not available (1, 2, 3)`);
     const ticks = int(a, "ticks", true, 0)!;
     const every = int(a, "snapshot-every", false, 1) ?? 10;
     if (!a.out) throw new UsageError("--out is required");
@@ -67,6 +66,7 @@ function main(): number {
     const inputs = a.inputs ? readJson(a.inputs, "inputs") : undefined;
     const { lines } = runHeadless({
       seed,
+      night,
       ticks,
       snapshotEvery: every,
       scenario,

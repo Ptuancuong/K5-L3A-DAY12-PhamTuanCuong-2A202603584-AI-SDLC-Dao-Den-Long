@@ -1,5 +1,5 @@
 {
-  "note": "Shade steps to x=4.933 (<= pulse_radius 8), is stunned and pushed 4 m to 8.933. Costs 2 carried, +25. Stun 3 s = 180 ticks: stunned at ticks 1..180, chasing from 181.",
+  "note": "v1.1: cost 3, radius 5 (3D from feet+0.8: |(4,0.2,0)| = 4.005). Stun 120 ticks (ticks 1..120), push 4 m over 15 ticks (4/15 per tick): x=4+10*4/15=6.667 at tick 10, 8 at tick 20. +5 score.",
   "args": {
     "seed": 1,
     "ticks": 200
@@ -28,7 +28,16 @@
       "tick": 10,
       "path": "shades.0.pos",
       "equals": [
-        8.933,
+        6.667,
+        1,
+        0
+      ]
+    },
+    {
+      "tick": 20,
+      "path": "shades.0.pos",
+      "equals": [
+        8,
         1,
         0
       ]
@@ -39,17 +48,17 @@
       "equals": 0
     },
     {
-      "tick": 180,
+      "tick": 120,
       "path": "shades.0.state",
       "equals": "stunned"
     },
     {
-      "tick": 190,
+      "tick": 130,
       "path": "shades.0.state",
       "equals": "chase"
     }
   ],
   "end": {
-    "score": 25
+    "score": 5
   }
 }

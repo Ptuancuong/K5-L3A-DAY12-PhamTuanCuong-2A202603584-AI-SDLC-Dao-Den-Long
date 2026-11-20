@@ -1,0 +1,25 @@
+{
+  "note": "Ramp at 30 deg: start at s = 31, walk inward 0.1 m/tick. s = 24 (top, y = 3) after 70 ticks; at tick 110 s = 20 on tier 1 (y = 3).",
+  "args": {
+    "seed": 1,
+    "ticks": 110,
+    "night": 3
+  },
+  "snapshots": [
+    {
+      "tick": 40,
+      "path": "player.pos.1",
+      "equals": 1.5
+    },
+    {
+      "tick": 110,
+      "path": "player.pos.1",
+      "equals": 3
+    },
+    {
+      "tick": 110,
+      "path": "player.grounded",
+      "equals": true
+    }
+  ]
+}

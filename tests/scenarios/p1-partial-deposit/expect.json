@@ -1,5 +1,5 @@
 {
-  "note": "L1 already has 1. Only 4 more are needed, so 4 are deposited and 3 stay carried.",
+  "note": "L1 has 4/10; player exactly 2 m away (<= interact 2). Deposit min(10, 6) = 6, keep 4. Score 60 + 100.",
   "args": {
     "seed": 1,
     "ticks": 10
@@ -10,8 +10,8 @@
       "name": "deposit",
       "data": {
         "lantern_id": "L1",
-        "amount": 4,
-        "deposited": 5
+        "amount": 6,
+        "deposited": 10
       }
     },
     {
@@ -26,7 +26,12 @@
     {
       "tick": 10,
       "path": "player.carried",
-      "equals": 3
+      "equals": 4
+    },
+    {
+      "tick": 10,
+      "path": "score",
+      "equals": 160
     }
   ]
 }

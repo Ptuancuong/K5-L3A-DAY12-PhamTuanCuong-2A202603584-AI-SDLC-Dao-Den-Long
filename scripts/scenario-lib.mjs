@@ -18,9 +18,9 @@ export function listScenarios() {
 }
 
 /** Runs the CLI. Returns { code, stderr, lines, outFile }. */
-export function runCli({ seed, ticks, scenario, inputs, snapshotEvery, outFile }) {
+export function runCli({ seed, night = 1, ticks, scenario, inputs, snapshotEvery, outFile }) {
   mkdirSync(dirname(outFile), { recursive: true });
-  const args = [CLI, '--seed', String(seed), '--night', '1', '--ticks', String(ticks), '--out', outFile];
+  const args = [CLI, '--seed', String(seed), '--night', String(night), '--ticks', String(ticks), '--out', outFile];
   if (scenario) args.push('--scenario', scenario);
   if (inputs) args.push('--inputs', inputs);
   if (snapshotEvery) args.push('--snapshot-every', String(snapshotEvery));
@@ -42,6 +42,7 @@ export function checkScenario(name, outDir) {
     seed: exp.args.seed,
     ticks: exp.args.ticks,
     snapshotEvery: exp.args.snapshot_every,
+    night: exp.args.night ?? 1,
     scenario: existsSync(sc) ? sc : undefined,
     inputs: existsSync(inp) ? inp : undefined,
     outFile: join(outDir, `${name}.jsonl`),
@@ -75,6 +76,11 @@ export function checkScenario(name, outDir) {
     if (!snap) fails.push(`no snapshot at tick ${s.tick}`);
     else if (!isDeepStrictEqual(get(snap, s.path), s.equals))
       fails.push(`tick ${s.tick} ${s.path} = ${JSON.stringify(get(snap, s.path))}, expected ${JSON.stringify(s.equals)}`);
+  }
+  for (const s of exp.xz_dist ?? []) {
+    const v = get(snaps.get(s.tick), s.path);
+    const d = Array.isArray(v) ? Math.hypot(v[0] - s.to[0], v[2] - s.to[2]) : NaN;
+    if (!(d >= (s.min ?? -Infinity) && d <= (s.max ?? Infinity))) fails.push(`tick ${s.tick} xz-dist(${s.path}, ${JSON.stringify(s.to)}) = ${d}, expected [${s.min ?? '-inf'}, ${s.max ?? 'inf'}]`);
   }
   for (const s of exp.snapshot_gt ?? []) {
     const v = get(snaps.get(s.tick), s.path);

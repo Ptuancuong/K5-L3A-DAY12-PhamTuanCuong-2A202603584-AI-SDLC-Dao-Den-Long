@@ -1,0 +1,36 @@
+{
+  "note": "Pad (0,3,13): vy 12, 8 m/s towards -Z. Lands at t ~ 0.845 s, z ~ 6.2 (r <= 8) on tier 2 (y = 6).",
+  "args": {
+    "seed": 1,
+    "ticks": 90,
+    "night": 3
+  },
+  "no_events": [
+    "player_hit"
+  ],
+  "snapshots": [
+    {
+      "tick": 90,
+      "path": "player.pos.1",
+      "equals": 6
+    },
+    {
+      "tick": 90,
+      "path": "player.grounded",
+      "equals": true
+    }
+  ],
+  "xz_dist": [
+    {
+      "tick": 90,
+      "path": "player.pos",
+      "to": [
+        0,
+        0,
+        0
+      ],
+      "min": 2,
+      "max": 8
+    }
+  ]
+}

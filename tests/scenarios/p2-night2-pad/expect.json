@@ -1,0 +1,40 @@
+{
+  "note": "Standing on the pad at (20,0,18) launches Mây (vy 14, 24 m/s towards B). ~1.4 s flight lands on island B (within 28 m of (70,0,0)), no fall.",
+  "args": {
+    "seed": 1,
+    "ticks": 120,
+    "night": 2
+  },
+  "no_events": [
+    "player_hit"
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "player.grounded",
+      "equals": false
+    },
+    {
+      "tick": 120,
+      "path": "player.grounded",
+      "equals": true
+    },
+    {
+      "tick": 120,
+      "path": "player.pos.1",
+      "equals": 0
+    }
+  ],
+  "xz_dist": [
+    {
+      "tick": 120,
+      "path": "player.pos",
+      "to": [
+        70,
+        0,
+        0
+      ],
+      "max": 28
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "note": "Đêm 2: drifters D1 at tick 1200 and D2 at tick 2400 (idle), never more than 2.",
+  "args": {
+    "seed": 2,
+    "ticks": 3600,
+    "night": 2
+  },
+  "snapshots": [
+    {
+      "tick": 1190,
+      "path": "drifters.length",
+      "equals": 0
+    },
+    {
+      "tick": 1200,
+      "path": "drifters.0.id",
+      "equals": "D1"
+    },
+    {
+      "tick": 1200,
+      "path": "drifters.0.state",
+      "equals": "idle"
+    },
+    {
+      "tick": 2400,
+      "path": "drifters.1.id",
+      "equals": "D2"
+    },
+    {
+      "tick": 3600,
+      "path": "drifters.length",
+      "equals": 2
+    }
+  ]
+}

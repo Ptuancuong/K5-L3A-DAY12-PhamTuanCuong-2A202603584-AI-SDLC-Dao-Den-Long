@@ -1,0 +1,18 @@
+{
+  "note": "Two unlit lanterns at the same distance -> the smaller id (L1) gets the deposit.",
+  "args": {
+    "seed": 1,
+    "ticks": 5
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "deposit",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 3,
+        "deposited": 3
+      }
+    }
+  ]
+}

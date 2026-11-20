@@ -1,5 +1,5 @@
 {
-  "note": "carry_capacity = 10: a full player does not pick up a mote at their feet.",
+  "note": "carry_capacity 10: a full player does not pick up a mote at their feet; it stays.",
   "args": {
     "seed": 1,
     "ticks": 20

@@ -1,0 +1,40 @@
+{
+  "note": "Pulse hits a fleeing drifter carrying 3 -> drops them as dropped motes, disappears after 120 ticks.",
+  "args": {
+    "seed": 1,
+    "ticks": 130,
+    "night": 2
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "drifter_drop",
+      "data": {
+        "drifter_id": "D1",
+        "amount": 3
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "motes_active",
+      "equals": 3
+    },
+    {
+      "tick": 10,
+      "path": "motes.0.kind",
+      "equals": "dropped"
+    },
+    {
+      "tick": 10,
+      "path": "drifters.0.stolen",
+      "equals": 0
+    },
+    {
+      "tick": 130,
+      "path": "drifters.0.state",
+      "equals": "removed"
+    }
+  ]
+}

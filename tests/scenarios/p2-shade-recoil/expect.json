@@ -1,0 +1,39 @@
+{
+  "note": "After hitting, the shade recoils 2 m over 60 ticks: x = 0.4333 + 59 * 2/60 = 2.4 at tick 60, then chases again.",
+  "args": {
+    "seed": 1,
+    "ticks": 70
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "player_hit",
+      "data": {
+        "by": "shade",
+        "flames": 2,
+        "dropped": 0
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 30,
+      "path": "shades.0.state",
+      "equals": "recoil"
+    },
+    {
+      "tick": 60,
+      "path": "shades.0.pos",
+      "equals": [
+        2.4,
+        1,
+        0
+      ]
+    },
+    {
+      "tick": 70,
+      "path": "shades.0.state",
+      "equals": "chase"
+    }
+  ]
+}

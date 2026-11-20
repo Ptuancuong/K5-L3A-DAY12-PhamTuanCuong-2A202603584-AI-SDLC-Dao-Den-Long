@@ -1,0 +1,57 @@
+{
+  "note": "Charm C1 at (35,0,0) within 1 m -> picked tick 1 (600 ticks). Speed 7.2 m/s; dash has no cooldown (dashes on 21 and 41). Respawn after 2700 ticks.",
+  "args": {
+    "seed": 1,
+    "ticks": 70,
+    "night": 2
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "charm_picked",
+      "data": {
+        "charm_id": "C1",
+        "charm_ticks": 600
+      }
+    },
+    {
+      "tick": 21,
+      "name": "dash",
+      "data": {}
+    },
+    {
+      "tick": 41,
+      "name": "dash",
+      "data": {}
+    }
+  ],
+  "event_count": {
+    "dash": 2
+  },
+  "snapshots": [
+    {
+      "tick": 70,
+      "path": "player.vel",
+      "equals": [
+        7.2,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 70,
+      "path": "player.charm_s",
+      "equals": 8.85
+    },
+    {
+      "tick": 10,
+      "path": "charms.0.available",
+      "equals": false
+    },
+    {
+      "tick": 10,
+      "path": "charms.0.respawn_s",
+      "equals": 44.85
+    }
+  ]
+}

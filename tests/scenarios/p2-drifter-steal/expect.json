@@ -1,0 +1,41 @@
+{
+  "note": "Carrying 6 (>= 5) within 15 m -> chase at 7 m/s: x = 3 - 16*7/60 = 1.133 <= 1.2 on tick 16 -> steals 3. Flees 240 ticks -> removed at tick 256.",
+  "args": {
+    "seed": 1,
+    "ticks": 300,
+    "night": 2
+  },
+  "events": [
+    {
+      "tick": 16,
+      "name": "drifter_steal",
+      "data": {
+        "drifter_id": "D1",
+        "amount": 3,
+        "carried": 3
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "drifters.0.state",
+      "equals": "chase"
+    },
+    {
+      "tick": 20,
+      "path": "drifters.0.state",
+      "equals": "flee"
+    },
+    {
+      "tick": 20,
+      "path": "drifters.0.stolen",
+      "equals": 3
+    },
+    {
+      "tick": 260,
+      "path": "drifters.0.state",
+      "equals": "removed"
+    }
+  ]
+}
