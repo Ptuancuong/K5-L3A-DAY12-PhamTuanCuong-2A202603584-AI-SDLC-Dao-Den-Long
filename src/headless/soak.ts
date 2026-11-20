@@ -10,9 +10,11 @@ function arg(name: string, dflt?: string): string {
   return v;
 }
 const gc = (globalThis as { gc?: () => void }).gc;
+const mb = (b: number) => Math.round((b / 1048576) * 10) / 10;
+let heapStart: number | null = null;
 const rssMb = () => {
   gc?.();
-  return Math.round((process.memoryUsage().rss / 1048576) * 10) / 10;
+  return mb(process.memoryUsage().rss);
 };
 
 function main(): number {
@@ -35,7 +37,10 @@ function main(): number {
   for (let i = 1; i <= nights; i++) {
     try {
       const r = playSoakNight(i, seed, () => {
-        if (memStart === null) memStart = rssMb(); // after the first night has loaded
+        if (memStart === null) {
+          memStart = rssMb(); // after the first night has loaded
+          heapStart = mb(process.memoryUsage().heapUsed);
+        }
       });
       results.push(r.result);
       detail.push(r);
@@ -53,6 +58,9 @@ function main(): number {
     results,
     mem_start_mb: memStart,
     mem_end_mb: memEnd,
+    // live JS heap (after gc) at the same two moments: a leak of game state would show here
+    heap_used_start_mb: heapStart,
+    heap_used_end_mb: mb(process.memoryUsage().heapUsed),
     duration_s: Math.round((performance.now() - t0) / 100) / 10,
     seed,
     gc_exposed: gc !== undefined,

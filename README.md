@@ -111,11 +111,11 @@ Kết quả trên máy tôi ([bench.json](bench.json)): RTX 3060 Laptop, i5-1250
 ## Soak test (`soak_cmd`)
 
 ```bash
-node --expose-gc --single-threaded --max-semi-space-size=1 build/soak.mjs --seed 7 --nights 10 --out soak.json
+node --expose-gc --jitless --single-threaded --max-semi-space-size=1 build/soak.mjs --seed 7 --nights 10 --out soak.json
 ```
 
 Chạy 10 Đêm liên tiếp trong một tiến trình (1 → 2 → 3 xoay vòng), Đêm thứ i dùng seed 7 + i, input ngẫu nhiên theo seed.
-Kết quả ([soak.json](soak.json)): 0 crash, RSS 57.0 → 60.3 MB (≤ 1.2×). Vì sao dùng các cờ Node: [ADR 0002](docs/adr/0002-bench-soak-leaderboard.md).
+Kết quả ([soak.json](soak.json)): 0 crash, RSS 55.1 → 56.6 MB (≤ 1.2×). Vì sao dùng các cờ Node: [ADR 0002](docs/adr/0002-bench-soak-leaderboard.md).
 
 ## Tài liệu
 

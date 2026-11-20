@@ -18,12 +18,17 @@ nên output headless của Phase 1–3 không đổi (59 scenario và mutation c
 
 ## 2. Soak: một tiến trình Node, các cờ GC đơn luồng
 
-**Quyết định.** `soak_cmd = node --expose-gc --single-threaded --max-semi-space-size=1 build/soak.mjs`.
+**Quyết định.** `soak_cmd = node --expose-gc --jitless --single-threaded --max-semi-space-size=1 build/soak.mjs`.
 
 **Lý do (có số đo).** Chạy không cờ, RSS tăng 57 → 67–70 MB, quanh ngưỡng 1.2×, và mỗi lần chạy ra một kết quả khác.
 Trong khi đó `heapUsed` đứng yên ở khoảng 4.6 MB suốt 40 Đêm, nên đây **không phải rò bộ nhớ**. Phần tăng là bộ nhớ của các luồng
 biên dịch/GC chạy song song của V8. Lõi mô phỏng vốn chạy một luồng; tắt các luồng phụ thì RSS ổn định 57.0 → 60.2 MB
 qua 5 lần chạy, và 100 Đêm vẫn chỉ tới 63 MB. `--expose-gc` cho phép dọn rác trước mỗi lần đọc RSS, để số đo phản ánh dữ liệu còn sống.
+
+**Cập nhật sau CI (thêm `--jitless`).** Trên CI, các cờ trên vẫn chưa đủ: macOS arm64 tăng 37.3 → 51.8 MB (1.39×), Linux 41.9 → 49.5 MB (1.18×).
+Phần tăng là bộ nhớ mà trình biên dịch tối ưu (TurboFan/Maglev) cấp bằng malloc trong lần chạy đầu. macOS không trả vùng nhớ này lại cho hệ điều hành ngay,
+nên RSS giữ ở mức cao dù đã giải phóng. `--jitless` tắt JIT: cùng một mã luật, chỉ chạy bằng trình thông dịch. Trên Windows, RSS tăng chỉ còn 55.0 → 56.4 MB,
+10 Đêm vẫn chạy trong 0.5 s. `soak.json` ghi thêm `heap_used_start_mb` / `heap_used_end_mb` (heap JS còn sống sau gc), làm bằng chứng trực tiếp rằng không có rò dữ liệu game.
 
 **Hệ quả.** Chạy `node build/soak.mjs` không có cờ vẫn được (chỉ đọc RSS mà không gọi `gc()`). CI chạy đúng `soak_cmd` trên Ubuntu và macOS.
 

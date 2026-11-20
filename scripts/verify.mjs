@@ -77,7 +77,7 @@ if (Number(phase.split('-')[1]) >= 4) {
   }
   if (process.env.GITHUB_ACTIONS) {
     // CI logs need a login; annotations are public, so surface the soak numbers there.
-    const brief = soak ? `mem ${soak.mem_start_mb} -> ${soak.mem_end_mb} MB, crashes ${soak.crashes}, ${soak.duration_s} s, ${soak.node}` : `no soak.json; exit ${s.status}; ${String(s.stderr).slice(0, 300)}`;
+    const brief = soak ? `mem ${soak.mem_start_mb} -> ${soak.mem_end_mb} MB, heap ${soak.heap_used_start_mb} -> ${soak.heap_used_end_mb} MB, crashes ${soak.crashes}, ${soak.duration_s} s, ${soak.node}` : `no soak.json; exit ${s.status}; ${String(s.stderr).slice(0, 300)}`;
     console.log(`::notice title=soak ${platform()} ${arch()}::${brief}`);
   }
   check('soak_cmd --seed 7 --nights 10: exit 0, 10 results won/lost', s.status === 0 && soak?.nights === 10 && soak.results.length === 10 && soak.results.every((r) => r === 'won' || r === 'lost'));

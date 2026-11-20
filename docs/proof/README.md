@@ -87,7 +87,7 @@ Quyết định: [ADR 0002](../adr/0002-bench-soak-leaderboard.md) · [verify-re
 | 1 | Bench: cảnh chuẩn 200 Bóng Mực wander + 100 đom đóm (seed 42), L1–L3 sáng 100, Mây ở gốc; tắt sinh/sát thương/nhặt/hao dầu/kết thúc | unit `bench scene` (5 test), ảnh p4-01 | Đạt |
 | 2 | Bench: 1280×720 có cửa sổ, tắt vsync, camera bay vòng (r 30, Y 15, từ (30,15,0), ngược chiều kim đồng hồ, 15 s/vòng), 3 s khởi động, đo đúng `--duration` | `scripts/bench.mjs`, unit `camera orbit`, [bench.json](../../bench.json) (`measured_ms` 30001) | Đạt |
 | 3 | `bench.json` đủ trường, đúng công thức; avg ≥ 60, 1 % low ≥ 30, load ≤ 10 s | unit `bench.json formulas`, verify-report; máy tôi: 226 fps / 148 / 1198 ms | Đạt (máy tôi) |
-| 4 | Soak 10 Đêm một tiến trình, seed 7 + i, input ngẫu nhiên, crashes 0, mem_end ≤ 1.2 × mem_start | unit `soak`, [soak.json](../../soak.json), verify-report (chạy lại), CI chạy `soak_cmd` | Đạt (57.0 → 60.3 MB) |
+| 4 | Soak 10 Đêm một tiến trình, seed 7 + i, input ngẫu nhiên, crashes 0, mem_end ≤ 1.2 × mem_start | unit `soak`, [soak.json](../../soak.json), verify-report (chạy lại), CI chạy `soak_cmd` | Đạt (55.1 → 56.6 MB) |
 | 5 | Bảng xếp hạng: nhập tên sau Bình Minh hoặc khi thua, tên 3–12 `[A-Za-z0-9_]` (+ tiếng Việt), top 10, sắp xếp, ISO 8601 có múi giờ, lưu đĩa | unit `leaderboard` (5 test), ảnh p4-10 → p4-13 | Đạt |
 | 6 | Màn Bảng xếp hạng từ menu; `--export-leaderboard out.json` → `{"entries": [...]}` đúng thứ tự | ảnh p4-02, p4-13; [leaderboard-export.json](phase-4/leaderboard-export.json); unit chạy đúng `run_cmd`; CI | Đạt |
 | 7 | Đổi phím mọi hành động, báo trùng, khôi phục mặc định, lưu lại | unit `accessibility key map`, ảnh p4-03 → p4-06 | Đạt |

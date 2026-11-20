@@ -95,6 +95,7 @@ Harness: `CLAUDE.md`, skill `verify`, subagent `reviewer`, Stop hook chạy `npm
 | 24 | API Bảng xếp hạng nhận POST từ bất kỳ trang web nào (CSRF, DNS rebinding) | `reviewer` | Chỉ nhận Host cục bộ, Origin cùng nguồn, `Content-Type: application/json`; thêm unit test |
 | 25 | `save/` phụ thuộc thư mục đang đứng khi chạy `serve.mjs` | `reviewer` | Lưu cạnh game (thư mục gốc gói) |
 | 26 | `bench.mjs` thoát mã 1 khi trang có lỗi (ticket: thoát 0 sau khi đo) | `reviewer` | Thoát 0, ghi lỗi vào `notes` |
+| 27 | Soak đạt trên Windows nhưng trượt trên macOS CI (37.3 → 51.8 MB, 1.39×), Linux sát ngưỡng (1.18×): bộ nhớ của JIT không được trả lại cho hệ điều hành | CI đỏ; vì log CI cần đăng nhập nên cho verify in số liệu ra annotation công khai rồi đọc qua API | Thêm `--jitless` vào `soak_cmd`; `soak.json` ghi heap JS đầu/cuối (4.3 → 4.4 MB) làm bằng chứng không rò (ADR 0002) |
 | 21 | Lỗi cũ: âm báo gió phát mỗi khung hình trong tick cảnh báo (FPS cao), nhãn Cài đặt bị lặp | Đọc lại code/HTML khi thêm phụ đề | Báo một lần mỗi cơn gió; sửa nhãn |
 
 ### Token / chi phí (ước tính)

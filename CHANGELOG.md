@@ -3,13 +3,13 @@
 ## phase-4 — v1.0.0, Contract v1.3 ("Bình minh: phát hành")
 
 ### Contract
-- `contract_version` `1.2` → `1.3`. Thêm `bench_cmd` (`node scripts/bench.mjs`) và `soak_cmd` (`node --expose-gc --single-threaded --max-semi-space-size=1 build/soak.mjs`).
+- `contract_version` `1.2` → `1.3`. Thêm `bench_cmd` (`node scripts/bench.mjs`) và `soak_cmd` (`node --expose-gc --jitless --single-threaded --max-semi-space-size=1 build/soak.mjs`).
 - `run_cmd` `npm start` → `node build/serve.mjs` (`npm start` vẫn chạy lệnh này), hỗ trợ `--export-leaderboard out.json`.
 - Luật, số tuning và output headless của v1.0–v1.2 giữ nguyên: 59 scenario, tất định, mutation check 0/15 lọt.
 
 ### Thêm
 - Benchmark: cảnh chuẩn (200 Bóng Mực, 100 đom đóm, seed 42, camera bay vòng), Chromium có cửa sổ 1280×720, tắt vsync, ra `bench.json`.
-- Soak test 10 Đêm trong một tiến trình, ra `soak.json` (0 crash, RSS 57.0 → 60.3 MB).
+- Soak test 10 Đêm trong một tiến trình, ra `soak.json` (0 crash, RSS 55.1 → 56.6 MB).
 - Bảng xếp hạng cục bộ: nhập tên sau khi thua hoặc sau Bình Minh (có dấu tiếng Việt), top 10, lưu `save/leaderboard.json`, màn xem từ menu, lệnh xuất.
 - Dễ tiếp cận: đổi phím mọi hành động (báo trùng, khôi phục mặc định), phụ đề/chỉ báo (Bóng Mực + mũi tên mép màn hình, gió, 10 giây cuối, đèn < 30 dầu),
   giảm chuyển động (rung camera, chớp màn hình), chữ ≥ 18 px và tùy chọn chữ lớn ×1.25.

@@ -53,8 +53,8 @@
 - FPS và âm thanh ở Phase 2 chỉ có xác nhận tay; tới Phase 4 mới có số đo lưu lại (`bench.json`).
 
 ### Những lần AI sai và cách phát hiện
-26 lỗi được ghi trong [ai-log](ai-log.md). Theo cách phát hiện: test/scenario đỏ (5), mở ảnh (6), đối chiếu câu trả lời CP1 hoặc đọc kỹ đề (2),
-kết quả đáng ngờ (mutation "đạt" giả, `peak_mem_mb: null`, RSS dao động) (4), lỗi shell/cú pháp (4), subagent `reviewer` (5).
+27 lỗi được ghi trong [ai-log](ai-log.md). Theo cách phát hiện: test/scenario đỏ (5), mở ảnh (6), đối chiếu câu trả lời CP1 hoặc đọc kỹ đề (2),
+kết quả đáng ngờ (mutation "đạt" giả, `peak_mem_mb: null`, RSS dao động) (4), lỗi shell/cú pháp (4), subagent `reviewer` (5), CI trên hệ điều hành khác (1).
 Không có lỗi nào lọt qua tag mà về sau phải sửa luật, trừ #7 (sửa trước mốc của Phase 1, đã dời tag).
 
 ### Harness giúp nhiều nhất
