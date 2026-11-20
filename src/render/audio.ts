@@ -1,4 +1,6 @@
 // All sounds are synthesized with WebAudio (no external audio assets).
+import { sanitizeKeys, type KeyMap } from "./controls";
+
 export type Sfx =
   | "pick"
   | "lit"
@@ -139,19 +141,38 @@ export interface Settings {
   volume: number;
   sensitivity: number;
   colorblind: boolean;
+  /** Ticket-04 accessibility */
+  keys: KeyMap;
+  subtitles: boolean;
+  reducedMotion: boolean;
+  largeText: boolean;
 }
 const KEY = "dao-den-long-settings";
-export function loadSettings(): Settings {
+const prefersReduced = () => {
   try {
-    const s = JSON.parse(localStorage.getItem(KEY) ?? "{}");
-    return {
-      volume: typeof s.volume === "number" ? s.volume : 0.6,
-      sensitivity: typeof s.sensitivity === "number" ? s.sensitivity : 0.3,
-      colorblind: s.colorblind === true,
-    };
+    return matchMedia("(prefers-reduced-motion: reduce)").matches;
   } catch {
-    return { volume: 0.6, sensitivity: 0.3, colorblind: false };
+    return false;
   }
+};
+export function loadSettings(): Settings {
+  let s: Record<string, unknown> = {};
+  try {
+    s = JSON.parse(localStorage.getItem(KEY) ?? "{}") ?? {};
+  } catch {
+    s = {};
+  }
+  const bool = (k: string, d: boolean) =>
+    typeof s[k] === "boolean" ? (s[k] as boolean) : d;
+  return {
+    volume: typeof s.volume === "number" ? s.volume : 0.6,
+    sensitivity: typeof s.sensitivity === "number" ? s.sensitivity : 0.3,
+    colorblind: s.colorblind === true,
+    keys: sanitizeKeys(s.keys),
+    subtitles: bool("subtitles", true),
+    reducedMotion: bool("reducedMotion", prefersReduced()),
+    largeText: bool("largeText", false),
+  };
 }
 export function saveSettings(s: Settings) {
   try {

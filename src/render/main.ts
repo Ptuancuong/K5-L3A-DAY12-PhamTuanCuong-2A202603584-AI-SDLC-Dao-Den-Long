@@ -1,8 +1,10 @@
 // Display layer: reads core state, sends Input. Never changes game rules (same step() as headless).
 import * as THREE from "three";
 import { STD, TICK_HZ, TUNING } from "../core/config";
+import { BENCH, benchCamera, createBenchWorld } from "../core/bench";
 import { NIGHTS, TOWER, type NightDef } from "../core/maps";
 import {
+  IDLE_INPUT,
   capacity,
   createWorld,
   nextWindTick,
@@ -13,7 +15,11 @@ import {
   type Input,
   type World,
 } from "../core/sim";
+import { benchStats } from "../shared/benchStats";
+import { isoWithOffset, normalizeName, type LbEntry } from "../shared/leaderboard";
 import { Audio, loadSettings, saveSettings } from "./audio";
+import { fetchBoard, submitEntry } from "./board";
+import { ACTIONS, ACTION_LABEL, DEFAULT_KEYS, RESERVED, conflictOf, keyLabel, type Action } from "./controls";
 
 // ---------- standard palette (Ticket-02) ----------
 const C = {
@@ -43,6 +49,16 @@ const shadeEdgeColor = () => (settings.colorblind ? 0x00b3ff : C.shadeEdge);
 const needLit = () => Math.ceil(TUNING.win_ratio * world.lanterns.length - 1e-9);
 const settings = loadSettings();
 if (params.get("cb") === "1") settings.colorblind = true; // screenshots/demo
+if (params.get("big") === "1") settings.largeText = true;
+if (params.get("rm") === "1") settings.reducedMotion = true;
+// Ticket-04 benchmark scene: ?bench=1&seed=42&duration=30 (driven by scripts/bench.mjs).
+const BENCH_MODE = params.get("bench") === "1";
+const benchDuration = Number(params.get("duration") ?? 30);
+function applyA11y() {
+  document.documentElement.classList.toggle("big", settings.largeText);
+  document.documentElement.classList.toggle("rm", settings.reducedMotion);
+}
+applyA11y();
 const audio = new Audio();
 audio.setVolume(settings.volume);
 
@@ -372,6 +388,12 @@ let screen: Screen = "menu";
 let night = 1;
 let world: World;
 let wonScores: number[] = [];
+const newSeed = () => Number(params.get("seed") ?? Math.floor(Math.random() * 1e9));
+let runSeed = newSeed(); // one seed for the whole run (leaderboard entry)
+let shake = 0;
+let shadeAlert: { id: string; until: number } | null = null;
+let windWarned = -1;
+const lowFuel = new Set<string>();
 let lanternViews: LanternView[] = [];
 const moteMeshes = new Map<string, THREE.Group>();
 const shadeMeshes = new Map<string, THREE.Group>();
@@ -398,7 +420,7 @@ function show(s: string | null) {
 
 function startNight(n: number) {
   night = n;
-  const seed = Number(params.get("seed") ?? Math.floor(Math.random() * 1e9));
+  const seed = runSeed;
   const raw = params.get("scenario");
   world = createWorld({
     seed,
@@ -409,6 +431,9 @@ function startNight(n: number) {
         : undefined,
   });
   params.delete("scenario");
+  setupViews();
+}
+function setupViews() {
   buildLevel(world.n);
   for (const v of lanternViews) scene.remove(v.group);
   lanternViews = world.lanterns.map((l) => {
@@ -430,6 +455,9 @@ function startNight(n: number) {
   charmMeshes.clear();
   camYaw = 0;
   lastSecond = -1;
+  lowFuel.clear();
+  shadeAlert = null;
+  clearSubs();
 }
 function showIntro(n: number) {
   startNight(n);
@@ -454,6 +482,7 @@ function endNight() {
     $("dawn-score").textContent =
       `Tổng điểm: ${wonScores.reduce((a, b) => a + (b ?? 0), 0)}`;
     show("dawn");
+    offerSave("dawn-form-slot");
     return;
   }
   $("res-title").textContent = won ? `Đêm ${night} đã sáng!` : "Thua rồi…";
@@ -467,11 +496,95 @@ function endNight() {
     `Điểm Đêm này: ${world.score} · Tổng (các Đêm đã thắng): ${wonScores.reduce((a, b) => a + (b ?? 0), 0)}`;
   ($("res-next") as HTMLButtonElement).style.display = won ? "" : "none";
   show("result");
+  if (won) parkForm();
+  else offerSave("res-form-slot");
+}
+
+// ---------- leaderboard (Ticket-04 §3) ----------
+const runScore = () => wonScores.reduce((a, b) => a + (b ?? 0), 0);
+let saved = false;
+function parkForm() {
+  document.body.appendChild($("lb-form"));
+}
+function offerSave(slot: string) {
+  saved = false;
+  $(slot).appendChild($("lb-form"));
+  ($("lb-save") as HTMLButtonElement).disabled = false;
+  ($("lb-name") as HTMLInputElement).disabled = false;
+  $("lb-msg").textContent = `Tổng điểm các Đêm đã thắng: ${runScore()}`;
+  $("lb-msg").className = "";
+}
+async function saveScore() {
+  if (saved) return;
+  const input = $("lb-name") as HTMLInputElement;
+  const msg = $("lb-msg");
+  const name = normalizeName(input.value);
+  if (!name) {
+    msg.className = "warn";
+    msg.textContent = "Tên cần 3–12 ký tự: chữ cái (có dấu được), số hoặc dấu _.";
+    return;
+  }
+  const entry: LbEntry = {
+    name,
+    score: runScore(),
+    nights_won: wonScores.filter((v) => v !== undefined).length,
+    achieved_at: isoWithOffset(new Date()),
+    seed: runSeed,
+  };
+  saved = true;
+  ($("lb-save") as HTMLButtonElement).disabled = true;
+  input.disabled = true;
+  try {
+    const r = await submitEntry(entry);
+    msg.className = "";
+    msg.textContent = r.rank
+      ? `Đã lưu! ${name} đứng hạng #${r.rank} với ${entry.score} điểm.`
+      : `Đã lưu, nhưng ${entry.score} điểm chưa vào top 10.`;
+  } catch {
+    saved = false;
+    ($("lb-save") as HTMLButtonElement).disabled = false;
+    input.disabled = false;
+    msg.className = "warn";
+    msg.textContent = "Không lưu được tên này, thử tên khác.";
+  }
+}
+$("lb-save").addEventListener("click", () => void saveScore());
+async function showBoard() {
+  show("board");
+  const { entries, source } = await fetchBoard();
+  const body = $("board-body");
+  body.textContent = "";
+  const cell = (tr: HTMLElement, text: string, num = false) => {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (num) td.className = "num";
+    tr.appendChild(td);
+  };
+  entries.forEach((e, i) => {
+    const tr = document.createElement("tr");
+    cell(tr, String(i + 1), true);
+    cell(tr, e.name);
+    cell(tr, String(e.score), true);
+    cell(tr, `${e.nights_won}/3`, true);
+    cell(tr, new Date(e.achieved_at).toLocaleString("vi-VN"));
+    body.appendChild(tr);
+  });
+  if (!entries.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.textContent = "Chưa có ai. Chơi xong một lượt rồi lưu tên nhé!";
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
+  $("board-src").textContent =
+    source === "disk" ? "Lưu trên đĩa: save/leaderboard.json" : "Lưu trong trình duyệt (localStorage)";
 }
 function act(a: string) {
   audio.play("tick");
   if (a === "start") {
     wonScores = [];
+    runSeed = newSeed();
     showIntro(Number(params.get("night") ?? 1));
   } else if (a === "play") play();
   else if (a === "next") showIntro(night + 1);
@@ -486,7 +599,12 @@ function act(a: string) {
   else if (a === "settings") {
     settingsReturn = screen === "play" ? "pause" : "menu";
     show("settings");
-  } else if (a === "back") show(settingsReturn);
+  } else if (a === "board") void showBoard();
+  else if (a === "back") {
+    rebinding = null;
+    renderKeymap();
+    show(settingsReturn);
+  }
 }
 document
   .querySelectorAll<HTMLButtonElement>("[data-act]")
@@ -516,6 +634,113 @@ function applyColorblind() {
   for (const g of shadeMeshes.values()) for (const k of [1, 2, 3]) ((g.children[k] as THREE.Mesh).material as THREE.MeshBasicMaterial).color.setHex(shadeEdgeColor());
 }
 applyColorblind();
+for (const [id, key] of [
+  ["set-subs", "subtitles"],
+  ["set-rm", "reducedMotion"],
+  ["set-big", "largeText"],
+] as const) {
+  const el = $(id) as HTMLInputElement;
+  el.checked = settings[key];
+  el.addEventListener("change", () => {
+    settings[key] = el.checked;
+    saveSettings(settings);
+    applyA11y();
+  });
+}
+
+// ---------- rebindable keys (Ticket-04 §4) ----------
+let rebinding: Action | null = null;
+const K = (a: Action) => keyLabel(settings.keys[a]);
+const boundTo = (code: string) => ACTIONS.some((a) => settings.keys[a] === code);
+function renderKeymap() {
+  const box = $("keymap");
+  box.textContent = "";
+  for (const a of ACTIONS) {
+    const lab = document.createElement("label");
+    lab.append(ACTION_LABEL[a]);
+    const b = document.createElement("button");
+    b.dataset.action = a;
+    b.textContent = rebinding === a ? "Nhấn phím…" : K(a);
+    b.classList.toggle("wait", rebinding === a);
+    b.addEventListener("click", () => {
+      rebinding = rebinding === a ? null : a;
+      $("key-msg").textContent = rebinding
+        ? `Nhấn phím mới cho “${ACTION_LABEL[a]}” (bấm lại nút để hủy).`
+        : "";
+      renderKeymap();
+    });
+    lab.appendChild(b);
+    box.appendChild(lab);
+  }
+  updateHints();
+}
+function tryBind(code: string) {
+  const a = rebinding!;
+  const msg = $("key-msg");
+  if (RESERVED.has(code)) {
+    msg.textContent = `⚠ ${keyLabel(code)} dành cho menu, hãy chọn phím khác.`;
+    return;
+  }
+  const other = conflictOf(settings.keys, a, code);
+  if (other) {
+    msg.textContent = `⚠ Trùng phím: ${keyLabel(code)} đang dùng cho “${ACTION_LABEL[other]}”. Chọn phím khác, hoặc đổi phím của “${ACTION_LABEL[other]}” trước.`;
+    return;
+  }
+  settings.keys[a] = code;
+  saveSettings(settings);
+  rebinding = null;
+  msg.textContent = `Đã đổi “${ACTION_LABEL[a]}” sang ${keyLabel(code)}.`;
+  renderKeymap();
+}
+$("key-reset").addEventListener("click", () => {
+  settings.keys = { ...DEFAULT_KEYS };
+  rebinding = null;
+  saveSettings(settings);
+  $("key-msg").textContent = "Đã khôi phục phím mặc định.";
+  renderKeymap();
+});
+function setLines(el: HTMLElement, a: string, b: string) {
+  el.textContent = "";
+  el.append(a, document.createElement("br"), b);
+}
+function updateHints() {
+  $("hint").textContent =
+    `${K("up")} ${K("left")} ${K("down")} ${K("right")} đi · kéo chuột / ${K("camLeft")} ${K("camRight")} xoay camera · ` +
+    `${K("jump")} nhảy · ${K("dash")} lướt · ${K("interact")} nạp/châm đèn · ${K("pulse")} tỏa sáng · ${K("pause")} tạm dừng`;
+  setLines($("cd-dash"), "Lướt", K("dash"));
+  setLines($("cd-pulse"), "Tỏa sáng", K("pulse"));
+}
+renderKeymap();
+
+// ---------- subtitles / visual cues (Ticket-04 §4) ----------
+const subs: { el: HTMLElement; until: number; text: string; n: number }[] = [];
+function subtitle(text: string, warn = false, ms = 3000) {
+  if (!settings.subtitles || BENCH_MODE) return;
+  const same = subs.find((x) => x.text === text);
+  if (same) {
+    same.n++; // e.g. two shades spawning on the same tick: one line "(×2)"
+    same.el.textContent = `${text} (×${same.n})`;
+    same.until = performance.now() + ms;
+    return;
+  }
+  const el = document.createElement("div");
+  el.textContent = text;
+  if (warn) el.className = "warn";
+  $("subs").appendChild(el);
+  subs.push({ el, until: performance.now() + ms, text, n: 1 });
+  while (subs.length > 4) subs.shift()!.el.remove();
+}
+function tickSubs(now: number) {
+  for (let i = subs.length - 1; i >= 0; i--)
+    if (subs[i].until <= now) {
+      subs[i].el.remove();
+      subs.splice(i, 1);
+    }
+}
+function clearSubs() {
+  for (const s of subs) s.el.remove();
+  subs.length = 0;
+}
 
 // ---------- input ----------
 const keys = new Set<string>();
@@ -523,11 +748,22 @@ const tapped = new Set<string>();
 const held = (code: string) => keys.has(code) || tapped.has(code);
 let camYaw = 0;
 let camPitch = 0.42;
+const typing = (e: Event) =>
+  e.target instanceof HTMLInputElement && e.target.type !== "checkbox" && e.target.type !== "range";
 addEventListener("keydown", (e) => {
+  if (rebinding) {
+    e.preventDefault();
+    if (!e.repeat) tryBind(e.code);
+    return;
+  }
+  if (typing(e)) {
+    if (e.code === "Enter" || e.code === "NumpadEnter") void saveScore();
+    return;
+  }
   if (e.repeat) return;
   keys.add(e.code);
   tapped.add(e.code);
-  if (e.code === "Escape" || e.code === "KeyP") {
+  if (e.code === settings.keys.pause || (e.code === "KeyP" && !boundTo("KeyP"))) {
     if (screen === "play") pauseRequest = true;
   } else if (e.code === "Enter") {
     if (screen === "intro") play();
@@ -551,17 +787,20 @@ addEventListener("mousemove", (e) => {
 });
 
 function readInput(): Input {
-  const fwd = (held("KeyW") ? 1 : 0) - (held("KeyS") ? 1 : 0);
-  const right = (held("KeyD") ? 1 : 0) - (held("KeyA") ? 1 : 0);
+  if (BENCH_MODE) return { ...IDLE_INPUT, move: [0, 0] }; // bench: no player input
+  const k = settings.keys;
+  const fwd = (held(k.up) ? 1 : 0) - (held(k.down) ? 1 : 0);
+  const right = (held(k.right) ? 1 : 0) - (held(k.left) ? 1 : 0);
   const pause = pauseRequest;
   pauseRequest = false;
   return {
     move: [-right, fwd], // camera looks along (sin yaw, cos yaw); screen-right is contract x = -1
     cam_yaw_deg: camYaw,
-    jump: held("Space"),
-    interact: held("KeyE"),
-    pulse: held("KeyF"),
-    dash: held("ShiftLeft") || held("ShiftRight"),
+    jump: held(k.jump),
+    interact: held(k.interact),
+    pulse: held(k.pulse),
+    // the default Shift binding also accepts the right Shift key when it is free
+    dash: held(k.dash) || (k.dash === "ShiftLeft" && !boundTo("ShiftRight") && held("ShiftRight")),
     pause,
   };
 }
@@ -604,7 +843,7 @@ function drawHud() {
     (l) => !l.lit && within(l.pos, p.pos, TUNING.interact_radius),
   );
   $("prompt").textContent = near
-    ? `E — Nạp ánh sáng (${near.deposited}/${TUNING.lantern_cost})`
+    ? `${K("interact")} — Nạp ánh sáng (${near.deposited}/${TUNING.lantern_cost})`
     : p.charmTicks > 0
       ? `Bùa Gió: ${Math.ceil(p.charmTicks / 60)} s`
       : "";
@@ -626,25 +865,33 @@ function drawHud() {
     }
   }
   arrow.style.display = "none";
-  if (target) {
-    proj.set(target.pos[0], target.pos[1] + 3.6, target.pos[2]).project(camera);
-    const behind = proj.z > 1;
-    const off = behind || Math.abs(proj.x) > 0.95 || Math.abs(proj.y) > 0.95;
-    if (off) {
-      let x = proj.x;
-      let y = proj.y;
-      if (behind) {
-        x = -x;
-        y = -Math.abs(y) - 1;
-      }
-      const ang = Math.atan2(y, x);
-      const r = Math.min(innerWidth, innerHeight) * 0.4;
-      arrow.style.display = "block";
-      arrow.style.left = `${innerWidth / 2 + Math.cos(ang) * r - 14}px`;
-      arrow.style.top = `${innerHeight / 2 - Math.sin(ang) * r - 15}px`;
-      arrow.style.transform = `rotate(${90 - (ang * 180) / Math.PI}deg)`;
-    }
+  if (target) edgeArrow(arrow, target.pos[0], target.pos[1] + 3.6, target.pos[2], 0.4);
+  // Ticket-04: a newly spawned shade gets an arrow at the screen edge for 4 s while it is off-screen.
+  const sa = $("shade-arrow");
+  sa.style.display = "none";
+  if (settings.subtitles && shadeAlert && performance.now() < shadeAlert.until) {
+    const s = world.shades.find((x) => x.id === shadeAlert!.id);
+    if (s) edgeArrow(sa, s.pos[0], s.pos[1], s.pos[2], 0.44);
   }
+}
+/** Shows el at the screen edge pointing to a world point, only when that point is off-screen. */
+function edgeArrow(el: HTMLElement, x0: number, y0: number, z0: number, rf: number) {
+  proj.set(x0, y0, z0).project(camera);
+  const behind = proj.z > 1;
+  const off = behind || Math.abs(proj.x) > 0.95 || Math.abs(proj.y) > 0.95;
+  if (!off) return;
+  let x = proj.x;
+  let y = proj.y;
+  if (behind) {
+    x = -x;
+    y = -Math.abs(y) - 1;
+  }
+  const ang = Math.atan2(y, x);
+  const r = Math.min(innerWidth, innerHeight) * rf;
+  el.style.display = "block";
+  el.style.left = `${innerWidth / 2 + Math.cos(ang) * r - 14}px`;
+  el.style.top = `${innerHeight / 2 - Math.sin(ang) * r - 15}px`;
+  el.style.transform = `rotate(${90 - (ang * 180) / Math.PI}deg)`;
 }
 
 function onEvents(evs: GameEvent[]) {
@@ -661,20 +908,27 @@ function onEvents(evs: GameEvent[]) {
         break;
       case "lantern_out":
         audio.play("lose");
+        subtitle(`🏮 Đèn ${String(e.data.lantern_id)} đã tắt!`, true);
         break;
       case "pulse":
         pulseFx = 0;
         audio.play("pulse");
         break;
       case "player_hit":
-        flash = 1;
+        if (!settings.reducedMotion) {
+          flash = 1; // screen flash + camera shake: off with "Giảm chuyển động"
+          shake = 1;
+        }
         audio.play("hit");
+        subtitle(`💥 Mây bị chạm! Còn ${String(e.data.flames)} Ngọn Lửa`, true);
         break;
       case "dash":
         audio.play("dash");
         break;
       case "shade_spawned":
         audio.play("shade");
+        shadeAlert = { id: String(e.data.id), until: performance.now() + 4000 };
+        subtitle("⚠ Bóng Mực xuất hiện!", true);
         break;
       case "charm_picked":
         audio.play("charm");
@@ -719,7 +973,8 @@ function sync(dt: number, time: number) {
   may.g.position.set(p.pos[0], p.pos[1], p.pos[2]);
   may.g.rotation.y = Math.atan2(p.facing[0], p.facing[1]);
   may.g.visible =
-    p.fallWait === 0 && !(p.invulnTicks > 0 && Math.floor(time * 12) % 2 === 0);
+    p.fallWait === 0 &&
+    !(p.invulnTicks > 0 && !settings.reducedMotion && Math.floor(time * 12) % 2 === 0);
   may.light.intensity = 4 + p.carried * 0.6;
 
   const lit = world.lanterns.filter((l) => l.lit).length;
@@ -760,6 +1015,7 @@ function sync(dt: number, time: number) {
       mo.kind === "dropped" &&
       mo.ttl !== null &&
       mo.ttl < 120 &&
+      !settings.reducedMotion &&
       Math.floor(time * 8) % 2 === 0
     );
   });
@@ -808,7 +1064,7 @@ function sync(dt: number, time: number) {
       0.8 * (1 - pulseFx);
   }
   if (flash > 0) {
-    flash = Math.max(0, flash - dt * 3);
+    flash = settings.reducedMotion ? 0 : Math.max(0, flash - dt * 3);
     renderer.domElement.style.filter = `saturate(${1 - flash * 0.6}) brightness(${1 + flash * 0.4})`;
   }
   // Wind leaves: warning 2 s before and during a gust.
@@ -830,6 +1086,12 @@ function sync(dt: number, time: number) {
     l.rotation.set(time * 3 + i, time * 2, 0);
   });
 
+  if (BENCH_MODE) {
+    const c = benchCamera(benchT);
+    camera.position.set(c[0], c[1], c[2]);
+    camera.lookAt(0, 0, 0);
+    return;
+  }
   const yaw = (camYaw * Math.PI) / 180;
   const dist = 9;
   camera.position.set(
@@ -838,12 +1100,63 @@ function sync(dt: number, time: number) {
     p.pos[2] - Math.cos(yaw) * dist * Math.cos(camPitch),
   );
   camera.lookAt(p.pos[0], Math.max(p.pos[1], -6) + 1.2, p.pos[2]);
+  if (shake > 0) {
+    shake = settings.reducedMotion ? 0 : Math.max(0, shake - dt * 2.5);
+    camera.position.x += (Math.random() - 0.5) * 0.5 * shake;
+    camera.position.y += (Math.random() - 0.5) * 0.5 * shake;
+  }
+}
+
+// ---------- benchmark measurement (Ticket-04 §1) ----------
+let benchT = 0;
+let benchStart = -1;
+let benchPrev = -1;
+let measureStart = -1;
+let benchDone = false;
+let firstFrameEpochMs = 0;
+const benchDts: number[] = [];
+function benchFrame(now: number) {
+  if (benchStart < 0) {
+    benchStart = now;
+    firstFrameEpochMs = performance.timeOrigin + now; // first frame of the bench scene
+  }
+  benchT = (now - benchStart) / 1000;
+  if (!benchDone && benchT >= BENCH.warmupS) {
+    if (measureStart < 0) {
+      measureStart = now;
+      (window as unknown as { __benchMeasuring: boolean }).__benchMeasuring = true;
+    } else benchDts.push(now - benchPrev);
+    if (now - measureStart >= benchDuration * 1000) {
+      benchDone = true;
+      const gl = renderer.getContext();
+      const ext = gl.getExtension("WEBGL_debug_renderer_info");
+      const gpu = String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+      const m = /(Edg|Firefox|Chrome)\/([\d.]+)/.exec(navigator.userAgent);
+      (window as unknown as { __bench: unknown }).__bench = {
+        stats: benchStats(benchDts),
+        firstFrameEpochMs,
+        measuredMs: now - measureStart,
+        gpu,
+        browser: m ? `${m[1] === "Edg" ? "Edge" : m[1]} ${m[2]}` : navigator.userAgent,
+        three: THREE.REVISION,
+      };
+    }
+  }
+  benchPrev = now;
 }
 
 // ---------- loop: fixed 60 Hz logic ----------
-startNight(Number(params.get("night") ?? 1));
-if (params.get("autoplay") === "1") play();
-else show("menu");
+if (BENCH_MODE) {
+  world = createBenchWorld(Number(params.get("seed") ?? 42));
+  night = 1;
+  setupViews();
+  screen = "play";
+  show(null);
+} else {
+  startNight(Number(params.get("night") ?? 1));
+  if (params.get("autoplay") === "1") play();
+  else show("menu");
+}
 let acc = 0;
 let last = performance.now();
 let fpsFrames = 0;
@@ -852,9 +1165,11 @@ const fpsSamples: number[] = [];
 function frame(now: number) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
+  if (BENCH_MODE) benchFrame(now);
+  tickSubs(performance.now());
   if (screen === "play") {
     camYaw +=
-      ((keys.has("ArrowLeft") ? 1 : 0) - (keys.has("ArrowRight") ? 1 : 0)) *
+      ((keys.has(settings.keys.camLeft) ? 1 : 0) - (keys.has(settings.keys.camRight) ? 1 : 0)) *
       120 *
       dt;
     acc += dt;
@@ -870,11 +1185,22 @@ function frame(now: number) {
     const sec = Math.ceil(timeLeft(world));
     if (world.state === "playing" && sec <= 10 && sec !== lastSecond)
       audio.play("tick");
-    if (
-      world.state === "playing" &&
-      nextWindTick(world) === world.simTick + 120
-    )
-      audio.play("wind");
+    if (world.state === "playing") {
+      if (sec <= 10 && lastSecond > 10) subtitle("⏳ Còn 10 giây tới bình minh!", true, 4000);
+      const nw = nextWindTick(world);
+      if (nw !== null && nw - world.simTick <= 120 && windWarned !== nw) {
+        windWarned = nw; // once per gust (was: every frame of that tick)
+        audio.play("wind");
+        subtitle("🍃 Gió sắp thổi!");
+      }
+      for (const l of world.lanterns) {
+        const low = l.lit && l.fuel60 < TUNING.low_fuel_threshold * TICK_HZ;
+        if (low && !lowFuel.has(l.id))
+          subtitle(`🏮 Đèn ${l.id} sắp cạn dầu (dưới ${TUNING.low_fuel_threshold})`, true, 4000);
+        if (low) lowFuel.add(l.id);
+        else lowFuel.delete(l.id);
+      }
+    }
     lastSecond = sec;
   } else acc = 0;
   sync(dt, now / 1000);

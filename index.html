@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đảo Đèn Lồng</title>
     <style>
+      /* Ticket-04: every UI text is >= 18 px at 1280x720 (1rem = 18px); "Chữ lớn" scales everything x1.25. */
       :root {
         --ui: #f5f1e6;
         --gold: #f2c14e;
         --danger: #ff5a5f;
+        --shade: #7a3cff;
         --panel: rgba(14, 20, 48, 0.82);
+        font-size: 18px;
+      }
+      :root.big {
+        font-size: 22.5px;
       }
       html,
       body {
@@ -27,25 +33,28 @@
       .hud {
         position: fixed;
         pointer-events: none;
-        font-size: 18px;
+        font-size: 1rem;
         text-shadow: 0 1px 3px #000;
       }
       #flames {
         top: 14px;
         left: 16px;
-        font-size: 26px;
+        font-size: 1.45rem;
       }
       #timer {
         top: 10px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 30px;
+        font-size: 1.67rem;
         font-weight: 700;
         font-variant-numeric: tabular-nums;
       }
       #timer.danger {
         color: var(--danger);
         animation: blink 0.6s steps(2) infinite;
+      }
+      :root.rm #timer.danger {
+        animation: none; /* reduced motion: no blinking */
       }
       @keyframes blink {
         50% {
@@ -85,13 +94,14 @@
         gap: 10px;
       }
       .cd {
-        width: 54px;
-        height: 54px;
+        width: 5rem;
+        height: 5rem;
         border-radius: 50%;
         border: 2px solid var(--gold);
         display: grid;
         place-items: center;
-        font-size: 12px;
+        font-size: 1rem;
+        line-height: 1.1;
         text-align: center;
         background: conic-gradient(#0008 var(--p, 0%), #f2c14e33 0);
       }
@@ -100,9 +110,27 @@
         left: 50%;
         transform: translateX(-50%);
         color: #ffe9b0;
-        font-size: 20px;
+        font-size: 1.11rem;
       }
-      #arrow {
+      #subs {
+        bottom: 96px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      #subs div {
+        background: rgba(0, 0, 0, 0.62);
+        padding: 4px 14px;
+        border-radius: 8px;
+        font-size: 1.05rem;
+      }
+      #subs div.warn {
+        color: var(--danger);
+      }
+      .edge-arrow {
         width: 0;
         height: 0;
         border-left: 14px solid transparent;
@@ -111,54 +139,59 @@
         filter: drop-shadow(0 0 6px #ffb347);
         display: none;
       }
+      #shade-arrow {
+        border-bottom-color: var(--shade);
+        filter: drop-shadow(0 0 6px var(--shade));
+      }
       #fps {
         bottom: 8px;
         left: 10px;
-        font-size: 13px;
-        opacity: 0.7;
+        opacity: 0.8;
       }
       #wind {
-        top: 52px;
+        top: 3.2rem;
         left: 50%;
         transform: translateX(-50%);
-        color: #8fa3b8;
-        font-size: 16px;
+        color: #b9cadb;
       }
       .screen {
         position: fixed;
         inset: 0;
         display: none;
         align-items: center;
-        justify-content: center;
+        justify-content: safe center;
         flex-direction: column;
         background: rgba(14, 20, 48, 0.78);
         text-align: center;
         gap: 10px;
         z-index: 5;
+        overflow-y: auto;
+        padding: 16px 0;
+        box-sizing: border-box;
       }
       .screen.show {
         display: flex;
       }
       .screen h1 {
-        font-size: 52px;
+        font-size: 2.9rem;
         margin: 0;
         color: var(--gold);
       }
       .screen h2 {
-        font-size: 30px;
+        font-size: 1.67rem;
         margin: 0;
         color: #ffb347;
       }
       .screen p {
-        max-width: 640px;
-        font-size: 18px;
+        max-width: 36rem;
+        font-size: 1rem;
         line-height: 1.5;
         margin: 4px;
       }
       .screen button {
-        font-size: 20px;
+        font-size: 1.11rem;
         padding: 10px 26px;
-        min-width: 240px;
+        min-width: 13rem;
         border-radius: 12px;
         border: 2px solid var(--gold);
         background: #1b2350;
@@ -170,22 +203,98 @@
         background: #2b3570;
         outline: none;
       }
+      .screen button:focus-visible {
+        outline: 3px solid #fff;
+      }
       .quote {
         font-style: italic;
         color: #ffe9b0;
       }
       label {
-        font-size: 18px;
+        font-size: 1rem;
         display: flex;
         gap: 12px;
         align-items: center;
       }
       #hint {
-        bottom: 80px;
+        bottom: 6.5rem;
         left: 16px;
-        font-size: 13px;
-        opacity: 0.75;
-        max-width: 260px;
+        opacity: 0.8;
+        max-width: 19rem;
+      }
+      #scr-settings h1 {
+        font-size: 2rem;
+      }
+      .set-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, auto));
+        gap: 8px 32px;
+        text-align: left;
+      }
+      .keymap {
+        display: grid;
+        grid-template-columns: repeat(2, auto);
+        gap: 6px 28px;
+      }
+      .keymap label {
+        justify-content: space-between;
+      }
+      .screen .keymap button {
+        min-width: 7rem;
+        padding: 4px 12px;
+        font-size: 1rem;
+      }
+      .screen .keymap button.wait {
+        border-color: #fff;
+        background: #3b4590;
+      }
+      .screen .row {
+        display: flex;
+        gap: 12px;
+      }
+      .warn {
+        color: var(--danger);
+        min-height: 1.5em;
+      }
+      body > .lb-form {
+        display: none; /* parked until a result/dawn screen needs it */
+      }
+      .lb-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px;
+        border: 1px solid #f2c14e66;
+        border-radius: 12px;
+      }
+      .lb-form input {
+        font-size: 1.11rem;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 2px solid var(--gold);
+        background: #0e1430;
+        color: var(--ui);
+        width: 13rem;
+        text-align: center;
+        user-select: text;
+      }
+      table.board {
+        border-collapse: collapse;
+        font-size: 1rem;
+        min-width: 34rem;
+      }
+      table.board th,
+      table.board td {
+        padding: 5px 12px;
+        border-bottom: 1px solid #ffffff22;
+      }
+      table.board th {
+        color: var(--gold);
+      }
+      table.board td.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
       }
     </style>
   </head>
@@ -194,18 +303,17 @@
     <div id="timer" class="hud"></div>
     <div id="topright" class="hud"></div>
     <div id="wind" class="hud"></div>
+    <div id="subs" class="hud" aria-live="polite"></div>
     <div id="prompt" class="hud"></div>
     <div id="motebar" class="hud"></div>
     <div id="cooldowns" class="hud">
-      <div class="cd" id="cd-dash">Lướt<br />Shift</div>
-      <div class="cd" id="cd-pulse">Tỏa sáng<br />F</div>
+      <div class="cd" id="cd-dash"></div>
+      <div class="cd" id="cd-pulse"></div>
     </div>
-    <div id="arrow" class="hud"></div>
+    <div id="arrow" class="hud edge-arrow"></div>
+    <div id="shade-arrow" class="hud edge-arrow" title="Bóng Mực"></div>
     <div id="fps" class="hud"></div>
-    <div id="hint" class="hud">
-      WASD đi · kéo chuột / ← → xoay camera · Space nhảy · Shift lướt · E nạp
-      đèn · F tỏa sáng · Esc/P tạm dừng
-    </div>
+    <div id="hint" class="hud"></div>
 
     <div id="scr-menu" class="screen">
       <h1>Đảo Đèn Lồng</h1>
@@ -214,6 +322,7 @@
         phải thắp lại những Đèn Lồng Lớn trước bình minh.
       </p>
       <button data-act="start">Bắt đầu</button>
+      <button data-act="board">Bảng xếp hạng</button>
       <button data-act="settings">Cài đặt</button>
     </div>
     <div id="scr-intro" class="screen">
@@ -226,6 +335,7 @@
       <h1 id="res-title"></h1>
       <p id="res-reason"></p>
       <p id="res-score"></p>
+      <div id="res-form-slot"></div>
       <button id="res-next" data-act="next">Đêm kế tiếp (Enter)</button>
       <button data-act="retry">Chơi lại Đêm này (R)</button>
       <button data-act="menu">Về menu</button>
@@ -237,6 +347,36 @@
         Đăng
       </p>
       <p id="dawn-score"></p>
+      <div id="dawn-form-slot"></div>
+      <button data-act="menu">Về menu</button>
+    </div>
+    <div id="lb-form" class="lb-form">
+      <label for="lb-name">Lưu điểm vào Bảng xếp hạng — tên của bạn:</label>
+      <input
+        id="lb-name"
+        maxlength="24"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="3–12 ký tự"
+      />
+      <button id="lb-save">Lưu điểm</button>
+      <p id="lb-msg" role="status"></p>
+    </div>
+    <div id="scr-board" class="screen">
+      <h1>Bảng xếp hạng</h1>
+      <table class="board">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tên</th>
+            <th>Điểm</th>
+            <th>Đêm thắng</th>
+            <th>Thời điểm</th>
+          </tr>
+        </thead>
+        <tbody id="board-body"></tbody>
+      </table>
+      <p id="board-src"></p>
       <button data-act="menu">Về menu</button>
     </div>
     <div id="scr-pause" class="screen">
@@ -248,18 +388,35 @@
     </div>
     <div id="scr-settings" class="screen">
       <h1>Cài đặt</h1>
-      <label
-        >Âm lượng <input id="set-vol" type="range" min="0" max="1" step="0.05"
-      /></label>
-      <label
-        >Độ nhạy chuột
-        <input id="set-cb" type="checkbox" /> Bảng màu dễ phân biệt
-      </label>
-      <label>
-        Độ nhạy chuột
-        <input id="set-sens" type="range" min="0.05" max="1" step="0.05"
-      /></label>
-      <button data-act="back">Xong</button>
+      <div class="set-grid">
+        <label
+          >Âm lượng
+          <input id="set-vol" type="range" min="0" max="1" step="0.05"
+        /></label>
+        <label
+          >Độ nhạy chuột
+          <input id="set-sens" type="range" min="0.05" max="1" step="0.05"
+        /></label>
+        <label
+          ><input id="set-cb" type="checkbox" /> Bảng màu dễ phân biệt</label
+        >
+        <label
+          ><input id="set-subs" type="checkbox" /> Phụ đề và chỉ báo hình
+          ảnh</label
+        >
+        <label
+          ><input id="set-rm" type="checkbox" /> Giảm chuyển động (tắt rung,
+          chớp)</label
+        >
+        <label><input id="set-big" type="checkbox" /> Chữ lớn (×1.25)</label>
+      </div>
+      <h2>Phím điều khiển</h2>
+      <div id="keymap" class="keymap"></div>
+      <p id="key-msg" class="warn" role="alert"></p>
+      <div class="row">
+        <button id="key-reset">Khôi phục mặc định</button>
+        <button data-act="back">Xong</button>
+      </div>
     </div>
     <script type="module" src="/src/render/main.ts"></script>
   </body>
