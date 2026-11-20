@@ -1,6 +1,6 @@
 # Đảo Đèn Lồng — v1.0.0
 
-> 🎬 **Video demo:** [docs/demo/demo.mp4](docs/demo/demo.mp4) (cũng đính kèm ở [Release v1.0.0](https://github.com/Ptuancuong/K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0))
+> 🎬 **Video demo:** [demo.mp4](https://github.com/Ptuancuong/K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/demo.mp4) — đính kèm ở [Release v1.0.0](https://github.com/Ptuancuong/K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0) (kèm bản chạy sẵn `dao-den-long-v1.0.0.zip`)
 > Bài lab cá nhân Day 12 AI SDLC — Phạm Tuấn Cường · 2A202603584. Đề bài: [docs/lab/](docs/lab/).
 
 Game 3D góc nhìn thứ ba. Mây, người giữ đèn nhỏ tuổi đội nón lá, đi qua ba hòn đảo trong sương đen: gom đom đóm,

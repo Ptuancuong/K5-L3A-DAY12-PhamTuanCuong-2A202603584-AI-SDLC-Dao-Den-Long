@@ -2,7 +2,7 @@
 
 ## ▶ TRẠNG THÁI HIỆN TẠI & BÀN GIAO (đọc mục này trước)
 
-_Cập nhật 2026-11-20, sau khi xong Phase 3. Phần kế hoạch ban đầu (mục 0–7) giữ nguyên bên dưới._
+_Cập nhật 2026-11-20, sau khi xong Phase 4 (code + bằng chứng). Phần kế hoạch ban đầu (mục 0–7) giữ nguyên bên dưới._
 
 ### Tiến độ
 | Phase | Tag | Commit | CI (Ubuntu + macOS) | Ghi chú |
@@ -10,18 +10,22 @@ _Cập nhật 2026-11-20, sau khi xong Phase 3. Phần kế hoạch ban đầu (
 | 1 | `phase-1` | `ef04215` | xanh | Đã dời tag 1 lần (sửa lỗi Bóng Mực choáng trong vùng sáng) |
 | 2 | `phase-2` | `fd0a9ed` | xanh | Đã dời tag 1 lần (thêm dòng FPS ~160 + âm thanh do người dùng kiểm tay) |
 | 3 | `phase-3` | `711fa27` | xanh (run 44724743557) | Contract v1.2, ADR 0001, CHANGELOG breaking changes |
-| 4 | — | — | — | **Chưa bắt đầu.** Ticket: `docs/lab/phase-4-ticket04.md` (đã có trong thư mục, CHƯA commit). Có 90 phút; để 15 phút cuối cho Release + video |
+| 4 | `phase-4` | commit gắn tag (xem `git rev-parse phase-4`) | xanh (run 44731741800) | Contract v1.3, ADR 0002, bench 226 fps, soak 0 crash, review bởi subagent |
 
-### Việc còn phải làm ở Phase 4 (ngoài nội dung Ticket-04)
-1. Đọc Ticket-04, viết spec/tiêu chí nghiệm thu, cập nhật `scripts/gen-scenarios.mjs` (thêm `p4-*`), chạy lại toàn bộ.
-2. **Release `v1.0.0`**: cần `gh auth login` (người dùng phải tự chạy — `gh` đã cài ở `C:\Program Files\GitHub CLI\gh.exe` nhưng CHƯA đăng nhập). Bản chạy được: zip `dist/` + `build/headless.mjs`, kèm hướng dẫn.
-3. **Video `.mp4` < 5 phút** (người dùng quay; `ffmpeg` đã cài qua winget để nén): chơi thử, chạy `npm test`/verify, đo FPS, lướt harness + git log, cho thấy âm thanh và đèn nhấp nháy 1 Hz (chưa có bằng chứng động). Link ở đầu README.
-4. **Đo FPS có log**: hiện FPS (~160, RTX 3060 Laptop) chỉ do người dùng báo tay. Nên thêm script/bằng chứng lưu được (ví dụ `?fps=1` + `window.__fps`).
-5. **README sạch**: cài + chạy ≤ 3 lệnh; xóa dòng "Video demo: (sẽ thêm ở Phase 4)".
-6. **Retro tổng** trong `docs/notes/retro.md` (mục "Retro tổng" đang trống) + số token thật từ `/cost` vào `docs/notes/ai-log.md` (hiện là ước tính).
-7. Chạy subagent `reviewer` (`.claude/agents/reviewer.md`) ít nhất 1 lần — rubric B tính điểm "đánh giá bởi agent khác"; CHƯA chạy lần nào.
-8. Cập nhật `PHASE: phase-4` trong `.github/workflows/ci.yml`, mặc định phase trong `scripts/mutation-check.mjs`, và thêm bộ ảnh `phase-4` trong `scripts/screenshot.mjs`.
-9. Kiểm tra cuối theo `docs/lab/SUBMISSION.md` §7: repo public, clone sạch chạy được, tag đủ, CREDITS/LICENSE, không có `.env`.
+### Việc còn lại (cần người dùng)
+1. **`gh auth login`** (gh ở `C:\Program Files\GitHub CLI\gh.exe`, CHƯA đăng nhập).
+2. **Quay video < 5 phút**, nén: `ffmpeg -i input.mp4 -t 299 -c:v libx264 -crf 28 -preset veryfast -c:a aac -b:a 96k demo.mp4`.
+3. **Tạo Release** (agent làm khi có 1 + 2): `gh release create v1.0.0 release/dao-den-long-v1.0.0.zip demo.mp4 --title "v1.0.0" --notes-file <ghi chú>`.
+   Zip dựng lại bằng PowerShell (xem lịch sử phiên): `dist/` + `build/{serve,headless,soak}.mjs` + contract + LICENSE/CREDITS/CHANGELOG + `HUONG-DAN.txt`. `release/` bị gitignore.
+   README đã trỏ sẵn tới `releases/download/v1.0.0/demo.mp4`.
+4. (Tùy chọn) Dán kết quả `/cost` để thay số token ước tính trong `docs/notes/ai-log.md`.
+5. Kiểm tra cuối theo `docs/lab/SUBMISSION.md` §7: repo public, video mở được khi chưa đăng nhập.
+
+### Lưu ý Phase 4
+- `bench_cmd` mở cửa sổ Chromium thật (~35 s). Không lấy mẫu RSS trong lúc đo (từng làm FPS giảm 195 → 226 khi bỏ).
+- `soak_cmd` có `--jitless --single-threaded --max-semi-space-size=1`: thiếu `--jitless` thì macOS CI trượt 1.39× (ADR 0002).
+- Log CI cần đăng nhập; `verify.mjs` in số soak ra annotation công khai: `GET /repos/<repo>/check-runs/<job>/annotations`.
+- Ảnh phase-4 phải đợi theo trạng thái DOM (`waitForFunction`): WebGL phần mềm làm mô phỏng chậm hơn thời gian thực.
 
 ### Quy trình mỗi phase (đã dùng ổn định)
 `docs/lab/phase-N-*.md` → sửa `src/core` → thêm/sửa scenario trong `scripts/gen-scenarios.mjs` (kỳ vọng TÍNH TAY, ghi phép tính trong `note`) →

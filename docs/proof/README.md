@@ -97,4 +97,4 @@ Quyết định: [ADR 0002](../adr/0002-bench-soak-leaderboard.md) · [verify-re
 | 11 | Clone sạch → ≤ 3 lệnh → chơi được; README đủ mục; CHANGELOG 4 phase; CREDITS; LICENSE | [README](../../README.md), [CHANGELOG](../../CHANGELOG.md), [CREDITS](../../CREDITS.md), CI chạy `npm ci && npm run build` trên máy sạch | Đạt |
 | 12 | Contract v1.3: `bench_cmd`, `soak_cmd`; v1.0–v1.2 giữ nguyên | unit `contract v1.3`; 59 scenario + mutation check | Đạt |
 | 14 | Review độc lập trước khi tag | subagent `reviewer`: 1 lỗi chặn + 5 nên sửa, đã sửa hết (ai-log #22–#26), test bảo mật API | Đạt |
-| 13 | GitHub Release v1.0.0 có bản chạy được; video demo < 5 phút | Release v1.0.0 (zip `dist/` + `build/`), [docs/demo/demo.mp4](../demo/demo.mp4) | Xem Release |
+| 13 | GitHub Release v1.0.0 có bản chạy được; video demo < 5 phút | [Release v1.0.0](https://github.com/Ptuancuong/K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0): `dao-den-long-v1.0.0.zip` (`dist/` + `build/` + hướng dẫn) và `demo.mp4` | Xem Release |
