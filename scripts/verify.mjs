@@ -38,20 +38,21 @@ writeFileSync(
       { tick: 0, move: [0.3, 1], cam_yaw_deg: 15 },
       { tick: 400, move: [-1, 0], pulse: true },
       { tick: 401, pulse: false },
-      { tick: 900, move: [0, -1], cam_yaw_deg: 200, jump: true },
-      { tick: 901, jump: false },
+      { tick: 900, move: [0, -1], cam_yaw_deg: 200, jump: true, dash: true },
+      { tick: 901, jump: false, dash: false },
+      { tick: 1500, pause: true }, { tick: 1501, pause: false }, { tick: 1600, pause: true },
     ],
   }),
 );
 const detRows = [];
-for (const seed of [1, 42, 20261120]) {
+for (const [seed, night] of [[1, 1], [42, 2], [20261120, 3]]) {
   const h = [0, 1].map((i) => {
-    const r = runCli({ seed, ticks: 3600, inputs: detInputs, outFile: join(tmpdir(), `ddl-det-${seed}-${i}.jsonl`) });
+    const r = runCli({ seed, night, ticks: 3600, inputs: detInputs, outFile: join(tmpdir(), `ddl-det-${seed}-${i}.jsonl`) });
     return createHash('sha256').update(r.text).digest('hex').slice(0, 16);
   });
   const ok = h[0] === h[1];
   if (!ok) failed++;
-  detRows.push(`| ${seed} | 3600 | \`${h[0]}\` | \`${h[1]}\` | ${ok ? 'PASS' : 'FAIL'} |`);
+  detRows.push(`| ${seed} (Đêm ${night}) | 3600 | \`${h[0]}\` | \`${h[1]}\` | ${ok ? 'PASS' : 'FAIL'} |`);
   console.log(`${ok ? 'PASS' : 'FAIL'} determinism seed ${seed}`);
 }
 

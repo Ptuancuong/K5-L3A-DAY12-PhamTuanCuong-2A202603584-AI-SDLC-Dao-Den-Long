@@ -1,12 +1,14 @@
 # Đảo Đèn Lồng — agent guide
 
-3D third-person game (TypeScript + Three.js + Vite) with a headless mode graded by Test Contract.
+3D third-person game (TypeScript + Three.js + Vite) with a headless mode graded by Test Contract **v1.1** (3 nights).
 Requirements: `docs/lab/phase-N-*.md` (PRD-0, tickets). Assumptions: `docs/notes/assumptions.md`.
 
 ## Commands
 
 - `npm ci && npm run build` — build headless (`build/headless.mjs`) + web (`dist/`)
 - `npm test` — rebuild headless, typecheck, unit + scenario tests (must be green before finishing)
+- `node scripts/gen-scenarios.mjs` — regenerate `tests/scenarios/*` (single source; expectations computed by hand)
+- `node scripts/mutation-check.mjs phase-N` — mutate each tuning value; every mutation must make a scenario fail
 - `npm run verify -- phase-N` — run all scenarios via the CLI, write evidence to `docs/proof/phase-N/`
 - `npm run shot -- phase-N` — screenshots of the real game (Playwright) into `docs/proof/phase-N/screenshots/`
 - `npm run dev` — play in the browser
@@ -14,9 +16,10 @@ Requirements: `docs/lab/phase-N-*.md` (PRD-0, tickets). Assumptions: `docs/notes
 
 ## Layout
 
+- `src/core/sim.ts` follows the mandatory 12-step tick order of Ticket-02 (numbered comments). `src/core/maps.ts` = standard maps + ground/wall functions.
 - `src/core/` pure deterministic rules. `src/render/` Three.js view only. `src/headless/` CLI.
-- `game.contract.json` is the ONLY source of tuning numbers; core imports it. Never hardcode a tuning value.
-- Non-contract constants live in `WORLD` in `src/core/config.ts` and must be listed in assumptions.md.
+- `game.contract.json` is the ONLY source of tuning numbers; core imports it. Never hardcode a tuning value (a hardcoded shade speed slipped in once; mutation-check caught it).
+- Non-contract constants live in `STD` in `src/core/config.ts` (ticket standard numbers + my marked choices) and must be listed in assumptions.md.
 - `tests/scenarios/<name>/{scenario,inputs,expect}.json` — expectations are computed by hand from the rules.
 
 ## Rules
