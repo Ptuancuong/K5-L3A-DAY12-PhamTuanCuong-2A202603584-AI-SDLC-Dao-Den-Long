@@ -1,0 +1,38 @@
+{
+  "note": "Default level: 5 lanterns L1..L5, player at origin with 3 flames, 300 s.",
+  "args": {
+    "seed": 7,
+    "ticks": 0
+  },
+  "snapshots": [
+    {
+      "tick": 0,
+      "path": "player.pos",
+      "equals": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "tick": 0,
+      "path": "player.flames",
+      "equals": 3
+    },
+    {
+      "tick": 0,
+      "path": "time_left_s",
+      "equals": 300
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.length",
+      "equals": 5
+    }
+  ],
+  "end": {
+    "state": "playing",
+    "ticks": 0,
+    "score": 0
+  }
+}

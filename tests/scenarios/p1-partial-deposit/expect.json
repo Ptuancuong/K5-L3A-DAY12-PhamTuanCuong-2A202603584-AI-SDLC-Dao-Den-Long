@@ -1,0 +1,32 @@
+{
+  "note": "L1 already has 1. Only 4 more are needed, so 4 are deposited and 3 stay carried.",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "deposit",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 4,
+        "deposited": 5
+      }
+    },
+    {
+      "tick": 1,
+      "name": "lantern_lit",
+      "data": {
+        "lantern_id": "L1"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "player.carried",
+      "equals": 3
+    }
+  ]
+}

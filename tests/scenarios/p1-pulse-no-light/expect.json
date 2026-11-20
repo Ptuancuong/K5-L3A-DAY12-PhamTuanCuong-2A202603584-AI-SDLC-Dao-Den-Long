@@ -1,0 +1,22 @@
+{
+  "note": "pulse_cost = 2 but only 1 carried: no pulse happens.",
+  "args": {
+    "seed": 1,
+    "ticks": 20
+  },
+  "no_events": [
+    "pulse"
+  ],
+  "snapshots": [
+    {
+      "tick": 20,
+      "path": "player.carried",
+      "equals": 1
+    },
+    {
+      "tick": 20,
+      "path": "shades.0.state",
+      "equals": "chase"
+    }
+  ]
+}

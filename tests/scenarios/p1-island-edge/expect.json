@@ -1,0 +1,21 @@
+{
+  "note": "fall_enabled = false: the player stops at the island edge (radius 40) and never falls.",
+  "args": {
+    "seed": 1,
+    "ticks": 600
+  },
+  "no_events": [
+    "player_hit"
+  ],
+  "snapshots": [
+    {
+      "tick": 600,
+      "path": "player.pos",
+      "equals": [
+        40,
+        0,
+        0
+      ]
+    }
+  ]
+}

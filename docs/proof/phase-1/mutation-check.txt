@@ -1,0 +1,9 @@
+ ✓ tests/unit/core.test.ts (10 tests) 42ms
+   × headless scenarios (contract v1.0) > p1-hit-invuln 54ms
+   × headless scenarios (contract v1.0) > p1-pickup 49ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
++   "missing event 91 player_hit {\"by\":\"shade\",\"flames\":1,\"dropped\":1}; got [1:{\"by\":\"shade\",\"flames\":2,\"dropped\":2}, 61:{\"by\":\"shade\",\"flames\":1,\"dropped\":1}, 121:{\"by\":\"shade\",\"flames\":0,\"dropped\":0}]",
++   "missing event 181 player_hit {\"by\":\"shade\",\"flames\":0,\"dropped\":0}; got [1:{\"by\":\"shade\",\"flames\":2,\"dropped\":2}, 61:{\"by\":\"shade\",\"flames\":1,\"dropped\":1}, 121:{\"by\":\"shade\",\"flames\":0,\"dropped\":0}]",
++   "missing event 181 game_over {\"result\":\"lost\",\"reason\":\"no_flames\"}; got [121:{\"result\":\"lost\",\"reason\":\"no_flames\"}]",
++   "missing event 35 mote_picked {\"carried\":1}; got [36:{\"carried\":1}]",
+      Tests  2 failed | 32 passed (34)

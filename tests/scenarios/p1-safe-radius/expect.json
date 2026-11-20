@@ -1,0 +1,21 @@
+{
+  "note": "Player stands at lit L1. The shade chases but stops just outside safe_radius 6 (z = 25 - 6.001), so it never hits.",
+  "args": {
+    "seed": 1,
+    "ticks": 600
+  },
+  "no_events": [
+    "player_hit"
+  ],
+  "snapshots": [
+    {
+      "tick": 600,
+      "path": "shades.0.pos",
+      "equals": [
+        0,
+        1,
+        18.999
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "note": "Interact fires only on false->true. Holding it does not deposit again.",
+  "args": {
+    "seed": 1,
+    "ticks": 30
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "deposit",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 3,
+        "deposited": 3
+      }
+    }
+  ],
+  "no_events": [
+    "lantern_lit"
+  ],
+  "event_count": {
+    "deposit": 1
+  }
+}

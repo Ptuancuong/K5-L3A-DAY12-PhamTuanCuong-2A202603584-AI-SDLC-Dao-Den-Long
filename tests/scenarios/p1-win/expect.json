@@ -1,0 +1,29 @@
+{
+  "note": "Preset lit lanterns give no score. Lighting L1 wins: 100 + floor(300 - 1/60) = 299 s * 2 + 3 flames * 50 = 848.",
+  "args": {
+    "seed": 1,
+    "ticks": 600
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "lantern_lit",
+      "data": {
+        "lantern_id": "L1"
+      }
+    },
+    {
+      "tick": 1,
+      "name": "game_over",
+      "data": {
+        "result": "won",
+        "reason": "all_lit"
+      }
+    }
+  ],
+  "end": {
+    "state": "won",
+    "ticks": 1,
+    "score": 848
+  }
+}

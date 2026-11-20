@@ -1,0 +1,33 @@
+{
+  "note": "Cooldown 2 s = 120 ticks after the pulse at tick 1: the press at tick 60 is ignored, the press at tick 130 works.",
+  "args": {
+    "seed": 1,
+    "ticks": 200
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "pulse",
+      "data": {
+        "stunned_ids": []
+      }
+    },
+    {
+      "tick": 131,
+      "name": "pulse",
+      "data": {
+        "stunned_ids": []
+      }
+    }
+  ],
+  "event_count": {
+    "pulse": 2
+  },
+  "snapshots": [
+    {
+      "tick": 200,
+      "path": "player.carried",
+      "equals": 2
+    }
+  ]
+}

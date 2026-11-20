@@ -1,0 +1,8 @@
+{
+  "note": "Frame ticks must strictly increase -> exit code 2.",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "exit_code": 2
+}

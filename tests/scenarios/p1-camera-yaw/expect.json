@@ -1,0 +1,18 @@
+{
+  "note": "theta = 90 deg: x = 0*cos + 1*sin = 1, z = 0 -> moves +X at 0.1 m/tick.",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "player.pos",
+      "equals": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

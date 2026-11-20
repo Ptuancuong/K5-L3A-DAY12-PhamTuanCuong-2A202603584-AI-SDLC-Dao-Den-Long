@@ -1,0 +1,37 @@
+{
+  "note": "Moving +Z at 6 m/s = 0.1 m/tick. Pickup when 5 - z <= 1.5, i.e. z = 3.5 after 35 steps -> event tick 35.",
+  "args": {
+    "seed": 1,
+    "ticks": 60
+  },
+  "events": [
+    {
+      "tick": 35,
+      "name": "mote_picked",
+      "data": {
+        "carried": 1
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 60,
+      "path": "player.pos",
+      "equals": [
+        0,
+        0,
+        6
+      ]
+    },
+    {
+      "tick": 60,
+      "path": "score",
+      "equals": 10
+    }
+  ],
+  "end": {
+    "state": "playing",
+    "ticks": 60,
+    "score": 10
+  }
+}

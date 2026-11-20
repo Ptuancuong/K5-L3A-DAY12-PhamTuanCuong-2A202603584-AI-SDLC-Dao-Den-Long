@@ -1,0 +1,52 @@
+{
+  "note": "Shade within 1 m hits at tick 1 (drop floor(4*0.5)=2). invuln 1.5 s = 90 ticks -> next hits at 91 and 181; flames 3 -> 0 loses.",
+  "args": {
+    "seed": 1,
+    "ticks": 600
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "player_hit",
+      "data": {
+        "by": "shade",
+        "flames": 2,
+        "dropped": 2
+      }
+    },
+    {
+      "tick": 91,
+      "name": "player_hit",
+      "data": {
+        "by": "shade",
+        "flames": 1,
+        "dropped": 1
+      }
+    },
+    {
+      "tick": 181,
+      "name": "player_hit",
+      "data": {
+        "by": "shade",
+        "flames": 0,
+        "dropped": 0
+      }
+    },
+    {
+      "tick": 181,
+      "name": "game_over",
+      "data": {
+        "result": "lost",
+        "reason": "no_flames"
+      }
+    }
+  ],
+  "event_count": {
+    "player_hit": 3
+  },
+  "end": {
+    "state": "lost",
+    "ticks": 181,
+    "score": 0
+  }
+}

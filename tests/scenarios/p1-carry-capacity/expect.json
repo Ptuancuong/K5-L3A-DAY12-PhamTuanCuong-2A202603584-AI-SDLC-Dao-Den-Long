@@ -1,0 +1,22 @@
+{
+  "note": "carry_capacity = 10: a full player does not pick up a mote at their feet.",
+  "args": {
+    "seed": 1,
+    "ticks": 20
+  },
+  "no_events": [
+    "mote_picked"
+  ],
+  "snapshots": [
+    {
+      "tick": 20,
+      "path": "motes_active",
+      "equals": 1
+    },
+    {
+      "tick": 20,
+      "path": "player.carried",
+      "equals": 10
+    }
+  ]
+}
