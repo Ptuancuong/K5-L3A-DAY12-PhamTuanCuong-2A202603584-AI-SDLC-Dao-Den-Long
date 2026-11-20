@@ -1,6 +1,6 @@
 {
   "name": "dao-den-long",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Đảo Đèn Lồng — game 3D góc nhìn thứ ba (Day 12 AI SDLC lab)",
@@ -10,15 +10,17 @@
   },
   "scripts": {
     "build": "npm run build:headless && npm run build:web",
-    "build:headless": "esbuild src/headless/cli.ts --bundle --platform=node --format=esm --target=node18 --outfile=build/headless.mjs",
+    "build:headless": "node scripts/build-node.mjs",
     "build:web": "vite build",
     "dev": "vite",
-    "start": "vite preview --port 4173 --open",
+    "start": "node build/serve.mjs",
     "headless": "node build/headless.mjs",
     "typecheck": "tsc --noEmit",
     "test": "npm run build:headless --silent && tsc --noEmit && vitest run",
     "verify": "node scripts/verify.mjs",
-    "shot": "node scripts/screenshot.mjs"
+    "shot": "node scripts/screenshot.mjs",
+    "bench": "node scripts/bench.mjs",
+    "soak": "node --expose-gc --single-threaded --max-semi-space-size=1 build/soak.mjs"
   },
   "dependencies": {
     "three": "0.170.0"

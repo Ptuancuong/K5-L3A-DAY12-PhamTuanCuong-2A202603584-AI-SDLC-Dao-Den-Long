@@ -19,9 +19,9 @@ const OFF = {
   wind_enabled: false,
 };
 
-describe("contract file v1.2", () => {
+describe("contract file v1.2 tuning (still valid in v1.3)", () => {
   it("declares the standard numbers of Ticket-02 and the game reads this exact object", () => {
-    expect(contract.contract_version).toBe("1.2");
+    expect(["1.2", "1.3"]).toContain(contract.contract_version);
     expect(TUNING).toBe(contract.tuning);
     const t = contract.tuning;
     expect([

@@ -136,6 +136,8 @@ export interface World {
   prev: Input;
   started: boolean;
   successfulLights: number;
+  /** v1.3 benchmark scene: no spawns, damage, pickup, fuel change, chase or night end. Default false. */
+  bench: boolean;
   result?: { result: "won" | "lost"; reason: string };
 }
 
@@ -342,6 +344,7 @@ export function createWorld(opts: CreateOptions): World {
     prev: { ...IDLE_INPUT },
     started: false,
     successfulLights: 0,
+    bench: false,
   };
 
   const sc = opts.scenario;
@@ -661,7 +664,7 @@ export function step(w: World, input: Input): GameEvent[] {
   }
   // 2b. Fuel (v1.2): decay + drain, then lanterns at fuel <= 0 go out.
   for (const l of w.lanterns) {
-    if (!l.lit) continue;
+    if (!l.lit || w.bench) continue;
     const drainers = w.shades.filter((s) => s.state === "drain" && s.targetLantern === l.id && !s.evicting).sort(byId);
     l.fuel60 -= t.fuel_decay_per_s + drainers.length * t.drain_per_s;
     for (const s of drainers) {
@@ -684,7 +687,7 @@ export function step(w: World, input: Input): GameEvent[] {
   if (alive) movePlayer(w, input, emit);
 
   // 4. Pick up motes and charms.
-  if (alive) {
+  if (alive && !w.bench) {
     for (let i = 0; i < w.motes.length && p.carried < capacity(w);) {
       const m = w.motes[i];
       if (
@@ -818,7 +821,7 @@ export function step(w: World, input: Input): GameEvent[] {
   moveDrifters(w);
 
   // 9. Touch: drifters steal first, then shades hit (ascending id).
-  if (alive) {
+  if (alive && !w.bench) {
     for (const d of [...w.drifters].sort(byId)) {
       if (
         (d.state !== "idle" && d.state !== "chase") ||
@@ -870,11 +873,13 @@ export function step(w: World, input: Input): GameEvent[] {
   }
 
   // 10. Scheduled spawns (new entities interact from the next tick).
-  spawn(w, emit);
+  if (!w.bench) spawn(w, emit);
 
   // 11. Win / lose.
   // v1.2: no early win; at dawn need ceil(win_ratio * lanterns) lit; no flames always loses first.
-  if (p.flames <= 0) finish(w, ev, "lost", "no_flames");
+  if (w.bench) {
+    /* bench scene never ends */
+  } else if (p.flames <= 0) finish(w, ev, "lost", "no_flames");
   else if (w.timeTicks <= 0) {
     const need = Math.ceil(t.win_ratio * w.lanterns.length - 1e-9);
     const lit = w.lanterns.filter((l) => l.lit).length;
@@ -1088,7 +1093,7 @@ function moveShades(w: World) {
         s.targetLantern = null;
       }
     } else if (s.state === "wander" || s.state === "chase") {
-      if (s.state === "wander" && d <= STD.shadeDetect) s.state = "chase";
+      if (s.state === "wander" && d <= STD.shadeDetect && !w.bench) s.state = "chase";
       else if (s.state === "chase" && d > STD.shadeLose) s.state = "wander";
       if (s.state === "chase") stepToward(s.pos, p.pos[0], p.pos[2], sp);
       else {
