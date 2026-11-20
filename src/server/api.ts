@@ -72,6 +72,23 @@ export function leaderboardApi(
   if (!url.endsWith("/api/leaderboard")) return next();
   if (req.method === "GET") return send(res, 200, { entries: readBoard() });
   if (req.method !== "POST") return send(res, 405, { error: "GET or POST" });
+  // Only the game page itself may write: local Host, same-origin (or no) Origin, JSON body.
+  // Blocks other web pages open in the browser (CSRF) and DNS-rebinding hosts.
+  const host = req.headers.host ?? "";
+  if (!/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/.test(host))
+    return send(res, 403, { error: "local host only" });
+  const origin = req.headers.origin;
+  if (origin !== undefined) {
+    let ok = false;
+    try {
+      ok = new URL(origin).host === host;
+    } catch {
+      ok = false;
+    }
+    if (!ok) return send(res, 403, { error: "cross-origin write refused" });
+  }
+  if (!String(req.headers["content-type"] ?? "").includes("application/json"))
+    return send(res, 415, { error: "Content-Type must be application/json" });
   let body = "";
   req.setEncoding("utf8");
   req.on("data", (c: string) => {

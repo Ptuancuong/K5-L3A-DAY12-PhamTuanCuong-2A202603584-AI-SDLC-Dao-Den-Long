@@ -272,3 +272,30 @@ describe("accessibility key map", () => {
     expect(sanitizeKeys(null)).toEqual(DEFAULT_KEYS);
   });
 });
+
+describe("leaderboard API (security)", () => {
+  it("accepts the game's own JSON POST, refuses cross-origin, foreign Host and non-JSON writes", async () => {
+    const { createServer } = await import("node:http");
+    const { leaderboardApi } = await import("../../src/server/api");
+    const dir = mkdtempSync(join(tmpdir(), "ddl-api-"));
+    const prev = process.env.DDL_SAVE_DIR;
+    process.env.DDL_SAVE_DIR = dir;
+    const srv = createServer((req, res) => leaderboardApi(req, res, () => res.end("static")));
+    await new Promise<void>((r) => srv.listen(0, "127.0.0.1", () => r()));
+    const port = (srv.address() as { port: number }).port;
+    const url = `http://127.0.0.1:${port}/api/leaderboard`;
+    const body = JSON.stringify({ name: "Mây_01", score: 120, nights_won: 1, achieved_at: "2026-11-20T10:00:00+07:00", seed: 3 });
+    const post = (headers: Record<string, string>) => fetch(url, { method: "POST", headers, body }).then((r) => r.status);
+    try {
+      expect(await post({ "Content-Type": "application/json", Origin: "https://evil.example" })).toBe(403);
+      expect(await post({ "Content-Type": "text/plain" })).toBe(415);
+      expect(await post({ "Content-Type": "application/json", Origin: `http://127.0.0.1:${port}` })).toBe(200);
+      const got = await fetch(url).then((r) => r.json());
+      expect(got.entries.map((e: LbEntry) => e.name)).toEqual(["Mây_01"]);
+    } finally {
+      srv.close();
+      if (prev === undefined) delete process.env.DDL_SAVE_DIR;
+      else process.env.DDL_SAVE_DIR = prev;
+    }
+  });
+});

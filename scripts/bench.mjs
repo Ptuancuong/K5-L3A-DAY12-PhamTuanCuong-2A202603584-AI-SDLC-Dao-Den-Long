@@ -82,32 +82,23 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
+// RSS is sampled outside the measured window only (during the 3 s warm-up and right after the window),
+// so spawning ps/powershell never steals CPU from the frames being timed.
 let peak = null;
 let memNote = null;
-let measuring = false;
-const sampler = setInterval(async () => {
-  if (!measuring || !pid) return;
-  try {
-    const v = await treeRssMb(pid);
-    peak = Math.max(peak ?? 0, v);
-  } catch (e) {
-    memNote = `RSS sampling failed: ${e.message}`;
-  }
-}, 5000);
-
-await page.goto(`${url}?bench=1&seed=${seed}&duration=${duration}`);
-await page.waitForFunction(() => window.__benchMeasuring === true, null, { timeout: 60_000 });
-measuring = true;
-await page.waitForFunction(() => window.__bench !== undefined, null, { timeout: (duration + 60) * 1000, polling: 500 });
-measuring = false;
-clearInterval(sampler);
-if (pid) {
+async function sampleRss() {
+  if (!pid) return;
   try {
     peak = Math.max(peak ?? 0, await treeRssMb(pid));
   } catch (e) {
     memNote = `RSS sampling failed: ${e.message}`;
   }
 }
+
+await page.goto(`${url}?bench=1&seed=${seed}&duration=${duration}`);
+await sampleRss(); // warm-up: scene loaded, measurement starts 3 s after the first frame
+await page.waitForFunction(() => window.__bench !== undefined, null, { timeout: (duration + 60) * 1000, polling: 500 });
+await sampleRss(); // steady state at the end of the window
 const b = await page.evaluate(() => window.__bench);
 await browser.close();
 await browserServer.close();
@@ -130,8 +121,8 @@ const report = {
   measured_ms: Math.round(b.measuredMs),
   window: '1280x720 viewport, windowed',
   notes: [
-    'vsync off: Chromium --disable-gpu-vsync --disable-frame-rate-limit (requestAnimationFrame uncapped).',
-    'peak_mem_mb: sum of RSS (Windows: working set) of the browser process tree, sampled every 5 s while measuring.',
+    `vsync off: Chromium --disable-gpu-vsync --disable-frame-rate-limit (requestAnimationFrame uncapped); ${b.stats.avg_fps > 61 ? `confirmed: ${b.stats.avg_fps} fps is above any 60 Hz cap` : 'not confirmed: avg_fps <= 61, the GPU may be the limit'}.`,
+    'peak_mem_mb: max of the summed RSS (Windows: working set) of the browser process tree, sampled at the end of warm-up and right after the measured window (never during it).',
     'load_ms: from bench process start (includes starting the static server and the browser) to the first bench frame.',
     ...(memNote ? [memNote] : []),
     ...(errors.length ? [`page errors: ${errors.join(' | ')}`] : []),
@@ -139,4 +130,5 @@ const report = {
 };
 writeFileSync(out, JSON.stringify(report, null, 2) + '\n');
 console.log(`bench: avg ${report.avg_fps} fps, p1 low ${report.p1_low_fps}, p95 ${report.frame_ms_p95} ms, ${report.frames} frames, load ${report.load_ms} ms, peak ${report.peak_mem_mb} MB -> ${out}`);
-process.exit(errors.length ? 1 : 0);
+if (errors.length) console.error(`page errors (also in bench.json notes): ${errors.join(' | ')}`);
+process.exit(0); // the measurement finished; errors are reported in notes

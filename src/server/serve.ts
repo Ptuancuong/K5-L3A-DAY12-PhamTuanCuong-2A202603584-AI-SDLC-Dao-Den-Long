@@ -33,6 +33,9 @@ function args(argv: string[]) {
 }
 
 const a = args(process.argv.slice(2));
+const here = dirname(fileURLToPath(import.meta.url));
+// The leaderboard lives next to the game (package root/save), whatever the working directory is.
+process.env.DDL_SAVE_DIR ??= join(here, "..", "save");
 // `npm start --export-leaderboard out.json` (without "--") reaches us as an npm config variable.
 const npmExport = process.env.npm_config_export_leaderboard;
 const exportTo =
@@ -58,7 +61,6 @@ if (exportTo !== undefined || a["export-leaderboard"] === true) {
   process.exit(0);
 }
 
-const here = dirname(fileURLToPath(import.meta.url));
 const root = [join(here, "..", "dist"), join(process.cwd(), "dist")].find((d) =>
   existsSync(join(d, "index.html")),
 );
@@ -70,7 +72,13 @@ const rootAbs = resolve(root);
 
 const server = createServer((req, res) => {
   leaderboardApi(req, res, () => {
-    const path = decodeURIComponent((req.url ?? "/").split("?")[0]);
+    let path: string;
+    try {
+      path = decodeURIComponent((req.url ?? "/").split("?")[0]);
+    } catch {
+      res.statusCode = 400; // malformed %-escape: refuse instead of crashing the server
+      return res.end("bad request");
+    }
     let file = normalize(join(rootAbs, path === "/" ? "index.html" : path));
     if (!file.startsWith(rootAbs + sep) && file !== rootAbs) {
       res.statusCode = 403;
