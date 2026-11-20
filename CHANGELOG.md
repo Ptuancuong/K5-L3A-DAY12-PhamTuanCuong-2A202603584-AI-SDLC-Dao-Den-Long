@@ -1,5 +1,24 @@
 # Changelog
 
+## phase-3 — Contract v1.2 ("Đèn cạn dầu")
+
+### ⚠ Breaking changes
+- `contract_version` `1.1` → `1.2`. Tuning thêm `fuel_max, fuel_decay_per_s, fuel_per_mote, relight_cost, win_ratio, drain_per_s, low_fuel_threshold, capacity_max`.
+- Thời lượng Đêm 1/2/3: 300/330/360 s → **240/270/300 s**.
+- **Không còn thắng sớm.** `game_over.reason` `all_lit` bị bỏ. Thắng = `dawn_survived` (đủ ceil(0.6 × đèn) đèn sáng lúc bình minh).
+- Đèn sáng có thể **tắt** (`lantern_out`) khi hết dầu. Đèn sáng nhận thêm đom đóm để châm dầu (`refuel`).
+- Vùng an toàn chỉ còn khi fuel ≥ 30 (trước đây: mọi đèn sáng).
+- Bóng Mực có trạng thái mới `drain`. Hết choáng thì về `wander` (trước đây có thể về `chase`).
+- Điểm: +10 → **+5** mỗi đom đóm nạp; thêm +40 thắp lại; Tỏa Sáng trúng bóng đang hút +15; bỏ thưởng thời gian (`per_second_left: 0`); thưởng bình minh mỗi đèn 50 + floor(fuel).
+- Sức chứa không cố định 10 nữa: `player.capacity` = min(20, 10 + 2 × lần thắp thành công).
+- Snapshot: đèn thêm `fuel`, `ever_lit`, `relit_count`; player thêm `capacity`. Event `lantern_lit` thêm `relight`. Event mới: `refuel`, `lantern_out`, `fuel_drain`.
+- Scenario: đèn nhận `fuel`, `ever_lit` (`lit: true` không có `fuel` thì fuel = 100); player nhận `successful_lights`; shade nhận `target_lantern_id` và `state: "drain"`.
+- Test: `p1-win` nghỉ hưu; P1/P2 cập nhật điểm và thời lượng. Quyết định thiết kế: [docs/adr/0001](docs/adr/0001-lantern-fuel-and-dawn-win.md).
+
+### Thêm
+- Thanh dầu trên đèn sáng, nhấp nháy 1 Hz khi fuel < 30; HUD "đang mang / sức chứa", mục tiêu "giữ k/n đèn tới bình minh".
+- Cài đặt "Bảng màu dễ phân biệt" (lưu lại): viền/mắt Bóng Mực #00B3FF, cảnh báo UI trắng kèm ⚠, đèn tắt xẹp 20% và có vết rách.
+
 ## phase-2
 - Contract v1.1: số liệu chuẩn, `--night 1|2|3`, snapshot/scenario/input/sự kiện mới, trạng thái Bóng Mực chuẩn.
 - Đêm 2 – Đảo Cau, Đêm 3 – Đảo Chuông; Lướt, Gió Lạc, Bùa Gió, rơi khỏi đảo, tạm dừng, gió mạnh.

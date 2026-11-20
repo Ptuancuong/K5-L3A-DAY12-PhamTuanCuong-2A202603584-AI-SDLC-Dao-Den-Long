@@ -95,3 +95,18 @@ Số chuẩn và bản đồ chuẩn thay toàn bộ giả định số liệu c
 | B14 | Scenario v1.1 | `motes` nhận `[x,y,z]` hoặc `{pos, kind, ttl_s}`. `charms[]` nhận `{id, pos?, available?, respawn_ticks?\|respawn_s?}`. `drifters[]` nhận `{id?, pos, state?, stolen?}`. Trạng thái lạ → mã 2. |
 | B15 | Pause trong snapshot / end | `state: "paused"`; dòng `end` cũng có thể là `paused`. |
 | B16 | Tổng điểm game | Giao diện cộng điểm các Đêm đã thắng. Headless chạy một Đêm nên `score` là điểm của Đêm đó. |
+
+## Phase 3 — Ticket-03 + Contract v1.2
+
+Quyết định chính: [ADR 0001](../adr/0001-lantern-fuel-and-dawn-win.md).
+
+| # | Chỗ mơ hồ | Giả định |
+|---|---|---|
+| C1 | Dầu lẻ | Lưu nguyên đơn vị 1/60. Snapshot/event làm tròn 1 chữ số. Thưởng bình minh dùng floor(fuel). |
+| C2 | `fuel_drain` | Mỗi Bóng Mực đang hút đếm riêng; event ở tick hút thứ 60, 120… `fuel` là dầu sau khi trừ tick đó. |
+| C3 | "Đi về đèn tắt gần nhất như trước" | Wander không có đèn yếu → bay 1.5 m/s tới đèn tắt gần nhất rồi đứng đó. Không còn đèn tắt → lang thang ngẫu nhiên như Phase 2. |
+| C4 | Wander và phát hiện | Vẫn đổi sang chase khi Mây ≤ 12 m (luật Phase 2), trước khi chọn đèn yếu. |
+| C5 | Hết choáng | Luôn về `wander` (ticket). Recoil vẫn về chase/wander theo khoảng cách như Phase 2. |
+| C6 | Scenario đèn `lit: false` có `fuel` | Bỏ qua, fuel = 0. `ever_lit` mặc định = `lit`. |
+| C7 | Shade `state: "drain"` không có `target_lantern_id` | Chọn đèn gần nhất. |
+| C8 | `per_second_left` | Đặt 0 (thưởng thời gian bị bỏ). Thưởng thắp lại (40), Tỏa Sáng lúc drain (15), mỗi đèn lúc bình minh (50) để trong `STD` vì contract không có khóa cho chúng. |

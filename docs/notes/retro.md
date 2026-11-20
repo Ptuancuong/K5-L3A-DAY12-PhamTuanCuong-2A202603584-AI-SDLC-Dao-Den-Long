@@ -15,4 +15,9 @@
 - **Phase trước có hỏng không:** luật Phase 1 đổi theo số chuẩn. 18 scenario `p1-*` được tính lại bằng tay. `p1-island-edge` nghỉ hưu vì rơi khỏi đảo nay là luật; lý do ghi trong `tests/scenarios/_retired/README.md`.
 - **Harness đã chỉnh:** thêm `mutation-check.mjs` (đã bắt lỗi #8); CI chuyển `PHASE=phase-2`; CLAUDE.md và skill `verify` cập nhật cho 3 Đêm.
 
+## Phase 3 — đánh giá
+- **Đạt:** 16/16 dòng. 59 scenario + unit test xanh; mutation check 0/15 lọt (có 6 khóa mới của v1.2).
+- **Phase trước bị ảnh hưởng:** có chủ đích. `p1-win` nghỉ hưu (thắng sớm bị thay). Các kỳ vọng P1/P2 đổi điểm hoặc thời lượng, lý do ghi trong `note`. Bộ ảnh Phase 2 chỉ chạy cho tag phase-2.
+- **Harness đã chỉnh:** mutation check thêm 6 khóa mới; CI `PHASE=phase-3`; CLAUDE.md ghi mô hình đèn mới (`hasZone`, `fuel60`).
+
 ## Retro tổng (điền ở Phase 4)

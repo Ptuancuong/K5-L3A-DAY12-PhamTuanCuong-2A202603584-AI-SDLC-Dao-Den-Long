@@ -52,3 +52,27 @@ Báo cáo chạy: [phase-2/verify-report.md](phase-2/verify-report.md) (45 scena
 | 16 | Headless một Đêm đầy đủ (21 600 tick) ≤ 30 s | Unit test đo thời gian cả 3 Đêm | `core.test.ts › performance` | Đạt |
 | 17 | ≥ 30 FPS trung bình ở 1280×720 | Bộ đếm FPS trong game (`?fps=1`), chơi Đêm 3 trên máy thật | ~160 FPS trung bình; NVIDIA GeForce RTX 3060 Laptop GPU, Intel Core i5-12500H, Windows 11, `npm run dev`; người dùng đo tay | Đạt (đo tay, chưa có ảnh/log) |
 | 18 | Mỗi tính năng mới có ≥ 1 scenario headless | Danh sách scenario `p2-*` | 27 scenario `p2-*` | Đạt |
+
+## Phase 3 (tag `phase-3`) — Ticket-03 "Đèn cạn dầu", Contract v1.2
+
+Quyết định thiết kế: [ADR 0001](../adr/0001-lantern-fuel-and-dawn-win.md) · Breaking changes: [CHANGELOG](../../CHANGELOG.md) ·
+[verify-report](phase-3/verify-report.md) (59 scenario + tất định 3 Đêm) · [mutation-check](phase-3/mutation-check.md) (0/15 lọt) · [ảnh](phase-3/screenshots/README.md).
+
+| # | Yêu cầu | Bằng chứng | Kết quả |
+|---|---|---|---|
+| 1 | Nhiên liệu: thắp → 100, hao 1/s, hết dầu → tắt, `deposited` 0, `ever_lit` | `p3-fuel-decay`, `p3-lantern-out` | Đạt |
+| 2 | Châm dầu: used = min(mang, ceil((100−fuel)/10)), đèn đầy không chọn được | `p3-refuel` | Đạt |
+| 3 | Thắp lại tốn 5, +40, `relight: true`, `relit_count` | `p3-relight` | Đạt |
+| 4 | Vùng an toàn chỉ khi fuel ≥ 30 | `p3-low-fuel-no-zone`, `p1-safe-radius` | Đạt |
+| 5 | Bóng Mực wander → đèn yếu → drain (5/s, `fuel_drain` mỗi 60 tick) | `p3-drain` | Đạt |
+| 6 | Thoát drain: chase ≤ 6 m / stunned / wander khi đèn tắt hoặc châm ≥ 30 | `p3-drain-chase`, `p3-pulse-drain`, `p3-refuel-evict`, `p3-drain` | Đạt |
+| 7 | Châm lên ≥ 30 thì đẩy bóng ra mép trong 30 tick, vô hại | `p3-refuel-evict` | Đạt |
+| 8 | Thắng lúc bình minh với ≥ ceil(0.6 × đèn); không thắng sớm; no_flames xét trước | `p3-win-dawn` (597), `p3-lose-dawn`, `p3-all-lit-continues`, `p3-no-flames-at-dawn` | Đạt |
+| 9 | Sức chứa 10 + 2 × lần thắp, tối đa 20 | `p3-capacity`, `p3-relight` | Đạt |
+| 10 | Điểm mới (+5/đom đóm, +100/+40, +5/+15 Tỏa Sáng, thưởng bình minh) | `p1-deposit-light` (150), `p3-relight` (65), `p3-pulse-drain` (15), `p3-win-dawn` (597) | Đạt |
+| 11 | Thời lượng 240/270/300 s | `p1-no-scenario-default`, `p2-night2-start`, `p2-night3-start` | Đạt |
+| 12 | Contract v1.2: snapshot/scenario/event mới | các scenario `p3-*`, `p3-bad-target`; unit `contract file v1.2` | Đạt |
+| 13 | Thanh dầu, nhấp nháy 1 Hz khi < 30 | ảnh p3-01, p3-02 | Đạt (ảnh tĩnh; nhấp nháy kiểm bằng mắt) |
+| 14 | Chế độ mù màu (lưu lại): #00B3FF, cảnh báo trắng + ⚠, đèn tắt xẹp 20% + vết rách | ảnh p3-03 | Đạt |
+| 15 | Test cũ bị luật mới làm sai: sửa hoặc nghỉ hưu có lý do | `p1-win` → `_retired/` (README có lý do); P1/P2 cập nhật trong `note` | Đạt |
+| 16 | Hồi quy Phase 1–2 không bị thay thế | 45 scenario P1/P2 vẫn chạy trong verify-report | Đạt |

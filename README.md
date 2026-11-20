@@ -35,6 +35,15 @@ npm start          # mở http://localhost:4173 trong trình duyệt
 | 2 | Đảo Cau: hai đảo nối bằng cầu tre | 330 s | 6 | Bục nhảy, Gió Lạc, Bùa Gió |
 | 3 | Đảo Chuông: 3 tầng, dốc, tháp chuông | 360 s | 7 | Gió mạnh mỗi 30 s, Bóng Mực nhanh hơn |
 
+## Luật Phase 3 — "Đèn cạn dầu" (thay một số luật bên dưới)
+
+- Đèn sáng tiêu hao **1 dầu/giây** (tối đa 100). Hết dầu thì tắt; thắp lại chỉ tốn **5** đom đóm. Bấm E ở đèn sáng để **châm dầu** (mỗi đom đóm +10).
+- Đèn còn dưới 30 dầu thì nhấp nháy và **mất vùng an toàn**; Bóng Mực tới hút dầu (5/giây).
+- **Thắng khi tới bình minh còn đủ đèn sáng**: Đêm 1 ≥ 3/5, Đêm 2 ≥ 4/6, Đêm 3 ≥ 5/7. Thời lượng 240 / 270 / 300 s. Thắp hết đèn không còn kết thúc Đêm.
+- Sức chứa = 10 + 2 × số lần thắp thành công (tối đa 20).
+- Điểm: +5 mỗi đom đóm nạp, +100 thắp lần đầu, +40 thắp lại, +5 mỗi Bóng Mực trúng Tỏa Sáng (+15 nếu nó đang hút dầu); khi thắng: mỗi đèn sáng +50 + dầu còn lại, mỗi Ngọn Lửa +50.
+- Cài đặt có **Bảng màu dễ phân biệt**. Quyết định thiết kế: [ADR 0001](docs/adr/0001-lantern-fuel-and-dawn-win.md).
+
 ## Luật chơi và cách tính điểm (số chuẩn Ticket-02)
 
 - Đi qua đom đóm (≤ 1 m) là nhặt, mang tối đa **10**. Mỗi đèn cần **10** đom đóm, nạp nhiều lần được.
@@ -63,7 +72,7 @@ Tổng điểm game là tổng điểm các Đêm đã thắng. Mọi con số n
 - Thưởng thời gian và lửa chỉ cộng khi thắng, ngay ở tick `game_over`.
 - Thứ tự trong một tick theo đúng 12 bước của Ticket-02; event ghi trước snapshot cùng tick; `end` luôn là dòng cuối.
 
-## Chế độ headless (Test Contract v1.1)
+## Chế độ headless (Test Contract v1.2)
 
 ```bash
 npm ci && npm run build                               # build_cmd
@@ -76,9 +85,9 @@ Mã thoát: `0` thành công · `2` file inputs/scenario sai định dạng · `
 ## Kiểm thử và bằng chứng
 
 ```bash
-npm test                    # typecheck + unit test + 45 scenario headless + tính tất định + mã lỗi CLI
-npm run verify -- phase-2   # chạy mọi scenario qua CLI thật, ghi docs/proof/phase-2/verify-report.md
-node scripts/mutation-check.mjs phase-2   # đổi từng số tuning, chứng minh test có thể đỏ
+npm test                    # typecheck + unit test + 59 scenario headless + tính tất định + mã lỗi CLI
+npm run verify -- phase-3   # chạy mọi scenario qua CLI thật, ghi docs/proof/phase-2/verify-report.md
+node scripts/mutation-check.mjs phase-3   # đổi từng số tuning, chứng minh test có thể đỏ
 npm run shot -- phase-2     # (cần: npx playwright install chromium) chụp ảnh game thật
 ```
 

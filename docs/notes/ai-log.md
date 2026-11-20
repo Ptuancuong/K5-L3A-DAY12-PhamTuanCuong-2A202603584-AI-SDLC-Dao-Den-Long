@@ -57,3 +57,21 @@ Harness: `CLAUDE.md`, skill `verify`, subagent `reviewer`, Stop hook chạy `npm
 - Phase 2: khoảng 3–4 triệu token input (phần lớn từ cache) và khoảng 70 nghìn token output. _Số thật: cập nhật từ `/cost`._
 - Cách tiết kiệm: viết lõi + bộ sinh scenario thành vài file lớn trong ít lượt; chạy toàn bộ scenario bằng một lệnh và chỉ in phần lỗi; chụp ảnh bằng một script rồi chỉ mở các ảnh cần kiểm.
   (`verify.mjs`, `screenshot.mjs`) thay vì để agent chạy tay từng lệnh; không dùng subagent cho việc đọc/tìm.
+
+## Phase 3
+
+### Lời nhắc chính
+- "Đã cập nhật nội dung phase 3 @docs/lab/phase-3-ticket03.md" → agent làm lõi v1.2 + test trước, rồi ADR/changelog (DoD), cuối cùng là giao diện.
+
+### Lỗi của AI và cách phát hiện
+| # | Lỗi | Phát hiện bằng | Sửa / chỉnh harness |
+|---|---|---|---|
+| 11 | Hai kỳ vọng sai: kiểm snapshot ở tick 5 (mặc định cứ 10 tick mới có một snapshot); nhầm 136 thay vì 135 (9 m / (4/60)) | Scenario đỏ, đọc lại phép tính | Sửa kỳ vọng sau khi tính lại tay, không chép output |
+| 12 | Dòng `?cb=1` đặt trước khai báo `settings` → typecheck lỗi, `npm run build` không chạy, ảnh dùng bản build cũ ("bad shade state drain") | Lỗi trang trong script chụp ảnh | Đổi thứ tự; luôn xem output build trước khi chụp |
+| 13 | Script ảnh Phase 2 dựa vào luật thắng sớm đã bị thay | Playwright timeout ở `#res-next` | Bộ ảnh Phase 2 chỉ chạy khi chụp cho `phase-2` (ảnh ở tag phase-2 vẫn đúng với code tại đó) |
+| 14 | Màn kết quả hiện "Đảo Đảo Bến" | Mở ảnh p3-04 | Sửa chuỗi |
+| 15 | Heredoc bash nhiều lần lỗi dấu nháy | Lỗi shell | Viết script Python ra thư mục tạm rồi chạy |
+
+### Token / chi phí (ước tính)
+- Phase 3: khoảng 2–3 triệu token input (phần lớn cache) và khoảng 45 nghìn token output. _Số thật: cập nhật từ `/cost`._
+- Cách tiết kiệm: sửa code bằng script thay thế có kiểm tra số lần khớp (dừng ngay nếu lệch) thay vì đọc lại cả file lớn; chạy toàn bộ scenario bằng một lệnh và chỉ in phần lỗi.
