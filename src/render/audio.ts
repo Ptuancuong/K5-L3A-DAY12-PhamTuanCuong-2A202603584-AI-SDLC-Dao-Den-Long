@@ -138,6 +138,7 @@ export class Audio {
 export interface Settings {
   volume: number;
   sensitivity: number;
+  colorblind: boolean;
 }
 const KEY = "dao-den-long-settings";
 export function loadSettings(): Settings {
@@ -146,9 +147,10 @@ export function loadSettings(): Settings {
     return {
       volume: typeof s.volume === "number" ? s.volume : 0.6,
       sensitivity: typeof s.sensitivity === "number" ? s.sensitivity : 0.3,
+      colorblind: s.colorblind === true,
     };
   } catch {
-    return { volume: 0.6, sensitivity: 0.3 };
+    return { volume: 0.6, sensitivity: 0.3, colorblind: false };
   }
 }
 export function saveSettings(s: Settings) {

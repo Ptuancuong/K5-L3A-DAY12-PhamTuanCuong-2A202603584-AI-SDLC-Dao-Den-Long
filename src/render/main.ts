@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { STD, TICK_HZ, TUNING } from "../core/config";
 import { NIGHTS, TOWER, type NightDef } from "../core/maps";
 import {
+  capacity,
   createWorld,
   nextWindTick,
   step,
@@ -38,7 +39,10 @@ const C = {
 };
 
 const params = new URLSearchParams(location.search);
+const shadeEdgeColor = () => (settings.colorblind ? 0x00b3ff : C.shadeEdge);
+const needLit = () => Math.ceil(TUNING.win_ratio * world.lanterns.length - 1e-9);
 const settings = loadSettings();
+if (params.get("cb") === "1") settings.colorblind = true; // screenshots/demo
 const audio = new Audio();
 audio.setVolume(settings.volume);
 
@@ -223,6 +227,9 @@ interface LanternView {
   core: THREE.Mesh;
   light: THREE.PointLight;
   ring: THREE.Mesh;
+  bar: THREE.Mesh;
+  barBg: THREE.Mesh;
+  tear: THREE.Mesh;
 }
 function makeLantern(): LanternView {
   const group = new THREE.Group();
@@ -255,8 +262,16 @@ function makeLantern(): LanternView {
   );
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.04;
-  group.add(post, lamp, core, light, ring);
-  return { group, lamp, core, light, ring };
+  // Fuel bar (v1.2) and a torn-paper mark for unlit lanterns (colour-independent cue).
+  const barBg = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.18), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+  barBg.position.y = 4.75;
+  const bar = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.12), new THREE.MeshBasicMaterial({ color: C.litLamp, side: THREE.DoubleSide }));
+  bar.position.y = 4.75;
+  const tear = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 0.7), new THREE.MeshBasicMaterial({ color: 0x15151c }));
+  tear.position.set(0.3, 3.55, 0.35);
+  tear.rotation.z = 0.5;
+  group.add(post, lamp, core, light, ring, barBg, bar, tear);
+  return { group, lamp, core, light, ring, bar, barBg, tear };
 }
 
 const moteGeo = new THREE.SphereGeometry(0.13, 8, 6);
@@ -287,14 +302,14 @@ function makeShade() {
   const edge = new THREE.Mesh(
     edgeGeo,
     new THREE.MeshBasicMaterial({
-      color: C.shadeEdge,
+      color: shadeEdgeColor(),
       transparent: true,
       opacity: 0.35,
       side: THREE.BackSide,
     }),
   );
   body.scale.y = edge.scale.y = 1.2;
-  const eyeMat = new THREE.MeshBasicMaterial({ color: C.shadeEdge });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: shadeEdgeColor() });
   const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), eyeMat);
   const e2 = e1.clone();
   e1.position.set(-0.25, 0.25, 0.72);
@@ -443,8 +458,8 @@ function endNight() {
   }
   $("res-title").textContent = won ? `Đêm ${night} đã sáng!` : "Thua rồi…";
   const reasons: Record<string, string> = {
-    all_lit: `Mọi Đèn Lồng Lớn trên ${world.n.name} đã sáng.`,
-    dawn: "Trời đã sáng mà đảo vẫn chìm trong sương đen.",
+    dawn_survived: `Bình minh! ${world.n.name} vẫn còn ${world.lanterns.filter((l) => l.lit).length}/${world.lanterns.length} đèn sáng.`,
+    dawn: `Trời đã sáng nhưng chưa đủ ${needLit()} đèn sáng.`,
     no_flames: "Mây đã mất hết Ngọn Lửa.",
   };
   $("res-reason").textContent = reasons[world.result?.reason ?? ""] ?? "";
@@ -489,6 +504,18 @@ sens.addEventListener("input", () => {
   settings.sensitivity = Number(sens.value);
   saveSettings(settings);
 });
+const cb = $("set-cb") as HTMLInputElement;
+cb.checked = settings.colorblind;
+cb.addEventListener("change", () => {
+  settings.colorblind = cb.checked;
+  saveSettings(settings);
+  applyColorblind();
+});
+function applyColorblind() {
+  document.documentElement.style.setProperty("--danger", settings.colorblind ? "#ffffff" : "#ff5a5f");
+  for (const g of shadeMeshes.values()) for (const k of [1, 2, 3]) ((g.children[k] as THREE.Mesh).material as THREE.MeshBasicMaterial).color.setHex(shadeEdgeColor());
+}
+applyColorblind();
 
 // ---------- input ----------
 const keys = new Set<string>();
@@ -541,10 +568,13 @@ function readInput(): Input {
 
 // ---------- HUD ----------
 const moteCells: HTMLElement[] = [];
-for (let i = 0; i < TUNING.carry_capacity; i++) {
-  const c = document.createElement("i");
-  $("motebar").appendChild(c);
-  moteCells.push(c);
+function ensureCells(n: number) {
+  while (moteCells.length < n) {
+    const c = document.createElement("i");
+    $("motebar").appendChild(c);
+    moteCells.push(c);
+  }
+  moteCells.forEach((c, i) => (c.style.display = i < n ? "" : "none"));
 }
 const proj = new THREE.Vector3();
 function drawHud() {
@@ -555,9 +585,11 @@ function drawHud() {
   const timer = $("timer");
   timer.textContent = `${String(Math.floor(tl / 60)).padStart(2, "0")}:${String(tl % 60).padStart(2, "0")}`;
   timer.classList.toggle("danger", tl <= 30);
+  if (tl <= 30 && settings.colorblind) timer.textContent = `⚠ ${timer.textContent}`;
   const lit = world.lanterns.filter((l) => l.lit).length;
   $("topright").innerHTML =
-    `Đèn <b>${lit}/${world.lanterns.length}</b><br>Điểm <b>${world.score}</b>`;
+    `Đèn <b>${lit}/${world.lanterns.length}</b> (giữ ≥ ${needLit()} tới bình minh)<br>Điểm <b>${world.score}</b><br>Mang <b>${p.carried}/${capacity(world)}</b>`;
+  ensureCells(capacity(world));
   moteCells.forEach((c, i) => c.classList.toggle("on", i < p.carried));
   const dashFrac =
     p.charmTicks > 0 ? 0 : p.dashCdTicks / (TUNING.dash_cooldown_s * TICK_HZ);
@@ -624,6 +656,12 @@ function onEvents(evs: GameEvent[]) {
       case "lantern_lit":
         audio.play("lit");
         break;
+      case "refuel":
+        audio.play("pick");
+        break;
+      case "lantern_out":
+        audio.play("lose");
+        break;
       case "pulse":
         pulseFx = 0;
         audio.play("pulse");
@@ -689,15 +727,26 @@ function sync(dt: number, time: number) {
   world.lanterns.forEach((l, i) => {
     const v = lanternViews[i];
     const m = v.lamp.material as THREE.MeshStandardMaterial;
+    const fuel = l.fuel60 / TICK_HZ;
+    const low = l.lit && fuel < TUNING.low_fuel_threshold;
+    const blinkOff = low && Math.floor(time * 2) % 2 === 1; // 1 Hz slow blink
     m.color.setHex(l.lit ? C.litLamp : C.offLamp);
     m.emissive.setHex(l.lit ? C.litLamp : 0x000000);
-    m.emissiveIntensity = l.lit ? 1.5 : 0;
+    m.emissiveIntensity = l.lit ? (blinkOff ? 0.2 : 1.5) : 0;
+    v.lamp.scale.y = l.lit ? 1.3 : 1.3 * 0.8; // unlit lantern is squashed 20%
+    v.tear.visible = !l.lit;
+    v.bar.visible = v.barBg.visible = l.lit && !blinkOff;
+    v.bar.scale.x = Math.max(0.001, fuel / TUNING.fuel_max);
+    v.bar.position.x = -0.75 * (1 - v.bar.scale.x);
+    (v.bar.material as THREE.MeshBasicMaterial).color.setHex(low ? (settings.colorblind ? 0xffffff : 0xff5a5f) : C.litLamp);
+    v.bar.quaternion.copy(camera.quaternion);
+    v.barBg.quaternion.copy(camera.quaternion);
     v.core.visible = l.lit || l.deposited > 0;
     v.core.scale.setScalar(
       l.lit ? 1 : 0.3 + (0.7 * l.deposited) / TUNING.lantern_cost,
     );
     v.light.intensity = l.lit ? 60 : (l.deposited / TUNING.lantern_cost) * 8;
-    (v.ring.material as THREE.MeshBasicMaterial).opacity = l.lit ? 0.4 : 0;
+    (v.ring.material as THREE.MeshBasicMaterial).opacity = l.lit && !low ? 0.4 : 0; // zone only when fuel >= 30
   });
 
   syncMap(moteMeshes, world.motes, makeMote, (m, mo) => {
