@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đảo Đèn Lồng</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #0b0614;
+        font-family: system-ui, sans-serif;
+        color: #fde8c8;
+      }
+      canvas {
+        display: block;
+      }
+      #hud {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        pointer-events: none;
+      }
+      .chip {
+        background: rgba(20, 10, 35, 0.7);
+        border: 1px solid rgba(255, 190, 110, 0.35);
+        border-radius: 10px;
+        padding: 6px 10px;
+        font-size: 15px;
+      }
+      .chip b {
+        color: #ffc46b;
+      }
+      #hint {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 15px;
+        opacity: 0.85;
+        pointer-events: none;
+        text-align: center;
+      }
+      #prompt {
+        position: fixed;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 18px;
+        color: #ffd28a;
+        pointer-events: none;
+      }
+      #overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background: rgba(8, 4, 16, 0.65);
+        text-align: center;
+      }
+      #overlay h1 {
+        font-size: 46px;
+        margin: 0 0 8px;
+        color: #ffc46b;
+      }
+      #overlay p {
+        font-size: 18px;
+        margin: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="hud"></div>
+    <div id="prompt"></div>
+    <div id="hint">
+      WASD: đi · Kéo chuột / ← →: xoay camera · Space: nhảy · E: nạp đèn · F:
+      tỏa sáng · R: chơi lại (khi hết ván) · Shift+R: chơi lại ngay
+    </div>
+    <div id="overlay">
+      <h1 id="ov-title"></h1>
+      <p id="ov-reason"></p>
+      <p id="ov-score"></p>
+      <p>Nhấn <b>R</b> hoặc <b>Enter</b> để chơi lại</p>
+    </div>
+    <script type="module" src="/src/render/main.ts"></script>
+  </body>
+</html>
