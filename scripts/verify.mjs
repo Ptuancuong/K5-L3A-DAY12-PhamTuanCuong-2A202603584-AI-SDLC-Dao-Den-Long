@@ -63,6 +63,7 @@ if (Number(phase.split('-')[1]) >= 4) {
   const contract = JSON.parse(readFileSync(join(ROOT, 'game.contract.json'), 'utf8'));
   const check = (what, ok) => {
     if (!ok) failed++;
+    if (!ok && process.env.GITHUB_ACTIONS) console.log(`::error title=verify::FAIL ${what}`);
     p4Rows.push(`| ${what} | ${ok ? 'PASS' : 'FAIL'} |`);
     console.log(`${ok ? 'PASS' : 'FAIL'} ${what}`);
   };
@@ -73,6 +74,11 @@ if (Number(phase.split('-')[1]) >= 4) {
     soak = JSON.parse(readFileSync(soakOut, 'utf8'));
   } catch {
     /* reported below */
+  }
+  if (process.env.GITHUB_ACTIONS) {
+    // CI logs need a login; annotations are public, so surface the soak numbers there.
+    const brief = soak ? `mem ${soak.mem_start_mb} -> ${soak.mem_end_mb} MB, crashes ${soak.crashes}, ${soak.duration_s} s, ${soak.node}` : `no soak.json; exit ${s.status}; ${String(s.stderr).slice(0, 300)}`;
+    console.log(`::notice title=soak ${platform()} ${arch()}::${brief}`);
   }
   check('soak_cmd --seed 7 --nights 10: exit 0, 10 results won/lost', s.status === 0 && soak?.nights === 10 && soak.results.length === 10 && soak.results.every((r) => r === 'won' || r === 'lost'));
   check('soak: crashes = 0', soak?.crashes === 0);
