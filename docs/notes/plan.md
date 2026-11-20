@@ -1,5 +1,47 @@
 # Kế hoạch làm lab Day 12 — Đảo Đèn Lồng
 
+## ▶ TRẠNG THÁI HIỆN TẠI & BÀN GIAO (đọc mục này trước)
+
+_Cập nhật 2026-11-20, sau khi xong Phase 3. Phần kế hoạch ban đầu (mục 0–7) giữ nguyên bên dưới._
+
+### Tiến độ
+| Phase | Tag | Commit | CI (Ubuntu + macOS) | Ghi chú |
+|---|---|---|---|---|
+| 1 | `phase-1` | `ef04215` | xanh | Đã dời tag 1 lần (sửa lỗi Bóng Mực choáng trong vùng sáng) |
+| 2 | `phase-2` | `fd0a9ed` | xanh | Đã dời tag 1 lần (thêm dòng FPS ~160 + âm thanh do người dùng kiểm tay) |
+| 3 | `phase-3` | `711fa27` | xanh (run 44724743557) | Contract v1.2, ADR 0001, CHANGELOG breaking changes |
+| 4 | — | — | — | **Chưa bắt đầu.** Ticket: `docs/lab/phase-4-ticket04.md` (đã có trong thư mục, CHƯA commit). Có 90 phút; để 15 phút cuối cho Release + video |
+
+### Việc còn phải làm ở Phase 4 (ngoài nội dung Ticket-04)
+1. Đọc Ticket-04, viết spec/tiêu chí nghiệm thu, cập nhật `scripts/gen-scenarios.mjs` (thêm `p4-*`), chạy lại toàn bộ.
+2. **Release `v1.0.0`**: cần `gh auth login` (người dùng phải tự chạy — `gh` đã cài ở `C:\Program Files\GitHub CLI\gh.exe` nhưng CHƯA đăng nhập). Bản chạy được: zip `dist/` + `build/headless.mjs`, kèm hướng dẫn.
+3. **Video `.mp4` < 5 phút** (người dùng quay; `ffmpeg` đã cài qua winget để nén): chơi thử, chạy `npm test`/verify, đo FPS, lướt harness + git log, cho thấy âm thanh và đèn nhấp nháy 1 Hz (chưa có bằng chứng động). Link ở đầu README.
+4. **Đo FPS có log**: hiện FPS (~160, RTX 3060 Laptop) chỉ do người dùng báo tay. Nên thêm script/bằng chứng lưu được (ví dụ `?fps=1` + `window.__fps`).
+5. **README sạch**: cài + chạy ≤ 3 lệnh; xóa dòng "Video demo: (sẽ thêm ở Phase 4)".
+6. **Retro tổng** trong `docs/notes/retro.md` (mục "Retro tổng" đang trống) + số token thật từ `/cost` vào `docs/notes/ai-log.md` (hiện là ước tính).
+7. Chạy subagent `reviewer` (`.claude/agents/reviewer.md`) ít nhất 1 lần — rubric B tính điểm "đánh giá bởi agent khác"; CHƯA chạy lần nào.
+8. Cập nhật `PHASE: phase-4` trong `.github/workflows/ci.yml`, mặc định phase trong `scripts/mutation-check.mjs`, và thêm bộ ảnh `phase-4` trong `scripts/screenshot.mjs`.
+9. Kiểm tra cuối theo `docs/lab/SUBMISSION.md` §7: repo public, clone sạch chạy được, tag đủ, CREDITS/LICENSE, không có `.env`.
+
+### Quy trình mỗi phase (đã dùng ổn định)
+`docs/lab/phase-N-*.md` → sửa `src/core` → thêm/sửa scenario trong `scripts/gen-scenarios.mjs` (kỳ vọng TÍNH TAY, ghi phép tính trong `note`) →
+`node scripts/gen-scenarios.mjs` → `npm test` → `node scripts/verify.mjs phase-N` → `node scripts/mutation-check.mjs phase-N` (phải 0 lọt) →
+`npm run build && node scripts/screenshot.mjs phase-N` (mở từng ảnh xem) → cập nhật `docs/proof/README.md`, `docs/notes/{assumptions,ai-log,retro}.md`,
+README, CHANGELOG, CLAUDE.md, CI `PHASE` → commit theo nhóm (core / view / harness / docs) → push → `git tag phase-N` → chờ CI.
+Test cũ bị luật mới thay: chuyển sang `tests/scenarios/_retired/` + thêm dòng lý do trong `_retired/README.md` (đã làm: `p1-island-edge`, `p1-win`).
+
+### Lưu ý kỹ thuật (đã vấp, đừng lặp lại)
+- **Hook formatter của người dùng** tự định dạng lại file sau mỗi Write/Edit (đổi sang nháy kép, xuống dòng). Trước khi Edit một file đã bị định dạng, phải Read lại đoạn cần sửa; thay thế bằng script Python có `assert count == 1`.
+- **Heredoc bash hay lỗi dấu nháy** (`unexpected EOF while looking for matching '`) khi nội dung dài/có backtick. Viết script Python ra thư mục scratchpad rồi chạy.
+- `npm test` luôn build lại `build/headless.mjs` trước (bundle nhúng số tuning; bundle cũ từng làm mutation check "đạt" giả).
+- Screenshot dùng `dist/`: phải `npm run build` thành công trước (từng chụp nhầm bản cũ khi typecheck lỗi).
+- `game.contract.json` là nguồn số duy nhất; số chuẩn không phải tuning nằm trong `STD` (`src/core/config.ts`). Không viết cứng số (lỗi `shade_speed` từng bị mutation check bắt).
+- Thứ tự trong tick: 12 bước của Ticket-02 + bước 2b (dầu) của Ticket-03, comment đánh số trong `step()` (`src/core/sim.ts`).
+- Stop hook (`.claude/settings.json`) chạy `npm test` khi agent định kết thúc — test phải xanh.
+- Người dùng làm việc bằng tiếng Việt; hỏi xác nhận trước khi dời tag (chỉ dời khi chưa qua mốc giờ của phase).
+
+---
+
 > Kế hoạch đã thống nhất. Quyết định đã chốt ở mục 6, câu hỏi còn mở ở mục 7.
 > Nội dung PRD-0 / Ticket chưa có trong repo (chỉ có trên lab board), nên phần "yêu cầu cụ thể" của từng phase sẽ điền khi phase phát hành.
 
