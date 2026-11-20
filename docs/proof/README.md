@@ -1,0 +1,28 @@
+# Bằng chứng — truy vết yêu cầu
+
+Mọi bằng chứng tái lập được ở tag tương ứng: `npm ci && npm run build && npm run verify -- phase-N`
+(ảnh: `npm run shot -- phase-N`). CI so sánh `verify-report.md` và `runs/` đã commit với lần chạy lại.
+
+## Phase 1 (tag `phase-1`)
+
+| #   | Yêu cầu (PRD-0 / Contract v1.0)                            | Cách kiểm chứng                                  | Bằng chứng                                                                                                                            | Kết quả                 |
+| --- | ---------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1   | Màn Đêm 1 – Đảo Bến tròn, 5 Đèn Lồng Lớn                   | Scenario mặc định + ảnh                          | `p1-no-scenario-default`, [01-start](phase-1/screenshots/01-start.png)                                                                | Đạt                     |
+| 2   | Nhân vật đi, nhảy, camera 3D                               | Scenario di chuyển/xoay/nhảy + ảnh               | `p1-camera-yaw`, `p1-move-normalize`, `p1-jump`, `p1-island-edge`, [02-walk](phase-1/screenshots/02-walk.png)                         | Đạt                     |
+| 3   | Đom đóm rải rác, nhặt được                                 | Scenario                                         | `p1-pickup`, `p1-carry-capacity`                                                                                                      | Đạt                     |
+| 4   | Nạp ánh sáng vào đèn để thắp                               | Scenario + ảnh                                   | `p1-deposit-light`, `p1-partial-deposit`, `p1-held-interact`, [03-near-lantern](phase-1/screenshots/03-near-lantern.png)              | Đạt                     |
+| 5   | Bóng Mực xuất hiện và đuổi, chạm thì mất máu               | Scenario + unit test sinh Bóng Mực               | `p1-hit-invuln`, `core.test.ts › random spawning`                                                                                     | Đạt                     |
+| 6   | Tỏa sáng xua Bóng Mực, tốn ánh sáng                        | Scenario + ảnh                                   | `p1-pulse-stun`, `p1-pulse-no-light`, `p1-pulse-cooldown`, [05-shade-pulse](phase-1/screenshots/05-shade-pulse.png)                   | Đạt                     |
+| 7   | Bóng Mực sợ đèn (`safe_radius`)                            | Scenario + unit test 1200 tick                   | `p1-safe-radius`, `core.test.ts › safe radius`                                                                                        | Đạt (theo giả định A9)  |
+| 8   | Thắng / thua / điểm                                        | Scenario + ảnh                                   | `p1-win` (848 điểm), `p1-dawn`, `p1-hit-invuln`, [06-won](phase-1/screenshots/06-won.png), [07-lost](phase-1/screenshots/07-lost.png) | Đạt                     |
+| 9   | HUD hiển thị thông tin cần thiết                           | Ảnh                                              | Mọi ảnh: lửa, đom đóm, đèn, điểm, thời gian, trạng thái tỏa sáng                                                                      | Đạt                     |
+| 10  | Chơi lại sau thắng/thua                                    | Playwright bấm R ở màn thua, kiểm tra overlay ẩn | [08-replay](phase-1/screenshots/08-replay.png), log `overlay hidden: true`                                                            | Đạt                     |
+| 11  | Đảo sáng dần khi thắp đèn; vàng cam tốt, tím đen nguy hiểm | Ảnh                                              | [04-three-lit](phase-1/screenshots/04-three-lit.png) so với [01-start](phase-1/screenshots/01-start.png)                              | Đạt (đánh giá bằng mắt) |
+| 12  | `game.contract.json` đúng mẫu, tuning khớp game            | Unit test: đủ key, code dùng chính object này    | `core.test.ts › contract file`                                                                                                        | Đạt                     |
+| 13  | Headless: tham số, mô hình tick, JSONL, `end` cuối         | Scenario + unit test                             | [verify-report](phase-1/verify-report.md), `core.test.ts › tick model`                                                                | Đạt                     |
+| 14  | Sai định dạng → mã 2; lỗi khác → khác 0                    | Scenario + test CLI                              | `p1-bad-inputs-order`, `p1-bad-scenario-lantern`, `scenarios.test.ts › CLI errors`                                                    | Đạt                     |
+| 15  | Tất định (kể cả id tự sinh)                                | Chạy 2 lần 3600 tick, 3 seed, so sha256          | [verify-report](phase-1/verify-report.md) mục Determinism                                                                             | Đạt                     |
+| 16  | Chạy trên macOS/Linux                                      | CI ubuntu-latest + macos-latest                  | Tab Actions trên GitHub                                                                                                               | Chờ CI chạy sau push    |
+| 17  | Test không "luôn đạt"                                      | Cố tình đổi `pickup_radius` và `invuln_s`        | [mutation-check.txt](phase-1/mutation-check.txt): 2 scenario đỏ đúng chỗ                                                              | Đạt                     |
+
+Máy chạy bằng chứng: xem [phase-1/env.txt](phase-1/env.txt).
