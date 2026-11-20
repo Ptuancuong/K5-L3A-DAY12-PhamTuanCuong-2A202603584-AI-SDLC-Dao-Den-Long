@@ -28,6 +28,7 @@ Harness: `CLAUDE.md`, skill `verify`, subagent `reviewer`, Stop hook chạy `npm
 | 4   | Nhấn phím ngắn (F) bị mất khi FPS thấp, nên tỏa sáng không xảy ra                  | Ảnh bằng chứng `05-shade-pulse` lần đầu không có hiệu ứng | Giữ lần nhấn tới tick logic kế tiếp (`tapped`)                       |
 | 5   | Scenario chụp ảnh đặt Mây cách đèn 4 m (> `interact_radius` 3 m), không hiện gợi ý | Mở ảnh `03-near-lantern` kiểm tra                         | Sửa thành 2 m; skill `verify` yêu cầu mở từng ảnh để xem             |
 | 6   | Sinh file scenario bằng bash heredoc bị lỗi dấu nháy                               | Lỗi shell                                                 | Chuyển sang script Node                                              |
+| 7   | Bóng Mực **đang choáng** bỏ qua cả bước đẩy ra khỏi vùng sáng → kẹt trong `safe_radius` khi đèn vừa thắp | Đối chiếu từng câu trả lời CP1 của giảng viên với code (mục 7) | Viết unit test tái hiện (đỏ: 3.99 m < 6 m) rồi mới sửa: mọi Bóng Mực đều qua `keepOutOfLight` mỗi bước |
 
 ### Token / chi phí (ước tính)
 

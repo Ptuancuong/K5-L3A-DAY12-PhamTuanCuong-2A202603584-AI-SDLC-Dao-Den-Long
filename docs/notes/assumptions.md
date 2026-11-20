@@ -23,7 +23,7 @@
 | A6  | Thứ tự trong một bước                                                          | Mây di chuyển/nhảy → nhặt đom đóm → nạp đèn (→ kiểm tra thắng) → Bóng Mực di chuyển → tỏa sáng → bị chạm → sinh thêm đom đóm/Bóng Mực → kiểm tra bình minh                                            | Ghi rõ để test thống nhất                                                                         |
 | A7  | Nhặt đom đóm                                                                   | Tự động khi trong `pickup_radius`, theo thứ tự danh sách; đầy `carry_capacity` thì không nhặt                                                                                                         | PRD không nói cần nút                                                                             |
 | A8  | Nạp đèn                                                                        | Bấm interact trong `interact_radius` của đèn **chưa thắp** gần nhất; nạp `min(đang mang, còn thiếu)`                                                                                                  | Không phí đom đóm                                                                                 |
-| A9  | `safe_radius` áp cho đèn nào                                                   | Chỉ đèn **đã thắp**. Bóng Mực bị đặt lại ngay ngoài vòng (r + 0.001 m)                                                                                                                                | "Bóng Mực sợ những chiếc đèn" — đèn tắt không có ánh sáng. **Đã hỏi lại trợ giảng?** (xem mục mở) |
+| A9  | `safe_radius` áp cho đèn nào                                                   | Chỉ đèn **đã thắp**. Bóng Mực bị đặt lại ngay ngoài vòng (r + 0.001 m)                                                                                                                                | Giảng viên xác nhận (CP1 #7): "thường chỉ đèn đã thắp". Bóng Mực kể cả đang choáng bị đẩy ra ngay ở tick đèn vừa thắp |
 | A10 | Bị chạm                                                                        | Mất 1 lửa, rơi `floor(carried × 0.5)` đom đóm (biến mất), bất tử 1.5 s; nhiều Bóng Mực cùng tick chỉ tính 1 lần                                                                                       |                                                                                                   |
 | A11 | Bóng Mực choáng có gây sát thương?                                             | Không                                                                                                                                                                                                 |                                                                                                   |
 | A12 | Thời gian choáng / bất tử / hồi chiêu                                          | Đổi sang tick bằng `round(s × 60)`. Choáng ở tick p..p+179 nếu tỏa sáng ở tick p (3 s), tick p+180 đuổi lại                                                                                           |                                                                                                   |
@@ -53,4 +53,21 @@
 
 ### Câu hỏi còn mở
 
-- A9 (`safe_radius` chỉ cho đèn đã thắp) là giả định quan trọng nhất cho test ẩn. Nếu trợ giảng nói áp cho mọi đèn thì chỉ cần bỏ điều kiện `!l.lit` trong `keepOutOfLight` (`src/core/sim.ts`) và sửa `p1-safe-radius`.
+- (Đã đóng) A9 được giảng viên xác nhận ở CP1. Lỗi phát hiện khi đối chiếu: Bóng Mực đang choáng không bị đẩy ra khi đèn vừa thắp. Đã sửa, có unit test.
+
+### Câu trả lời của giảng viên (CP1) — đối chiếu
+| Mục | Trả lời | Bài của tôi |
+|---|---|---|
+| 1 Nhặt | Tự chọn; carried ≤ capacity; mỗi lần nhặt 1 event với carried sau khi nhặt | Khớp (A7). Đầy thì không nhặt, đã ghi README |
+| 2 Nạp | deposited ≤ lantern_cost; amount = số thực chuyển | Khớp (A8) |
+| 3 Pulse | Trừ carried; không đủ thì không có event | Khớp (A1, A2) |
+| 4 Bị chạm | dropped ≤ carried, nhất quán làm tròn | Khớp (A10, floor; đom đóm rơi biến mất nên motes_active không đổi) |
+| 5 Thứ tự | Event trước snapshot cùng tick; snapshot theo lịch kể cả tick game_over; end cuối cùng | Khớp (`src/core/run.ts`) |
+| 6 Điểm thắng | Cộng tại tick game_over, end gồm thưởng | Khớp (A13) |
+| 7 Vùng an toàn | Thường chỉ đèn đã thắp; sau khi thắp không để bóng trong vùng | Khớp A9 sau khi **sửa lỗi Bóng Mực đang choáng** (ai-log #7) |
+
+## Thông tin giảng viên đã nói trước cho phase sau (CHƯA làm ở Phase 1, chờ ticket)
+- Bóng Mực có trạng thái `spawning` 1.0 s (60 tick): không gây sát thương, mờ dần hiện ra, rồi sang `wander`. Bóng Mực do scenario dựng sẵn bỏ qua spawning, bắt đầu ở `wander`.
+- Điểm xuất phát: Đêm 2 tại (0, 0, 0) (tâm đảo A), Đêm 3 tại (0, 0, −15), đều quay mặt về +Z.
+- Snapshot có `invuln` (boolean). Scenario có `invuln_ticks` để dựng tình huống.
+- Event `night_start` ghi ở tick 1 (test có dung sai ±2 tick).

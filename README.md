@@ -44,6 +44,17 @@ npm start          # mở http://localhost:4173 trong trình duyệt
 Mọi con số nằm trong [game.contract.json](game.contract.json). Code đọc trực tiếp từ file này nên con số khai báo luôn trùng với con số game dùng.
 `fall_enabled = false`: đảo có mép chắn, Mây không thể rơi (không có sự kiện `player_hit` với `by: "fall"`). Không có trường tuning nào là `null`.
 
+## Giả định chính (đầy đủ: [docs/notes/assumptions.md](docs/notes/assumptions.md))
+
+- **Nhặt đom đóm:** tự động khi trong `pickup_radius`. Khi đã mang đủ `carry_capacity` thì đi qua **không nhặt**, đom đóm vẫn nằm đó.
+- **Nạp đèn:** bấm E cạnh đèn chưa thắp gần nhất, nạp `min(carried, lantern_cost − deposited)`, phần dư giữ lại.
+- **Tỏa sáng:** tốn `pulse_cost` đom đóm. Không đủ hoặc đang hồi chiêu thì không kích hoạt và không có event `pulse`.
+- **Bị chạm:** `dropped = floor(carried × hit_drop_ratio)`. Đom đóm rơi **biến mất** (không thành mote trên đất).
+- **Vùng an toàn:** chỉ quanh đèn **đã thắp**. Bóng Mực (kể cả đang choáng) bị đẩy ra ngay mép vùng ở mỗi tick, kể cả tick đèn vừa thắp.
+- **Điểm:** thưởng thời gian và lửa chỉ cộng khi **thắng**, cộng ngay ở tick có `game_over`. Khi thua không có thưởng.
+- **Thứ tự trong một tick:** di chuyển → nhặt → nạp đèn (→ thắng?) → Bóng Mực di chuyển → tỏa sáng → bị chạm → sinh thêm → bình minh.
+  Event ghi trước snapshot cùng tick. Dòng `end` luôn là dòng cuối.
+
 ## Chế độ headless (Test Contract v1.0)
 
 ```bash
