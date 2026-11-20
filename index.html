@@ -5,89 +5,257 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Đảo Đèn Lồng</title>
     <style>
+      :root {
+        --ui: #f5f1e6;
+        --gold: #f2c14e;
+        --danger: #ff5a5f;
+        --panel: rgba(14, 20, 48, 0.82);
+      }
       html,
       body {
         margin: 0;
         height: 100%;
         overflow: hidden;
-        background: #0b0614;
+        background: #0e1430;
         font-family: system-ui, sans-serif;
-        color: #fde8c8;
+        color: var(--ui);
+        user-select: none;
       }
       canvas {
         display: block;
       }
-      #hud {
+      .hud {
         position: fixed;
-        top: 12px;
-        left: 12px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
         pointer-events: none;
+        font-size: 18px;
+        text-shadow: 0 1px 3px #000;
       }
-      .chip {
-        background: rgba(20, 10, 35, 0.7);
-        border: 1px solid rgba(255, 190, 110, 0.35);
-        border-radius: 10px;
-        padding: 6px 10px;
-        font-size: 15px;
+      #flames {
+        top: 14px;
+        left: 16px;
+        font-size: 26px;
       }
-      .chip b {
-        color: #ffc46b;
+      #timer {
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 30px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
       }
-      #hint {
-        position: fixed;
+      #timer.danger {
+        color: var(--danger);
+        animation: blink 0.6s steps(2) infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0.35;
+        }
+      }
+      #topright {
+        top: 14px;
+        right: 16px;
+        text-align: right;
+      }
+      #topright b {
+        color: var(--gold);
+      }
+      #motebar {
         bottom: 18px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 15px;
-        opacity: 0.85;
-        pointer-events: none;
+        display: flex;
+        gap: 4px;
+      }
+      #motebar i {
+        width: 22px;
+        height: 14px;
+        border-radius: 4px;
+        border: 1px solid #ffe58a88;
+        background: #0004;
+      }
+      #motebar i.on {
+        background: #fff6c2;
+        box-shadow: 0 0 8px #ffe58a;
+      }
+      #cooldowns {
+        bottom: 14px;
+        right: 16px;
+        display: flex;
+        gap: 10px;
+      }
+      .cd {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        border: 2px solid var(--gold);
+        display: grid;
+        place-items: center;
+        font-size: 12px;
         text-align: center;
+        background: conic-gradient(#0008 var(--p, 0%), #f2c14e33 0);
       }
       #prompt {
-        position: fixed;
-        bottom: 60px;
+        bottom: 48px;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 18px;
-        color: #ffd28a;
-        pointer-events: none;
+        color: #ffe9b0;
+        font-size: 20px;
       }
-      #overlay {
+      #arrow {
+        width: 0;
+        height: 0;
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+        border-bottom: 30px solid #ffb347;
+        filter: drop-shadow(0 0 6px #ffb347);
+        display: none;
+      }
+      #fps {
+        bottom: 8px;
+        left: 10px;
+        font-size: 13px;
+        opacity: 0.7;
+      }
+      #wind {
+        top: 52px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #8fa3b8;
+        font-size: 16px;
+      }
+      .screen {
         position: fixed;
         inset: 0;
         display: none;
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        background: rgba(8, 4, 16, 0.65);
+        background: rgba(14, 20, 48, 0.78);
         text-align: center;
+        gap: 10px;
+        z-index: 5;
       }
-      #overlay h1 {
-        font-size: 46px;
-        margin: 0 0 8px;
-        color: #ffc46b;
+      .screen.show {
+        display: flex;
       }
-      #overlay p {
+      .screen h1 {
+        font-size: 52px;
+        margin: 0;
+        color: var(--gold);
+      }
+      .screen h2 {
+        font-size: 30px;
+        margin: 0;
+        color: #ffb347;
+      }
+      .screen p {
+        max-width: 640px;
         font-size: 18px;
+        line-height: 1.5;
         margin: 4px;
+      }
+      .screen button {
+        font-size: 20px;
+        padding: 10px 26px;
+        min-width: 240px;
+        border-radius: 12px;
+        border: 2px solid var(--gold);
+        background: #1b2350;
+        color: var(--ui);
+        cursor: pointer;
+      }
+      .screen button:hover,
+      .screen button:focus {
+        background: #2b3570;
+        outline: none;
+      }
+      .quote {
+        font-style: italic;
+        color: #ffe9b0;
+      }
+      label {
+        font-size: 18px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      #hint {
+        bottom: 80px;
+        left: 16px;
+        font-size: 13px;
+        opacity: 0.75;
+        max-width: 260px;
       }
     </style>
   </head>
   <body>
-    <div id="hud"></div>
-    <div id="prompt"></div>
-    <div id="hint">
-      WASD: đi · Kéo chuột / ← →: xoay camera · Space: nhảy · E: nạp đèn · F:
-      tỏa sáng · R: chơi lại (khi hết ván) · Shift+R: chơi lại ngay
+    <div id="flames" class="hud"></div>
+    <div id="timer" class="hud"></div>
+    <div id="topright" class="hud"></div>
+    <div id="wind" class="hud"></div>
+    <div id="prompt" class="hud"></div>
+    <div id="motebar" class="hud"></div>
+    <div id="cooldowns" class="hud">
+      <div class="cd" id="cd-dash">Lướt<br />Shift</div>
+      <div class="cd" id="cd-pulse">Tỏa sáng<br />F</div>
     </div>
-    <div id="overlay">
-      <h1 id="ov-title"></h1>
-      <p id="ov-reason"></p>
-      <p id="ov-score"></p>
-      <p>Nhấn <b>R</b> hoặc <b>Enter</b> để chơi lại</p>
+    <div id="arrow" class="hud"></div>
+    <div id="fps" class="hud"></div>
+    <div id="hint" class="hud">
+      WASD đi · kéo chuột / ← → xoay camera · Space nhảy · Shift lướt · E nạp
+      đèn · F tỏa sáng · Esc/P tạm dừng
+    </div>
+
+    <div id="scr-menu" class="screen">
+      <h1>Đảo Đèn Lồng</h1>
+      <p>
+        Sương đen đã nuốt ánh sáng của ba hòn đảo. Mây, người giữ đèn nhỏ tuổi,
+        phải thắp lại những Đèn Lồng Lớn trước bình minh.
+      </p>
+      <button data-act="start">Bắt đầu</button>
+      <button data-act="settings">Cài đặt</button>
+    </div>
+    <div id="scr-intro" class="screen">
+      <h2 id="intro-night"></h2>
+      <h1 id="intro-name"></h1>
+      <p class="quote" id="intro-quote"></p>
+      <button data-act="play">Vào đêm (Enter)</button>
+    </div>
+    <div id="scr-result" class="screen">
+      <h1 id="res-title"></h1>
+      <p id="res-reason"></p>
+      <p id="res-score"></p>
+      <button id="res-next" data-act="next">Đêm kế tiếp (Enter)</button>
+      <button data-act="retry">Chơi lại Đêm này (R)</button>
+      <button data-act="menu">Về menu</button>
+    </div>
+    <div id="scr-dawn" class="screen">
+      <h1>Bình Minh</h1>
+      <p class="quote">
+        "Ba hòn đảo lại sáng rồi, Mây ơi. Sương đen đã tan theo nắng sớm." — Ông
+        Đăng
+      </p>
+      <p id="dawn-score"></p>
+      <button data-act="menu">Về menu</button>
+    </div>
+    <div id="scr-pause" class="screen">
+      <h1>Tạm dừng</h1>
+      <button data-act="resume">Tiếp tục</button>
+      <button data-act="retry">Chơi lại Đêm</button>
+      <button data-act="settings">Cài đặt</button>
+      <button data-act="menu">Về menu</button>
+    </div>
+    <div id="scr-settings" class="screen">
+      <h1>Cài đặt</h1>
+      <label
+        >Âm lượng <input id="set-vol" type="range" min="0" max="1" step="0.05"
+      /></label>
+      <label
+        >Độ nhạy chuột
+        <input id="set-sens" type="range" min="0.05" max="1" step="0.05"
+      /></label>
+      <button data-act="back">Xong</button>
     </div>
     <script type="module" src="/src/render/main.ts"></script>
   </body>
