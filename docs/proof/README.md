@@ -47,8 +47,8 @@ Báo cáo chạy: [phase-2/verify-report.md](phase-2/verify-report.md) (45 scena
 | 11 | Bùa Gió | Scenario + ảnh | `p2-charm`, ảnh 09, 12 | Đạt |
 | 12 | Chuỗi 3 Đêm, giới thiệu, kết quả, Bình Minh | Playwright | ảnh 01, 02, 13, 14, 15 | Đạt |
 | 13 | Tạm dừng + menu, Cài đặt lưu giữa các lần mở | Playwright + scenario | `p2-pause`, ảnh 07, 08 | Đạt (lưu `localStorage`: kiểm tay) |
-| 14 | Âm thanh (nhạc nền + 10 loại hiệu ứng) | Code review + nghe thử | `src/render/audio.ts` | Chưa có bằng chứng ghi âm; sẽ có trong video Phase 4 |
+| 14 | Âm thanh (nhạc nền + 10 loại hiệu ứng) | Code review + người chơi nghe thử | `src/render/audio.ts`; người dùng xác nhận "âm thanh ok" (2026-11-20) | Đạt (kiểm bằng tai; bản ghi sẽ có trong video Phase 4) |
 | 15 | HUD đầy đủ, bảng màu chuẩn, ánh sáng môi trường theo công thức | Ảnh + code | ảnh 03, 04, 05, 16; hằng `C`, `ambient.intensity` trong `src/render/main.ts` | Đạt |
 | 16 | Headless một Đêm đầy đủ (21 600 tick) ≤ 30 s | Unit test đo thời gian cả 3 Đêm | `core.test.ts › performance` | Đạt |
-| 17 | ≥ 30 FPS trung bình ở 1280×720 | Bộ đếm FPS trong game (`?fps=1`) trên máy thật | — | **Chưa đo**: ảnh chụp chạy bằng WebGL phần mềm nên không đại diện. Cần đo trên máy có GPU |
+| 17 | ≥ 30 FPS trung bình ở 1280×720 | Bộ đếm FPS trong game (`?fps=1`), chơi Đêm 3 trên máy thật | ~160 FPS trung bình; NVIDIA GeForce RTX 3060 Laptop GPU, Intel Core i5-12500H, Windows 11, `npm run dev`; người dùng đo tay | Đạt (đo tay, chưa có ảnh/log) |
 | 18 | Mỗi tính năng mới có ≥ 1 scenario headless | Danh sách scenario `p2-*` | 27 scenario `p2-*` | Đạt |

@@ -10,8 +10,8 @@
   Phase 2: cập nhật biến `PHASE` trong CI, chạy reviewer trước khi tag.
 
 ## Phase 2 — đánh giá
-- **Đạt:** 16/18 dòng trong bảng truy vết đạt. 45 scenario + 18 unit test xanh; tất định cả 3 Đêm; mutation check 0/9 lọt.
-- **Chưa đạt / chưa có bằng chứng:** FPS ≥ 30 chưa đo trên máy thật (dòng 17); âm thanh chỉ kiểm bằng code và nghe thử, chưa ghi lại (dòng 14).
+- **Đạt:** 18/18 dòng trong bảng truy vết đạt (FPS và âm thanh do người dùng kiểm tay sau khi tag). 45 scenario + 18 unit test xanh; tất định cả 3 Đêm; mutation check 0/9 lọt.
+- **Bằng chứng còn yếu:** FPS (~160 trên RTX 3060 Laptop) và âm thanh chỉ có xác nhận của người dùng, chưa có log/ảnh; sẽ bổ sung bằng script đo FPS và video ở Phase 4.
 - **Phase trước có hỏng không:** luật Phase 1 đổi theo số chuẩn. 18 scenario `p1-*` được tính lại bằng tay. `p1-island-edge` nghỉ hưu vì rơi khỏi đảo nay là luật; lý do ghi trong `tests/scenarios/_retired/README.md`.
 - **Harness đã chỉnh:** thêm `mutation-check.mjs` (đã bắt lỗi #8); CI chuyển `PHASE=phase-2`; CLAUDE.md và skill `verify` cập nhật cho 3 Đêm.
 
