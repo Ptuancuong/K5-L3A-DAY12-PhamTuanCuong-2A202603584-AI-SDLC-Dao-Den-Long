@@ -1,99 +1,126 @@
-# Đảo Đèn Lồng
+# Đảo Đèn Lồng — v1.0.0
 
-> 🎬 **Video demo:** _(sẽ thêm ở Phase 4 — Release `v1.0.0`)_
+> 🎬 **Video demo:** [docs/demo/demo.mp4](docs/demo/demo.mp4) (cũng đính kèm ở [Release v1.0.0](https://github.com/Ptuancuong/K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0))
 > Bài lab cá nhân Day 12 AI SDLC — Phạm Tuấn Cường · 2A202603584. Đề bài: [docs/lab/](docs/lab/).
 
-Game 3D góc nhìn thứ ba. Mây, người giữ đèn nhỏ tuổi đội nón lá, chạy khắp **Đảo Bến** (Đêm 1) gom đom đóm,
-nạp ánh sáng vào 5 Đèn Lồng Lớn và né Bóng Mực trong sương đen. Thắp hết đèn trước bình minh thì thắng.
+Game 3D góc nhìn thứ ba. Mây, người giữ đèn nhỏ tuổi đội nón lá, đi qua ba hòn đảo trong sương đen: gom đom đóm,
+thắp và giữ dầu cho các Đèn Lồng Lớn, né Bóng Mực, và giữ đủ đèn sáng tới bình minh.
 
-## Cài đặt và chạy (macOS / Linux / Windows, cần Node.js ≥ 18)
+![Đêm 1 — thanh dầu trên đèn, HUD](docs/proof/phase-3/screenshots/p3-01-fuel-bars.png)
+![Cảnh benchmark: 200 Bóng Mực, 100 đom đóm](docs/proof/phase-4/screenshots/p4-01-bench.png)
+
+## Yêu cầu hệ thống
+
+- **Node.js ≥ 18** (đã thử 20 và 24) và npm. Windows 10/11, macOS hoặc Linux.
+- Trình duyệt có WebGL2: Chrome/Edge/Firefox bản mới. Card đồ họa rời hoặc tích hợp đời mới.
+- Chỉ để chạy **bench**: Playwright Chromium (`npx playwright install chromium`). Nếu chưa cài, bench tự dùng Chrome hoặc Edge có sẵn trên máy.
+
+## Cài đặt và chơi (3 lệnh)
 
 ```bash
 git clone https://github.com/Ptuancuong/K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long.git && cd K5-L3A-DAY12-PhamTuanCuong-2A202603584-AI-SDLC-Dao-Den-Long
 npm ci && npm run build
-npm start          # mở http://localhost:4173 trong trình duyệt
+npm start          # mở http://localhost:4173 (Ctrl+C để tắt)
 ```
 
-## Điều khiển
+`npm start` chạy `node build/serve.mjs`: server tĩnh cho `dist/` kèm API lưu Bảng xếp hạng ra đĩa (`save/leaderboard.json`).
+Bản chạy sẵn không cần build: tải `dao-den-long-v1.0.0.zip` ở Release v1.0.0, giải nén, chạy `node build/serve.mjs`.
 
-| Phím | Hành động |
-|---|---|
-| W A S D | Đi (theo hướng camera) |
-| Kéo chuột / ← → | Xoay camera (độ nhạy chỉnh trong Cài đặt) |
-| Space | Nhảy |
-| Shift | Lướt (14 m/s trong 0.2 s, hồi chiêu 1.5 s) |
-| E | Nạp ánh sáng vào Đèn Lồng Lớn gần nhất (trong 2 m) |
-| F | Tỏa Sáng: tốn 3 đom đóm, làm choáng và đẩy lùi Bóng Mực trong 5 m |
-| Esc / P | Tạm dừng (Tiếp tục / Chơi lại Đêm / Cài đặt / Về menu) |
-| Enter / R | Ở màn kết quả: Đêm kế tiếp / chơi lại Đêm |
+## Điều khiển (đổi được trong Cài đặt)
 
-## Ba Đêm
+| Phím mặc định   | Hành động                                                               |
+| --------------- | ----------------------------------------------------------------------- |
+| W A S D         | Đi (theo hướng camera)                                                  |
+| Kéo chuột / ← → | Xoay camera                                                             |
+| Space           | Nhảy                                                                    |
+| Shift           | Lướt (14 m/s trong 0.2 s, hồi chiêu 1.5 s)                              |
+| E               | Nạp ánh sáng vào đèn chưa sáng / châm dầu cho đèn đang sáng (trong 2 m) |
+| F               | Tỏa Sáng: tốn 3 đom đóm, làm choáng và đẩy lùi Bóng Mực trong 5 m       |
+| Esc (hoặc P)    | Tạm dừng                                                                |
+| Enter / R       | Ở màn kết quả: Đêm kế tiếp / chơi lại Đêm                               |
 
-| Đêm | Đảo | Thời gian | Đèn | Điểm mới |
-|---|---|---|---|---|
-| 1 | Đảo Bến: đảo tròn 40 m | 300 s | 5 | |
-| 2 | Đảo Cau: hai đảo nối bằng cầu tre | 330 s | 6 | Bục nhảy, Gió Lạc, Bùa Gió |
-| 3 | Đảo Chuông: 3 tầng, dốc, tháp chuông | 360 s | 7 | Gió mạnh mỗi 30 s, Bóng Mực nhanh hơn |
+## Luật chơi (Contract v1.2–v1.3)
 
-## Luật Phase 3 — "Đèn cạn dầu" (thay một số luật bên dưới)
+| Đêm | Đảo                                  | Thời gian | Đèn (cần giữ sáng tới bình minh) | Điểm mới                              |
+| --- | ------------------------------------ | --------- | -------------------------------- | ------------------------------------- |
+| 1   | Đảo Bến: đảo tròn 40 m               | 240 s     | 5 (≥ 3)                          |                                       |
+| 2   | Đảo Cau: hai đảo nối bằng cầu tre    | 270 s     | 6 (≥ 4)                          | Bục nhảy, Gió Lạc, Bùa Gió            |
+| 3   | Đảo Chuông: 3 tầng, dốc, tháp chuông | 300 s     | 7 (≥ 5)                          | Gió mạnh mỗi 30 s, Bóng Mực nhanh hơn |
 
-- Đèn sáng tiêu hao **1 dầu/giây** (tối đa 100). Hết dầu thì tắt; thắp lại chỉ tốn **5** đom đóm. Bấm E ở đèn sáng để **châm dầu** (mỗi đom đóm +10).
-- Đèn còn dưới 30 dầu thì nhấp nháy và **mất vùng an toàn**; Bóng Mực tới hút dầu (5/giây).
-- **Thắng khi tới bình minh còn đủ đèn sáng**: Đêm 1 ≥ 3/5, Đêm 2 ≥ 4/6, Đêm 3 ≥ 5/7. Thời lượng 240 / 270 / 300 s. Thắp hết đèn không còn kết thúc Đêm.
-- Sức chứa = 10 + 2 × số lần thắp thành công (tối đa 20).
-- Điểm: +5 mỗi đom đóm nạp, +100 thắp lần đầu, +40 thắp lại, +5 mỗi Bóng Mực trúng Tỏa Sáng (+15 nếu nó đang hút dầu); khi thắng: mỗi đèn sáng +50 + dầu còn lại, mỗi Ngọn Lửa +50.
-- Cài đặt có **Bảng màu dễ phân biệt**. Quyết định thiết kế: [ADR 0001](docs/adr/0001-lantern-fuel-and-dawn-win.md).
+- Nhặt đom đóm khi đi qua (≤ 1 m). Sức chứa = 10 + 2 × số lần thắp thành công (tối đa 20).
+- Đèn cần **10** đom đóm để thắp lần đầu, **5** để thắp lại. Đèn sáng tiêu hao **1 dầu/giây** (tối đa 100), hết dầu thì tắt.
+  Bấm E ở đèn sáng để châm dầu (+10 mỗi đom đóm).
+- Đèn có ≥ 30 dầu tạo vòng an toàn 6 m. Đèn dưới 30 dầu nhấp nháy, mất vòng an toàn, và Bóng Mực tới hút dầu (5/giây).
+- Bóng Mực thấy Mây trong 12 m thì đuổi (4 m/s, Đêm 3: 4.5). Bị chạm: mất 1 Ngọn Lửa, rơi một nửa đom đóm, bất tử 1.5 s.
+  Rơi khỏi đảo: mất 1 Ngọn Lửa và toàn bộ đom đóm. Hết 3 Ngọn Lửa thì thua.
+- Gió Lạc (Đêm 2, 3) cướp 3 đom đóm. Bùa Gió: 10 s chạy nhanh, lướt không hồi chiêu.
+- **Điểm:** +5 mỗi đom đóm nạp/châm, +100 thắp lần đầu, +40 thắp lại, +5 mỗi Bóng Mực trúng Tỏa Sáng (+15 nếu nó đang hút dầu).
+  Khi thắng: mỗi đèn sáng +50 + số dầu còn lại, mỗi Ngọn Lửa +50. Tổng điểm game = tổng điểm các Đêm đã thắng.
+- Mọi con số nằm trong [game.contract.json](game.contract.json); code đọc trực tiếp file này. Quyết định thiết kế: [docs/adr/](docs/adr/).
 
-## Luật chơi và cách tính điểm (số chuẩn Ticket-02)
+## Bảng xếp hạng
 
-- Đi qua đom đóm (≤ 1 m) là nhặt, mang tối đa **10**. Mỗi đèn cần **10** đom đóm, nạp nhiều lần được.
-- Bóng Mực hiện ra (1 s), lang thang, thấy Mây trong 12 m thì đuổi (4 m/s, Đêm 3: 4.5), cách 18 m thì bỏ.
-  Bị chạm: mất **1 Ngọn Lửa**, rơi **một nửa** đom đóm ra quanh Mây (nhặt lại được trong 8 s), bất tử 1.5 s.
-- **Gió Lạc** (Đêm 2, 3) đuổi khi Mây mang ≥ 5 đom đóm, chạm thì cướp 3. Tỏa Sáng làm nó bỏ chạy hoặc đánh rơi đồ đã cướp.
-- **Bùa Gió**: 10 s chạy nhanh 7.2 m/s và lướt không hồi chiêu.
-- Rơi khỏi đảo: mất 1 Ngọn Lửa và toàn bộ đom đóm, hồi sinh ở điểm xuất phát.
-- Bóng Mực không vào được vòng sáng 6 m quanh đèn đã thắp.
-
-| Sự kiện | Điểm |
-|---|---|
-| Nạp 1 đom đóm | +10 |
-| Thắp 1 đèn | +100 |
-| Mỗi Bóng Mực trúng Tỏa Sáng | +5 |
-| Khi thắng: mỗi giây còn lại (làm tròn xuống) | +2 |
-| Khi thắng: mỗi Ngọn Lửa còn lại | +50 |
-
-Tổng điểm game là tổng điểm các Đêm đã thắng. Mọi con số nằm trong [game.contract.json](game.contract.json) (contract v1.1). Code đọc trực tiếp file này.
-
-## Giả định chính
-
-Đầy đủ ở [docs/notes/assumptions.md](docs/notes/assumptions.md); tiêu chí nghiệm thu Phase 2 ở [docs/notes/spec-phase2.md](docs/notes/spec-phase2.md).
-- Khi đã mang đủ 10 thì đi qua đom đóm **không nhặt**. Đom đóm rơi khi bị đánh nằm trên đất 480 tick.
-- Bóng Mực wander bay chậm 1.5 m/s. Bóng Mực và Gió Lạc lơ lửng trên mặt đất bên dưới, bay qua vách được.
-- Thưởng thời gian và lửa chỉ cộng khi thắng, ngay ở tick `game_over`.
-- Thứ tự trong một tick theo đúng 12 bước của Ticket-02; event ghi trước snapshot cùng tick; `end` luôn là dòng cuối.
-
-## Chế độ headless (Test Contract v1.2)
+Sau màn **Bình Minh** (thắng Đêm 3) hoặc khi thua ở bất kỳ Đêm nào, nhập tên (3–12 ký tự chữ, số, `_`; **có dấu tiếng Việt được**) để lưu điểm.
+Lưu top 10 (điểm giảm dần, bằng điểm thì ai đạt trước đứng trên) vào `save/leaderboard.json`. Xem ở menu → **Bảng xếp hạng**.
 
 ```bash
-npm ci && npm run build                               # build_cmd
+node build/serve.mjs --export-leaderboard out.json     # run_cmd --export-leaderboard: {"entries": [...]}
+```
+
+## Dễ tiếp cận (Cài đặt, tự lưu)
+
+- **Đổi phím** cho mọi hành động; trùng phím thì báo và không nhận; nút **Khôi phục mặc định**.
+- **Phụ đề và chỉ báo hình ảnh**: Bóng Mực xuất hiện (kèm mũi tên tím ở mép màn hình), gió sắp thổi, 10 giây cuối, đèn dưới 30 dầu, đèn tắt, bị chạm.
+- **Giảm chuyển động**: tắt rung camera, chớp màn hình và các hiệu ứng nhấp nháy nhanh (mặc định theo `prefers-reduced-motion` của hệ điều hành).
+- **Chữ lớn ×1.25**. Mọi chữ UI ≥ 18 px ở 1280×720 ([kết quả đo](docs/proof/phase-4/font-audit.md)). **Bảng màu dễ phân biệt** cho người mù màu.
+
+## Kiểm thử
+
+```bash
+npm test                         # typecheck + unit test + 59 scenario headless + tất định + mã lỗi CLI
+npm run verify -- phase-4        # chạy mọi scenario qua CLI thật + soak + kiểm bench.json, ghi docs/proof/phase-4/
+node scripts/mutation-check.mjs  # đổi từng số tuning (15 khóa), mỗi lần phải có scenario đỏ
+npm run shot -- phase-4          # (cần Playwright Chromium) chụp ảnh game thật + đo cỡ chữ
+```
+
+CI (GitHub Actions, Ubuntu + macOS) chạy build, test, verify, so khớp bằng chứng đã commit, và thử đúng các lệnh trong contract.
+
+## Headless (Test Contract)
+
+```bash
 node build/headless.mjs --seed 1 --night 1 --ticks 600 --out out.jsonl \
   [--scenario s.json] [--inputs i.json] [--snapshot-every 10]
 ```
 
-Mã thoát: `0` thành công · `2` file inputs/scenario sai định dạng · `1` lỗi tham số khác. Thông báo lỗi ghi ra stderr.
+Mã thoát: `0` thành công · `2` file inputs/scenario sai định dạng · `1` lỗi tham số khác.
 
-## Kiểm thử và bằng chứng
+## Benchmark (`bench_cmd`)
 
 ```bash
-npm test                    # typecheck + unit test + 59 scenario headless + tính tất định + mã lỗi CLI
-npm run verify -- phase-3   # chạy mọi scenario qua CLI thật, ghi docs/proof/phase-2/verify-report.md
-node scripts/mutation-check.mjs phase-3   # đổi từng số tuning, chứng minh test có thể đỏ
-npm run shot -- phase-2     # (cần: npx playwright install chromium) chụp ảnh game thật
+npm run build
+node scripts/bench.mjs --seed 42 --duration 30 --out bench.json
 ```
 
-- Bảng truy vết yêu cầu → bằng chứng: [docs/proof/README.md](docs/proof/README.md)
-- Giả định: [docs/notes/assumptions.md](docs/notes/assumptions.md) · Nhật ký AI: [docs/notes/ai-log.md](docs/notes/ai-log.md) · Đánh giá/retro: [docs/notes/retro.md](docs/notes/retro.md)
-- CI (GitHub Actions, Ubuntu + macOS) chạy build, test, verify và so sánh bằng chứng đã commit.
+Mở cửa sổ Chromium 1280×720 (không toàn màn hình), **tắt vsync** bằng `--disable-gpu-vsync --disable-frame-rate-limit`.
+Cảnh chuẩn: Đêm 1, 200 Bóng Mực wander, 100 đom đóm, L1–L3 sáng đầy dầu, Mây đứng yên ở (0,0,0), camera bay vòng r 30 m, cao 15 m, 15 s/vòng.
+Khởi động 3 s rồi đo đúng `--duration` giây, tự thoát với mã 0.
+`peak_mem_mb` là tổng RSS của cả cây tiến trình trình duyệt. `load_ms` tính từ lúc tiến trình bench khởi động (gồm cả mở server và trình duyệt).
+
+Kết quả trên máy tôi ([bench.json](bench.json)): RTX 3060 Laptop, i5-12500H: **avg 226 fps, 1 % low 148 fps, p95 5.9 ms, load 1.2 s, peak 444 MB**.
+
+## Soak test (`soak_cmd`)
+
+```bash
+node --expose-gc --single-threaded --max-semi-space-size=1 build/soak.mjs --seed 7 --nights 10 --out soak.json
+```
+
+Chạy 10 Đêm liên tiếp trong một tiến trình (1 → 2 → 3 xoay vòng), Đêm thứ i dùng seed 7 + i, input ngẫu nhiên theo seed.
+Kết quả ([soak.json](soak.json)): 0 crash, RSS 57.0 → 60.3 MB (≤ 1.2×). Vì sao dùng các cờ Node: [ADR 0002](docs/adr/0002-bench-soak-leaderboard.md).
+
+## Tài liệu
+
+- Truy vết yêu cầu → bằng chứng: [docs/proof/README.md](docs/proof/README.md) · [CHANGELOG](CHANGELOG.md) · [CREDITS](CREDITS.md) · [LICENSE](LICENSE) (MIT)
+- Giả định: [docs/notes/assumptions.md](docs/notes/assumptions.md) · Nhật ký AI: [docs/notes/ai-log.md](docs/notes/ai-log.md) · **Retro**: [docs/notes/retro.md](docs/notes/retro.md)
 
 ## Harness AI
 
@@ -102,24 +129,22 @@ hook [.claude/settings.json](.claude/settings.json): Stop hook không cho agent 
 
 ## Sáng tạo của tôi
 
-Phase 1 ưu tiên phần lõi. Các chi tiết nhỏ chỉ có ở lớp hiển thị, không đổi output headless:
+Chỉ ở lớp hiển thị, không đổi output headless và tắt trong cảnh benchmark:
 
-- Đèn nhỏ treo trên nón lá của Mây sáng mạnh dần theo số đom đóm đang mang.
-- Vòng tiến độ quanh đèn chưa thắp cho thấy đã nạp bao nhiêu/5. Đèn đã thắp có vòng sáng vẽ đúng `safe_radius`.
-- Sương tan dần và bầu trời sáng lên theo số đèn đã thắp.
-
+- Đèn nhỏ trên nón lá của Mây sáng dần theo số đom đóm đang mang; ánh sáng môi trường tăng theo số đèn sáng.
 - Lời thoại riêng của Ông Đăng ở màn giới thiệu từng Đêm và màn Bình Minh.
-- Âm thanh tổng hợp hoàn toàn bằng WebAudio (không dùng file âm thanh ngoài).
-
-Bằng chứng phần lõi vẫn đúng: toàn bộ scenario headless đạt (xem [verify-report](docs/proof/phase-2/verify-report.md)). Mọi phần thêm chỉ nằm ở `src/render/`, không đổi output headless.
+- Âm thanh và nhạc nền tổng hợp hoàn toàn bằng WebAudio (không dùng file âm thanh ngoài).
+- Lá bay báo gió, rung camera nhẹ khi bị chạm (tắt được bằng Giảm chuyển động).
 
 ## Cấu trúc
 
 ```
-src/core/      luật chơi thuần, tất định (dùng chung cho game và headless)
-src/render/    Three.js: chỉ vẽ và đọc phím
-src/headless/  CLI theo Test Contract
+src/core/      luật chơi thuần, tất định (game + headless + bench + soak dùng chung)
+src/render/    Three.js: chỉ vẽ, đọc phím, giao diện
+src/shared/    luật Bảng xếp hạng, công thức bench.json
+src/server/    server tĩnh + API Bảng xếp hạng (run_cmd)
+src/headless/  CLI headless và soak
 tests/         unit test + tests/scenarios/<tên>/{scenario,inputs,expect}.json
-scripts/       verify, screenshot, hook
-docs/          đề bài, ghi chép, bằng chứng
+scripts/       bench, verify, mutation check, screenshot, build, hook
+docs/          đề bài, ADR, ghi chép, bằng chứng
 ```

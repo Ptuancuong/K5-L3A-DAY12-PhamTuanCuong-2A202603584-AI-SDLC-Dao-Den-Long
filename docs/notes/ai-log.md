@@ -75,3 +75,28 @@ Harness: `CLAUDE.md`, skill `verify`, subagent `reviewer`, Stop hook chạy `npm
 ### Token / chi phí (ước tính)
 - Phase 3: khoảng 2–3 triệu token input (phần lớn cache) và khoảng 45 nghìn token output. _Số thật: cập nhật từ `/cost`._
 - Cách tiết kiệm: sửa code bằng script thay thế có kiểm tra số lần khớp (dừng ngay nếu lệch) thay vì đọc lại cả file lớn; chạy toàn bộ scenario bằng một lệnh và chỉ in phần lỗi.
+
+## Phase 4
+
+### Lời nhắc chính
+- "/compact" rồi "làm phase 4". Trước khi compact, agent ghi mục bàn giao vào đầu `docs/notes/plan.md` và lưu ghi nhớ (memory), nên phiên sau đọc là làm tiếp được ngay.
+- Agent đọc Ticket-04, làm lõi trước (cờ bench, soak, luật Bảng xếp hạng + test), sau đó tới server, giao diện, bench thật, ảnh, tài liệu, rồi chạy subagent `reviewer`.
+
+### Lỗi của AI và cách phát hiện
+| # | Lỗi | Phát hiện bằng | Sửa / chỉnh harness |
+|---|---|---|---|
+| 16 | RSS soak tăng 57 → 67–70 MB, quanh ngưỡng 1.2× | Chạy soak 4 lần liên tiếp; in `heapUsed` từng Đêm (đứng yên khoảng 4.6 MB, tức không rò) | Chạy Node đơn luồng (ADR 0002); thêm bước chạy lại 100 Đêm |
+| 17 | `bench.json` có `peak_mem_mb: null`: Browser từ `chromium.launch()` không có `process()` | Đọc kết quả `bench.json` | Dùng `launchServer()` + `connect()` để lấy pid gốc |
+| 18 | Ảnh phụ đề/gió không có phụ đề: WebGL phần mềm chậm làm mô phỏng chạy chậm hơn thời gian thực, nên đợi cố định 5.7 s là không đủ | Mở ảnh p4-07, p4-08 (đồng hồ còn 00:12) | Đợi theo điều kiện DOM (`waitForFunction`) thay vì đợi cố định |
+| 19 | Hai Bóng Mực sinh cùng tick tạo hai dòng phụ đề giống nhau | Mở ảnh p4-07 | Gộp phụ đề trùng thành "(×2)" |
+| 20 | Script Python trong heredoc bash làm `\n` của template literal thành xuống dòng thật, gây lỗi cú pháp `verify.mjs` | Chạy verify | Sửa bằng Edit; script dài viết bằng công cụ Write (đúng như ghi nhớ đã lưu) |
+| 22 | Server `serve.mjs` sập khi gặp URL `%` sai (`decodeURIComponent` ném lỗi, không bắt) | Subagent `reviewer` (thử `curl /%E0%A4%A`) | Trả 400; kiểm lại bằng curl |
+| 23 | Lấy mẫu RSS bằng powershell mỗi 5 s **trong lúc đo** làm giảm FPS | `reviewer` | Chỉ lấy mẫu trước và sau khung đo: avg 195 → 226 fps, 1 % low 131 → 148 |
+| 24 | API Bảng xếp hạng nhận POST từ bất kỳ trang web nào (CSRF, DNS rebinding) | `reviewer` | Chỉ nhận Host cục bộ, Origin cùng nguồn, `Content-Type: application/json`; thêm unit test |
+| 25 | `save/` phụ thuộc thư mục đang đứng khi chạy `serve.mjs` | `reviewer` | Lưu cạnh game (thư mục gốc gói) |
+| 26 | `bench.mjs` thoát mã 1 khi trang có lỗi (ticket: thoát 0 sau khi đo) | `reviewer` | Thoát 0, ghi lỗi vào `notes` |
+| 21 | Lỗi cũ: âm báo gió phát mỗi khung hình trong tick cảnh báo (FPS cao), nhãn Cài đặt bị lặp | Đọc lại code/HTML khi thêm phụ đề | Báo một lần mỗi cơn gió; sửa nhãn |
+
+### Token / chi phí (ước tính)
+- Phase 4: khoảng 4–5 triệu token input (phần lớn cache) và khoảng 80 nghìn token output, cộng subagent `reviewer`. _Số thật: cập nhật từ `/cost`._
+- Cách tiết kiệm: ghi mục bàn giao rồi `/compact` trước phase dài; vá file bằng script có kiểm tra số lần khớp; chỉ in phần lỗi/tóm tắt của test và verify.

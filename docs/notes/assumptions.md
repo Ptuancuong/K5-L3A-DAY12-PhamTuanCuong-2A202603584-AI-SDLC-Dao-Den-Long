@@ -110,3 +110,27 @@ Quyết định chính: [ADR 0001](../adr/0001-lantern-fuel-and-dawn-win.md).
 | C6 | Scenario đèn `lit: false` có `fuel` | Bỏ qua, fuel = 0. `ever_lit` mặc định = `lit`. |
 | C7 | Shade `state: "drain"` không có `target_lantern_id` | Chọn đèn gần nhất. |
 | C8 | `per_second_left` | Đặt 0 (thưởng thời gian bị bỏ). Thưởng thắp lại (40), Tỏa Sáng lúc drain (15), mỗi đèn lúc bình minh (50) để trong `STD` vì contract không có khóa cho chúng. |
+
+## Phase 4 — Ticket-04 + Contract v1.3
+
+Quyết định chính: [ADR 0002](../adr/0002-bench-soak-leaderboard.md).
+
+| # | Chỗ mơ hồ | Giả định |
+|---|---|---|
+| D1 | "200 Bóng Mực ở trạng thái wander … di chuyển theo luật wander bình thường" | Bóng Mực giữ trạng thái wander suốt bench (tắt chuyển sang chase vì sát thương cũng tắt). Luật wander v1.2 giữ nguyên: bay 1.5 m/s về đèn tắt gần nhất (L4/L5), bị đẩy khỏi vùng an toàn như thường. |
+| D2 | "Rải đều trên đảo" | Đều theo diện tích trong đĩa bán kính 38 m (đảo 40 m, chừa 2 m), Bóng Mực cao 1 m. Vị trí lấy từ `Rng(42)`. Bóng nằm trong vùng sáng bị đẩy ra trong 3 s khởi động. |
+| D3 | Chiều quay camera | Góc θ = 2π·t/15 tính từ khung bench đầu tiên, vị trí (30 cos θ, 15, −30 sin θ): từ +X sang −Z là ngược chiều kim đồng hồ khi nhìn từ trên xuống (trục three.js). |
+| D4 | `dt_i`, khung đo | `dt` = hiệu hai mốc `requestAnimationFrame` liên tiếp. Đo từ khung đầu tiên sau 3 s, dừng khi đã đủ `--duration` giây. p95 theo phương pháp nearest-rank. |
+| D5 | Cửa sổ 1280×720, tắt vsync | Vùng vẽ (viewport) 1280×720, khung cửa sổ lớn hơn một chút. Tắt vsync bằng cờ Chromium; FPS đo được (≈ 226) vượt tần số màn hình, cho thấy đã tắt thật. |
+| D6 | `peak_mem_mb` của bản web | Tổng RSS (Windows: working set) của tiến trình trình duyệt và các tiến trình con (GPU, renderer), lấy mẫu ở cuối 3 s khởi động và ngay sau khung đo (không lấy trong lúc đo để khỏi làm nhiễu FPS). |
+| D7 | `load_ms` | Từ lúc tiến trình `bench.mjs` khởi động (gồm mở server và trình duyệt) tới khung bench đầu tiên. |
+| D8 | "Đêm thứ i dùng seed 7 + i" | i bắt đầu từ 1: seed 8..17. Input dùng luồng ngẫu nhiên riêng (seed XOR 0x5eed5eed): mỗi 30 tick chọn góc mới (cần đẩy hết cỡ), mỗi tick bấm nút độc lập 5/3/2/10 %. `cam_yaw` = 0. |
+| D9 | Một Đêm soak kết thúc khi | Có `game_over` (phần lớn là `no_flames` vì input ngẫu nhiên đi rơi khỏi đảo), giới hạn an toàn = thời lượng + 10 s. |
+| D10 | `mem_start_mb` / `mem_end_mb` | Gọi `gc()` rồi đọc RSS: ngay sau khi tạo World Đêm 1, và sau khi Đêm cuối trả kết quả (World đã ra khỏi phạm vi). |
+| D11 | Điểm Bảng xếp hạng | Một lượt chơi bắt đầu từ "Bắt đầu" ở menu (chơi lại một Đêm vẫn trong lượt đó). `score` = tổng điểm các Đêm đã thắng trong lượt, `nights_won` = số Đêm đã thắng, `seed` = seed của lượt (giờ dùng một seed cho cả lượt). Mỗi màn kết quả lưu được 1 lần. |
+| D12 | Tên | Chuẩn hóa NFC, bỏ khoảng trắng hai đầu, 3–12 ký tự (đếm code point), chỉ chữ Latin (gồm mọi chữ tiếng Việt có dấu), số và `_`. |
+| D13 | Nơi lưu | `save/leaderboard.json` trong thư mục làm việc (`DDL_SAVE_DIR` để đổi). Nếu trang không có API: `localStorage`. |
+| D14 | Bằng điểm | So thời điểm thật (đã tính múi giờ); nếu trùng cả thời điểm thì mục cũ đứng trên. |
+| D15 | Đổi phím | Mỗi hành động một phím; Enter/Tab dành cho menu. P vẫn là phím tạm dừng phụ khi chưa gán cho việc khác; Shift phải là phím lướt phụ khi còn trống. Gán trùng thì báo và không nhận. |
+| D16 | Chỉ báo | Gió: 2 s trước cơn gió (như Phase 2). Mũi tên Bóng Mực: 4 s sau khi sinh, chỉ khi nó ở ngoài khung nhìn. Phụ đề có thể tắt trong Cài đặt. |
+| D17 | Giảm chuyển động | Tắt rung camera và chớp màn hình khi bị chạm, nhấp nháy đồng hồ, nháy 12 Hz của Mây khi bất tử, nháy đom đóm sắp biến mất. Giữ nhấp nháy 1 Hz của đèn yếu vì đó là chỉ báo bắt buộc (Ticket-03). |

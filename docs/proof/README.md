@@ -76,3 +76,25 @@ Quyết định thiết kế: [ADR 0001](../adr/0001-lantern-fuel-and-dawn-win.m
 | 14 | Chế độ mù màu (lưu lại): #00B3FF, cảnh báo trắng + ⚠, đèn tắt xẹp 20% + vết rách | ảnh p3-03 | Đạt |
 | 15 | Test cũ bị luật mới làm sai: sửa hoặc nghỉ hưu có lý do | `p1-win` → `_retired/` (README có lý do); P1/P2 cập nhật trong `note` | Đạt |
 | 16 | Hồi quy Phase 1–2 không bị thay thế | 45 scenario P1/P2 vẫn chạy trong verify-report | Đạt |
+
+## Phase 4 (tag `phase-4`, Release `v1.0.0`) — Ticket-04 "Bình minh: phát hành", Contract v1.3
+
+Quyết định: [ADR 0002](../adr/0002-bench-soak-leaderboard.md) · [verify-report](phase-4/verify-report.md) (59 scenario + tất định + soak + kiểm bench.json) ·
+[mutation-check](phase-4/mutation-check.md) (0/15 lọt) · [ảnh](phase-4/screenshots/README.md) · [cỡ chữ](phase-4/font-audit.md).
+
+| # | Yêu cầu | Bằng chứng | Kết quả |
+|---|---|---|---|
+| 1 | Bench: cảnh chuẩn 200 Bóng Mực wander + 100 đom đóm (seed 42), L1–L3 sáng 100, Mây ở gốc; tắt sinh/sát thương/nhặt/hao dầu/kết thúc | unit `bench scene` (5 test), ảnh p4-01 | Đạt |
+| 2 | Bench: 1280×720 có cửa sổ, tắt vsync, camera bay vòng (r 30, Y 15, từ (30,15,0), ngược chiều kim đồng hồ, 15 s/vòng), 3 s khởi động, đo đúng `--duration` | `scripts/bench.mjs`, unit `camera orbit`, [bench.json](../../bench.json) (`measured_ms` 30001) | Đạt |
+| 3 | `bench.json` đủ trường, đúng công thức; avg ≥ 60, 1 % low ≥ 30, load ≤ 10 s | unit `bench.json formulas`, verify-report; máy tôi: 226 fps / 148 / 1198 ms | Đạt (máy tôi) |
+| 4 | Soak 10 Đêm một tiến trình, seed 7 + i, input ngẫu nhiên, crashes 0, mem_end ≤ 1.2 × mem_start | unit `soak`, [soak.json](../../soak.json), verify-report (chạy lại), CI chạy `soak_cmd` | Đạt (57.0 → 60.3 MB) |
+| 5 | Bảng xếp hạng: nhập tên sau Bình Minh hoặc khi thua, tên 3–12 `[A-Za-z0-9_]` (+ tiếng Việt), top 10, sắp xếp, ISO 8601 có múi giờ, lưu đĩa | unit `leaderboard` (5 test), ảnh p4-10 → p4-13 | Đạt |
+| 6 | Màn Bảng xếp hạng từ menu; `--export-leaderboard out.json` → `{"entries": [...]}` đúng thứ tự | ảnh p4-02, p4-13; [leaderboard-export.json](phase-4/leaderboard-export.json); unit chạy đúng `run_cmd`; CI | Đạt |
+| 7 | Đổi phím mọi hành động, báo trùng, khôi phục mặc định, lưu lại | unit `accessibility key map`, ảnh p4-03 → p4-06 | Đạt |
+| 8 | Phụ đề / chỉ báo: Bóng Mực + mũi tên mép màn hình, gió sắp thổi, 10 s cuối, đèn < 30 | ảnh p4-07, p4-08 | Đạt |
+| 9 | Giảm chuyển động: tắt rung camera và chớp màn hình | `settings.reducedMotion` trong `src/render/main.ts` (rung, chớp, nhấp nháy) | Đạt (kiểm bằng mắt) |
+| 10 | Chữ UI ≥ 18 px ở 1280×720; tùy chọn ×1.25 | [font-audit](phase-4/font-audit.md) (5 màn, không có chữ < 18 px), ảnh p4-09 | Đạt |
+| 11 | Clone sạch → ≤ 3 lệnh → chơi được; README đủ mục; CHANGELOG 4 phase; CREDITS; LICENSE | [README](../../README.md), [CHANGELOG](../../CHANGELOG.md), [CREDITS](../../CREDITS.md), CI chạy `npm ci && npm run build` trên máy sạch | Đạt |
+| 12 | Contract v1.3: `bench_cmd`, `soak_cmd`; v1.0–v1.2 giữ nguyên | unit `contract v1.3`; 59 scenario + mutation check | Đạt |
+| 14 | Review độc lập trước khi tag | subagent `reviewer`: 1 lỗi chặn + 5 nên sửa, đã sửa hết (ai-log #22–#26), test bảo mật API | Đạt |
+| 13 | GitHub Release v1.0.0 có bản chạy được; video demo < 5 phút | Release v1.0.0 (zip `dist/` + `build/`), [docs/demo/demo.mp4](../demo/demo.mp4) | Xem Release |
