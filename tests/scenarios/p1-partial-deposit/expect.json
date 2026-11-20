@@ -1,5 +1,5 @@
 {
-  "note": "L1 has 4/10; player exactly 2 m away (<= interact 2). Deposit min(10, 6) = 6, keep 4. Score 60 + 100.",
+  "note": "L1 has 4/10; player exactly 2 m away (<= interact 2). Deposit min(10, 6) = 6, keep 4. v1.2 score 6*5 + 100 = 130.",
   "args": {
     "seed": 1,
     "ticks": 10
@@ -18,7 +18,8 @@
       "tick": 1,
       "name": "lantern_lit",
       "data": {
-        "lantern_id": "L1"
+        "lantern_id": "L1",
+        "relight": false
       }
     }
   ],
@@ -31,7 +32,7 @@
     {
       "tick": 10,
       "path": "score",
-      "equals": 160
+      "equals": 130
     }
   ]
 }

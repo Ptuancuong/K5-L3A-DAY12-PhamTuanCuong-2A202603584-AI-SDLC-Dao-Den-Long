@@ -1,0 +1,24 @@
+{
+  "note": "Replaces p1-win: lighting the last lantern no longer ends the night.",
+  "args": {
+    "seed": 1,
+    "ticks": 120
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "lantern_lit",
+      "data": {
+        "lantern_id": "L1",
+        "relight": false
+      }
+    }
+  ],
+  "no_events": [
+    "game_over"
+  ],
+  "end": {
+    "state": "playing",
+    "ticks": 120
+  }
+}

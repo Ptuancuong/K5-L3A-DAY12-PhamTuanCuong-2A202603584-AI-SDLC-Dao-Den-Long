@@ -19,9 +19,9 @@ const OFF = {
   wind_enabled: false,
 };
 
-describe("contract file v1.1", () => {
+describe("contract file v1.2", () => {
   it("declares the standard numbers of Ticket-02 and the game reads this exact object", () => {
-    expect(contract.contract_version).toBe("1.1");
+    expect(contract.contract_version).toBe("1.2");
     expect(TUNING).toBe(contract.tuning);
     const t = contract.tuning;
     expect([
@@ -45,7 +45,7 @@ describe("contract file v1.1", () => {
       t.night1_duration_s,
       t.night2_duration_s,
       t.night3_duration_s,
-    ]).toEqual([300, 330, 360]);
+    ]).toEqual([240, 270, 300]); // v1.2 (was 300/330/360 in v1.1)
     expect([
       t.flames,
       t.invuln_s,
@@ -56,12 +56,13 @@ describe("contract file v1.1", () => {
     ]).toEqual([3, 1.5, 0.5, 6, 4, 1]);
     expect(t.fall_enabled).toBe(true);
     expect(t.score).toEqual({
-      per_mote: 10,
+      per_mote: 5, // v1.2 (was 10)
       per_lantern: 100,
       per_stun: 5,
-      per_second_left: 2,
+      per_second_left: 0, // v1.2: time bonus removed
       per_flame_left: 50,
     });
+    expect([t.fuel_max, t.fuel_decay_per_s, t.fuel_per_mote, t.relight_cost, t.win_ratio, t.drain_per_s, t.low_fuel_threshold, t.capacity_max]).toEqual([100, 1, 10, 5, 0.6, 5, 30, 20]);
   });
 });
 

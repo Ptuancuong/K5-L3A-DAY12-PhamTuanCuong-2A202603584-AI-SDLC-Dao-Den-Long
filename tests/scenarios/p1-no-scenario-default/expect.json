@@ -1,5 +1,5 @@
 {
-  "note": "Standard Đêm 1: start (0,0,0), 3 flames, 300 s, 5 lanterns at the standard positions, 20 motes, no shades before tick 300.",
+  "note": "Standard Đêm 1: start (0,0,0), 3 flames, 240 s (v1.2), 5 lanterns at the standard positions, 20 motes, no shades before tick 300.",
   "args": {
     "seed": 7,
     "ticks": 0
@@ -22,7 +22,7 @@
     {
       "tick": 0,
       "path": "time_left_s",
-      "equals": 300
+      "equals": 240
     },
     {
       "tick": 0,

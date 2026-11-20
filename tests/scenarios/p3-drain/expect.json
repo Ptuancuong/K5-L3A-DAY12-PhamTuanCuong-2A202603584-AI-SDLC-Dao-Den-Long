@@ -1,0 +1,60 @@
+{
+  "note": "Wander shade goes to the weak lantern (29 < 30) at 1.5 m/s: 5 m -> 2 m after 120 ticks -> drain. Fuel 1740 units - 1/tick - 5/tick from tick 121: tick 180 = 1740-180-300 = 1260 (21.0); out when 0 at tick 390. fuel_drain every 60 ticks of draining.",
+  "args": {
+    "seed": 1,
+    "ticks": 400
+  },
+  "events": [
+    {
+      "tick": 180,
+      "name": "fuel_drain",
+      "data": {
+        "lantern_id": "L1",
+        "shade_id": "S1",
+        "fuel": 21
+      }
+    },
+    {
+      "tick": 240,
+      "name": "fuel_drain",
+      "data": {
+        "lantern_id": "L1",
+        "shade_id": "S1",
+        "fuel": 15
+      }
+    },
+    {
+      "tick": 360,
+      "name": "fuel_drain",
+      "data": {
+        "lantern_id": "L1",
+        "shade_id": "S1",
+        "fuel": 3
+      }
+    },
+    {
+      "tick": 390,
+      "name": "lantern_out",
+      "data": {
+        "lantern_id": "L1"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 110,
+      "path": "shades.0.state",
+      "equals": "wander"
+    },
+    {
+      "tick": 130,
+      "path": "shades.0.state",
+      "equals": "drain"
+    },
+    {
+      "tick": 400,
+      "path": "shades.0.state",
+      "equals": "wander"
+    }
+  ]
+}

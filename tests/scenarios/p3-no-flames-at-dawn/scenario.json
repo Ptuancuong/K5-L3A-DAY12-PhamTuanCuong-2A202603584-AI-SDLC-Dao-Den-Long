@@ -1,0 +1,36 @@
+{
+  "random_motes": false,
+  "random_shades": false,
+  "random_drifters": false,
+  "wind_enabled": false,
+  "motes": [],
+  "player": {
+    "flames": 1,
+    "invuln_ticks": 60
+  },
+  "time_left_s": 1,
+  "lanterns": [
+    {
+      "id": "L1",
+      "lit": true
+    },
+    {
+      "id": "L2",
+      "lit": true
+    },
+    {
+      "id": "L3",
+      "lit": true
+    }
+  ],
+  "shades": [
+    {
+      "id": "S1",
+      "pos": [
+        0.5,
+        1,
+        0
+      ]
+    }
+  ]
+}

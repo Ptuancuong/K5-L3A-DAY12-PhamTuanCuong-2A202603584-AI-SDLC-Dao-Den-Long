@@ -1,5 +1,5 @@
 {
-  "note": "Đêm 3 – Đảo Chuông: start (0,0,-15), 360 s, 7 lanterns (L1 on tier 2 at y=6), 2 charms.",
+  "note": "Đêm 3 – Đảo Chuông: start (0,0,-15), 300 s (v1.2), 7 lanterns (L1 on tier 2 at y=6), 2 charms.",
   "args": {
     "seed": 1,
     "ticks": 0,
@@ -18,7 +18,7 @@
     {
       "tick": 0,
       "path": "time_left_s",
-      "equals": 360
+      "equals": 300
     },
     {
       "tick": 0,

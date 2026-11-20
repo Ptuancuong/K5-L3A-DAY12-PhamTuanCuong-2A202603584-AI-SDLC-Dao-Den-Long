@@ -37,7 +37,7 @@
     {
       "tick": 10,
       "path": "time_left_s",
-      "equals": 300
+      "equals": 240
     },
     {
       "tick": 40,
@@ -52,7 +52,7 @@
     {
       "tick": 40,
       "path": "time_left_s",
-      "equals": 299.833
+      "equals": 239.833
     }
   ],
   "end": {

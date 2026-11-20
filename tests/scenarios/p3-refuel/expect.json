@@ -1,0 +1,43 @@
+{
+  "note": "Tick 1 fuel 54.983: used = min(10, ceil(45.017/10)=5) = 5 -> fuel min(100, 104.98) = 100, +25. Tick 10 fuel 99.85: used = ceil(0.015) = 1 -> 100, +5.",
+  "args": {
+    "seed": 1,
+    "ticks": 20
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "refuel",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 5,
+        "fuel": 100
+      }
+    },
+    {
+      "tick": 10,
+      "name": "refuel",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 1,
+        "fuel": 100
+      }
+    }
+  ],
+  "no_events": [
+    "deposit",
+    "lantern_lit"
+  ],
+  "snapshots": [
+    {
+      "tick": 20,
+      "path": "player.carried",
+      "equals": 4
+    },
+    {
+      "tick": 20,
+      "path": "score",
+      "equals": 30
+    }
+  ]
+}

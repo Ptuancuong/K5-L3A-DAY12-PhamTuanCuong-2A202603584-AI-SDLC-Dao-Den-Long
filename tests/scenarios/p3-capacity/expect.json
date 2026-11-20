@@ -1,0 +1,31 @@
+{
+  "note": "Capacity = min(20, 10 + 2*7) = 20: picks 1 mote (19 -> 20), the second stays.",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "mote_picked",
+      "data": {
+        "carried": 20
+      }
+    }
+  ],
+  "event_count": {
+    "mote_picked": 1
+  },
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "player.capacity",
+      "equals": 20
+    },
+    {
+      "tick": 10,
+      "path": "motes_active",
+      "equals": 1
+    }
+  ]
+}

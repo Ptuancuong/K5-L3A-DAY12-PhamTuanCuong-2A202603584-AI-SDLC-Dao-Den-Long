@@ -1,0 +1,8 @@
+{
+  "note": "target_lantern_id must be an existing lantern -> exit 2.",
+  "args": {
+    "seed": 1,
+    "ticks": 5
+  },
+  "exit_code": 2
+}

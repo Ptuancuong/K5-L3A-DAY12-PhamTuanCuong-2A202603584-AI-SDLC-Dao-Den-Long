@@ -1,0 +1,30 @@
+{
+  "note": "Pulse hits a shade that was draining: +15 total (not +5); it becomes stunned.",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "pulse",
+      "data": {
+        "stunned_ids": [
+          "S1"
+        ]
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "score",
+      "equals": 15
+    },
+    {
+      "tick": 10,
+      "path": "shades.0.state",
+      "equals": "stunned"
+    }
+  ]
+}

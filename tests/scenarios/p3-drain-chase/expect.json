@@ -1,0 +1,19 @@
+{
+  "note": "Draining shade 8 m away; Mây walks +Z 0.1/tick -> within 6 m after 20 ticks -> chase.",
+  "args": {
+    "seed": 1,
+    "ticks": 30
+  },
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "shades.0.state",
+      "equals": "drain"
+    },
+    {
+      "tick": 30,
+      "path": "shades.0.state",
+      "equals": "chase"
+    }
+  ]
+}

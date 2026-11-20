@@ -1,0 +1,43 @@
+{
+  "note": "Tick 1 fuel = 20 - 6/60 = 19.9 -> used min(10, ceil(8.01)) = 9 -> 100. Zone is back (>= 30): the shade inside is pushed to the 6 m edge within 30 ticks, harmless, never hits.",
+  "args": {
+    "seed": 1,
+    "ticks": 60
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "refuel",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 9,
+        "fuel": 100
+      }
+    }
+  ],
+  "no_events": [
+    "player_hit"
+  ],
+  "xz_dist": [
+    {
+      "tick": 30,
+      "path": "shades.0.pos",
+      "to": [
+        0,
+        0,
+        25
+      ],
+      "min": 5.999
+    },
+    {
+      "tick": 60,
+      "path": "shades.0.pos",
+      "to": [
+        0,
+        0,
+        25
+      ],
+      "min": 5.999
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "note": "Đêm 2 – Đảo Cau: start (0,0,0), 330 s, lanterns L1..L6 at standard positions, charm C1 available.",
+  "note": "Đêm 2 – Đảo Cau: start (0,0,0), 270 s (v1.2), lanterns L1..L6 at standard positions, charm C1 available.",
   "args": {
     "seed": 1,
     "ticks": 0,
@@ -14,7 +14,7 @@
     {
       "tick": 0,
       "path": "time_left_s",
-      "equals": 330
+      "equals": 270
     },
     {
       "tick": 0,

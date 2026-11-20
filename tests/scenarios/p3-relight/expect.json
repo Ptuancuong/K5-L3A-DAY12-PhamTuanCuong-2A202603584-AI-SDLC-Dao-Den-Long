@@ -1,0 +1,53 @@
+{
+  "note": "A lantern that was lit before needs only relight_cost 5: deposit 5, lit with relight true, fuel 100, relit_count 1. Score 5*5 + 40 = 65. Capacity 10 + 2*1 = 12.",
+  "args": {
+    "seed": 1,
+    "ticks": 10
+  },
+  "events": [
+    {
+      "tick": 1,
+      "name": "deposit",
+      "data": {
+        "lantern_id": "L1",
+        "amount": 5,
+        "deposited": 5
+      }
+    },
+    {
+      "tick": 1,
+      "name": "lantern_lit",
+      "data": {
+        "lantern_id": "L1",
+        "relight": true
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 10,
+      "path": "lanterns.0.relit_count",
+      "equals": 1
+    },
+    {
+      "tick": 10,
+      "path": "player.carried",
+      "equals": 2
+    },
+    {
+      "tick": 10,
+      "path": "score",
+      "equals": 65
+    },
+    {
+      "tick": 10,
+      "path": "player.capacity",
+      "equals": 12
+    },
+    {
+      "tick": 0,
+      "path": "player.capacity",
+      "equals": 10
+    }
+  ]
+}

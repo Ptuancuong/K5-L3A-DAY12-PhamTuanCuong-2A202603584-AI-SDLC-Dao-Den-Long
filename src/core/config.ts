@@ -35,6 +35,14 @@ export interface Tuning {
   dash_speed: number;
   dash_duration_s: number;
   dash_cooldown_s: number;
+  fuel_max: number;
+  fuel_decay_per_s: number;
+  fuel_per_mote: number;
+  relight_cost: number;
+  win_ratio: number;
+  drain_per_s: number;
+  low_fuel_threshold: number;
+  capacity_max: number;
   score: ScoreTuning;
 }
 
@@ -81,6 +89,14 @@ export const STD = {
   windEvery: 1800,
   windTicks: 300,
   windSpeed: 2,
+  // Ticket-03 (v1.2) standard numbers that are not tuning keys:
+  capacityPerLight: 2,
+  relightScore: 40,
+  stunDrainScore: 15, // total per shade hit while it was draining
+  dawnLitBase: 50, // + floor(fuel) per lit lantern at dawn
+  drainRange: 2,
+  drainChaseRange: 6,
+  drainEventEvery: 60,
   // My choices (not specified by the ticket):
   shadeWanderSpeed: 1.5, // m/s
   shadeHover: 1, // m above the surface below

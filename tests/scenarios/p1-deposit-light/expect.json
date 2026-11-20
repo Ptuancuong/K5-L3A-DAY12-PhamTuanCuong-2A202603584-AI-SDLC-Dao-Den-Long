@@ -1,5 +1,5 @@
 {
-  "note": "v1.1: lantern_cost 10, interact 2 m (player 1 m from L1). 10 deposited -> lit. Score 10*10 + 100 = 200.",
+  "note": "v1.1: lantern_cost 10, interact 2 m (player 1 m from L1). 10 deposited -> lit. v1.2 score: 10*5 + 100 = 150 (was 200 with +10/mote).",
   "args": {
     "seed": 1,
     "ticks": 10
@@ -18,7 +18,8 @@
       "tick": 1,
       "name": "lantern_lit",
       "data": {
-        "lantern_id": "L1"
+        "lantern_id": "L1",
+        "relight": false
       }
     }
   ],
@@ -36,6 +37,6 @@
   ],
   "end": {
     "state": "playing",
-    "score": 200
+    "score": 150
   }
 }

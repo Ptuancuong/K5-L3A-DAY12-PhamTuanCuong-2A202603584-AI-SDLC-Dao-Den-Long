@@ -1,0 +1,23 @@
+{
+  "random_motes": false,
+  "random_shades": false,
+  "random_drifters": false,
+  "wind_enabled": false,
+  "shades": [],
+  "player": {
+    "carried": 19,
+    "successful_lights": 7
+  },
+  "motes": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0.2,
+      0,
+      0
+    ]
+  ]
+}

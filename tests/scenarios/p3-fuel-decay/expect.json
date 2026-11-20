@@ -1,0 +1,34 @@
+{
+  "note": "lit:true without fuel -> 100. Decay 1/s: 90.0 after 600 ticks. ever_lit true for a preset lit lantern.",
+  "args": {
+    "seed": 1,
+    "ticks": 600
+  },
+  "snapshots": [
+    {
+      "tick": 0,
+      "path": "lanterns.0.fuel",
+      "equals": 100
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.0.ever_lit",
+      "equals": true
+    },
+    {
+      "tick": 600,
+      "path": "lanterns.0.fuel",
+      "equals": 90
+    },
+    {
+      "tick": 600,
+      "path": "lanterns.0.lit",
+      "equals": true
+    },
+    {
+      "tick": 0,
+      "path": "lanterns.1.fuel",
+      "equals": 0
+    }
+  ]
+}

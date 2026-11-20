@@ -9,7 +9,8 @@
       "tick": 1,
       "name": "lantern_lit",
       "data": {
-        "lantern_id": "L1"
+        "lantern_id": "L1",
+        "relight": false
       }
     }
   ],

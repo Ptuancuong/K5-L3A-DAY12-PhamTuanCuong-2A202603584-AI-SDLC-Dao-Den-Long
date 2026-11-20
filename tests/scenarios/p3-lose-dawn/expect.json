@@ -1,0 +1,22 @@
+{
+  "note": "Only 2/5 lit at dawn (< 3) -> lost dawn, no bonus.",
+  "args": {
+    "seed": 1,
+    "ticks": 100
+  },
+  "events": [
+    {
+      "tick": 60,
+      "name": "game_over",
+      "data": {
+        "result": "lost",
+        "reason": "dawn"
+      }
+    }
+  ],
+  "end": {
+    "state": "lost",
+    "ticks": 60,
+    "score": 0
+  }
+}

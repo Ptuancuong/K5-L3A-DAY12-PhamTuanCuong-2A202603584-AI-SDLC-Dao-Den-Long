@@ -1,0 +1,43 @@
+{
+  "note": "fuel 1 = 60 units, -1 unit/tick -> 0 at tick 60 -> lantern_out, lit false, deposited 0, ever_lit stays true.",
+  "args": {
+    "seed": 1,
+    "ticks": 70
+  },
+  "events": [
+    {
+      "tick": 60,
+      "name": "lantern_out",
+      "data": {
+        "lantern_id": "L1"
+      }
+    }
+  ],
+  "snapshots": [
+    {
+      "tick": 50,
+      "path": "lanterns.0.lit",
+      "equals": true
+    },
+    {
+      "tick": 60,
+      "path": "lanterns.0.lit",
+      "equals": false
+    },
+    {
+      "tick": 60,
+      "path": "lanterns.0.deposited",
+      "equals": 0
+    },
+    {
+      "tick": 60,
+      "path": "lanterns.0.fuel",
+      "equals": 0
+    },
+    {
+      "tick": 60,
+      "path": "lanterns.0.ever_lit",
+      "equals": true
+    }
+  ]
+}

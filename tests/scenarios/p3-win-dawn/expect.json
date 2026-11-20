@@ -1,0 +1,22 @@
+{
+  "note": "Dawn at tick 60 with 3/5 lit (need ceil(0.6*5) = 3) -> won dawn_survived. Bonus 3 * (50 + floor(99.0)) + 3 flames * 50 = 447 + 150 = 597 (preset lanterns score nothing).",
+  "args": {
+    "seed": 1,
+    "ticks": 100
+  },
+  "events": [
+    {
+      "tick": 60,
+      "name": "game_over",
+      "data": {
+        "result": "won",
+        "reason": "dawn_survived"
+      }
+    }
+  ],
+  "end": {
+    "state": "won",
+    "ticks": 60,
+    "score": 597
+  }
+}

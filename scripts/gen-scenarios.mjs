@@ -35,18 +35,18 @@ mk('p1-carry-capacity', { ...OFF, player: { carried: 10 }, motes: [[0, 0, 0]] },
 });
 mk('p1-deposit-light', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24], carried: 10 } },
   { frames: [{ tick: 0, interact: true }, { tick: 1, interact: false }] }, {
-  note: 'v1.1: lantern_cost 10, interact 2 m (player 1 m from L1). 10 deposited -> lit. Score 10*10 + 100 = 200.',
+  note: 'v1.1: lantern_cost 10, interact 2 m (player 1 m from L1). 10 deposited -> lit. v1.2 score: 10*5 + 100 = 150 (was 200 with +10/mote).',
   args: { seed: 1, ticks: 10 },
-  events: [ev(1, 'deposit', { lantern_id: 'L1', amount: 10, deposited: 10 }), ev(1, 'lantern_lit', { lantern_id: 'L1' })],
+  events: [ev(1, 'deposit', { lantern_id: 'L1', amount: 10, deposited: 10 }), ev(1, 'lantern_lit', { lantern_id: 'L1', relight: false })],
   snapshots: [snap(10, 'lanterns.0.lit', true), snap(10, 'player.carried', 0)],
-  end: { state: 'playing', score: 200 },
+  end: { state: 'playing', score: 150 },
 });
 mk('p1-partial-deposit', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 23], carried: 10 }, lanterns: [{ id: 'L1', deposited: 4 }] },
   { frames: [{ tick: 0, interact: true }] }, {
-  note: 'L1 has 4/10; player exactly 2 m away (<= interact 2). Deposit min(10, 6) = 6, keep 4. Score 60 + 100.',
+  note: 'L1 has 4/10; player exactly 2 m away (<= interact 2). Deposit min(10, 6) = 6, keep 4. v1.2 score 6*5 + 100 = 130.',
   args: { seed: 1, ticks: 10 },
-  events: [ev(1, 'deposit', { lantern_id: 'L1', amount: 6, deposited: 10 }), ev(1, 'lantern_lit', { lantern_id: 'L1' })],
-  snapshots: [snap(10, 'player.carried', 4), snap(10, 'score', 160)],
+  events: [ev(1, 'deposit', { lantern_id: 'L1', amount: 6, deposited: 10 }), ev(1, 'lantern_lit', { lantern_id: 'L1', relight: false })],
+  snapshots: [snap(10, 'player.carried', 4), snap(10, 'score', 130)],
 });
 mk('p1-held-interact', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24], carried: 3 } },
   { frames: [{ tick: 0, interact: true }, { tick: 5, move: [0, 0] }] }, {
@@ -55,14 +55,6 @@ mk('p1-held-interact', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24
   events: [ev(1, 'deposit', { lantern_id: 'L1', amount: 3, deposited: 3 })],
   no_events: ['lantern_lit'],
   event_count: { deposit: 1 },
-});
-mk('p1-win', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24], carried: 10 },
-  lanterns: ['L2', 'L3', 'L4', 'L5'].map((id) => ({ id, lit: true })) },
-  { frames: [{ tick: 0, interact: true }] }, {
-  note: 'Preset lit lanterns give no score. Tick 1: 10*10 + 100 + floor(299.98)=299 s *2 + 3 flames*50 = 100+100+598+150 = 948. night_start at tick 1.',
-  args: { seed: 1, ticks: 600 },
-  events: [ev(1, 'night_start', { night: 1 }), ev(1, 'lantern_lit', { lantern_id: 'L1' }), ev(1, 'game_over', { result: 'won', reason: 'all_lit' })],
-  end: { state: 'won', ticks: 1, score: 948 },
 });
 mk('p1-hit-invuln', { ...OFF, motes: [], player: { carried: 4 }, shades: [{ id: 'S9', pos: [0.5, 1, 0] }] }, null, {
   note: 'Hit at tick 1 (drop floor(4/2)=2), shade recoils, invuln 90 ticks -> hits allowed again at 91 and 181 (shade is back by then). 3 flames -> lost at 181.',
@@ -142,10 +134,10 @@ mk('p1-bad-scenario-lantern', { ...OFF, lanterns: [{ id: 'L9', lit: true }] }, n
   note: 'Unknown lantern id on night 1 -> exit code 2.', args: { seed: 1, ticks: 10 }, exit_code: 2,
 });
 mk('p1-no-scenario-default', {}, null, {
-  note: 'Standard Đêm 1: start (0,0,0), 3 flames, 300 s, 5 lanterns at the standard positions, 20 motes, no shades before tick 300.',
+  note: 'Standard Đêm 1: start (0,0,0), 3 flames, 240 s (v1.2), 5 lanterns at the standard positions, 20 motes, no shades before tick 300.',
   args: { seed: 7, ticks: 0 },
   snapshots: [
-    snap(0, 'player.pos', [0, 0, 0]), snap(0, 'player.flames', 3), snap(0, 'time_left_s', 300), snap(0, 'night', 1),
+    snap(0, 'player.pos', [0, 0, 0]), snap(0, 'player.flames', 3), snap(0, 'time_left_s', 240), snap(0, 'night', 1),
     snap(0, 'lanterns.length', 5), snap(0, 'lanterns.1.pos', [23.8, 0, 7.7]), snap(0, 'lanterns.3.pos', [-14.7, 0, -20.2]),
     snap(0, 'motes_active', 20), snap(0, 'shades.length', 0),
   ],
@@ -210,7 +202,7 @@ mk('p2-safe-evict', { ...OFF, motes: [], player: { pos: [0, 0, 24], carried: 10 
   { frames: [{ tick: 0, interact: true }] }, {
   note: 'Shade is 3.6 m from L1 when it is lit: pushed out to the 6 m edge within 30 ticks, harmless meanwhile, then held at the edge -> never hits.',
   args: { seed: 1, ticks: 200 },
-  events: [ev(1, 'lantern_lit', { lantern_id: 'L1' })],
+  events: [ev(1, 'lantern_lit', { lantern_id: 'L1', relight: false })],
   no_events: ['player_hit'],
   xz_dist: [
     { tick: 10, path: 'shades.0.pos', to: [0, 0, 25], max: 5.99 },
@@ -228,7 +220,7 @@ mk('p2-pause', { ...OFF, motes: [], shades: [] }, { frames: [{ tick: 0, pause: t
   note: 'Pause on tick 1: tick keeps counting but sim_tick/time freeze; resume on tick 31 (sim runs again).',
   args: { seed: 1, ticks: 40 },
   events: [ev(1, 'night_start', { night: 1 }), ev(1, 'paused'), ev(31, 'resumed')],
-  snapshots: [snap(10, 'state', 'paused'), snap(10, 'sim_tick', 0), snap(10, 'time_left_s', 300), snap(40, 'state', 'playing'), snap(40, 'sim_tick', 10), snap(40, 'time_left_s', 299.833)],
+  snapshots: [snap(10, 'state', 'paused'), snap(10, 'sim_tick', 0), snap(10, 'time_left_s', 240), snap(40, 'state', 'playing'), snap(40, 'sim_tick', 10), snap(40, 'time_left_s', 239.833)],
   end: { ticks: 40, state: 'playing' },
 });
 mk('p2-mote-schedule', { random_shades: false, random_drifters: false }, null, {
@@ -237,9 +229,9 @@ mk('p2-mote-schedule', { random_shades: false, random_drifters: false }, null, {
   snapshots: [snap(0, 'motes_active', 20), snap(240, 'motes_active', 21), snap(960, 'motes_active', 24), snap(1200, 'motes_active', 24), snap(0, 'motes.0.kind', 'random')],
 });
 mk('p2-night2-start', {}, null, {
-  note: 'Đêm 2 – Đảo Cau: start (0,0,0), 330 s, lanterns L1..L6 at standard positions, charm C1 available.',
+  note: 'Đêm 2 – Đảo Cau: start (0,0,0), 270 s (v1.2), lanterns L1..L6 at standard positions, charm C1 available.',
   args: { seed: 1, ticks: 0, night: 2 },
-  snapshots: [snap(0, 'night', 2), snap(0, 'time_left_s', 330), snap(0, 'lanterns.length', 6), snap(0, 'lanterns.4.pos', [87, 0, -10]), snap(0, 'charms.0.id', 'C1'), snap(0, 'charms.0.available', true)],
+  snapshots: [snap(0, 'night', 2), snap(0, 'time_left_s', 270), snap(0, 'lanterns.length', 6), snap(0, 'lanterns.4.pos', [87, 0, -10]), snap(0, 'charms.0.id', 'C1'), snap(0, 'charms.0.available', true)],
 });
 mk('p2-night2-pad', { ...OFF, motes: [], shades: [], player: { pos: [20, 0, 18] } }, null, {
   note: 'Standing on the pad at (20,0,18) launches Mây (vy 14, 24 m/s towards B). ~1.4 s flight lands on island B (within 28 m of (70,0,0)), no fall.',
@@ -283,9 +275,9 @@ mk('p2-drifter-spawn', { random_motes: false, random_shades: false }, null, {
   snapshots: [snap(1190, 'drifters.length', 0), snap(1200, 'drifters.0.id', 'D1'), snap(1200, 'drifters.0.state', 'idle'), snap(2400, 'drifters.1.id', 'D2'), snap(3600, 'drifters.length', 2)],
 });
 mk('p2-night3-start', {}, null, {
-  note: 'Đêm 3 – Đảo Chuông: start (0,0,-15), 360 s, 7 lanterns (L1 on tier 2 at y=6), 2 charms.',
+  note: 'Đêm 3 – Đảo Chuông: start (0,0,-15), 300 s (v1.2), 7 lanterns (L1 on tier 2 at y=6), 2 charms.',
   args: { seed: 1, ticks: 0, night: 3 },
-  snapshots: [snap(0, 'player.pos', [0, 0, -15]), snap(0, 'time_left_s', 360), snap(0, 'lanterns.length', 7), snap(0, 'lanterns.0.pos', [0, 6, 6]), snap(0, 'charms.length', 2)],
+  snapshots: [snap(0, 'player.pos', [0, 0, -15]), snap(0, 'time_left_s', 300), snap(0, 'lanterns.length', 7), snap(0, 'lanterns.0.pos', [0, 6, 6]), snap(0, 'charms.length', 2)],
 });
 mk('p2-night3-wall', { ...OFF, motes: [], shades: [] }, { frames: [{ tick: 0, move: [0, 1] }] }, {
   note: 'Walking +Z from (0,0,-15) hits the vertical wall of tier 2 (r = 8, y = 6): Mây stops at r ~ 8 and stays at y = 0.',
@@ -321,6 +313,110 @@ mk('p2-pickup-height', { ...OFF, shades: [], motes: [[0, 2, 0.5], [0.3, 1.5, 0]]
 mk('p2-bad-night', { ...OFF }, null, { note: '--night 4 is not a night -> non-zero exit (usage error = 1).', args: { seed: 1, ticks: 5, night: 4 }, exit_code: 1 });
 mk('p2-bad-shade-state', { ...OFF, shades: [{ pos: [5, 1, 0], state: 'sleeping' }] }, null, {
   note: 'v1.1 shade states are spawning|wander|chase|recoil|stunned -> unknown state = malformed scenario -> exit 2.',
+  args: { seed: 1, ticks: 5 },
+  exit_code: 2,
+});
+
+// ---------------- Phase 3 (Ticket-03, contract v1.2) ----------------
+const P = { pos: [0, 0, -20] }; // player parked far from L1 (0,0,25)
+mk('p3-fuel-decay', { ...OFF, motes: [], shades: [], player: P, lanterns: [{ id: 'L1', lit: true }] }, null, {
+  note: 'lit:true without fuel -> 100. Decay 1/s: 90.0 after 600 ticks. ever_lit true for a preset lit lantern.',
+  args: { seed: 1, ticks: 600 },
+  snapshots: [snap(0, 'lanterns.0.fuel', 100), snap(0, 'lanterns.0.ever_lit', true), snap(600, 'lanterns.0.fuel', 90), snap(600, 'lanterns.0.lit', true), snap(0, 'lanterns.1.fuel', 0)],
+});
+mk('p3-lantern-out', { ...OFF, motes: [], shades: [], player: P, lanterns: [{ id: 'L1', lit: true, fuel: 1, deposited: 10 }] }, null, {
+  note: 'fuel 1 = 60 units, -1 unit/tick -> 0 at tick 60 -> lantern_out, lit false, deposited 0, ever_lit stays true.',
+  args: { seed: 1, ticks: 70 },
+  events: [ev(60, 'lantern_out', { lantern_id: 'L1' })],
+  snapshots: [snap(50, 'lanterns.0.lit', true), snap(60, 'lanterns.0.lit', false), snap(60, 'lanterns.0.deposited', 0), snap(60, 'lanterns.0.fuel', 0), snap(60, 'lanterns.0.ever_lit', true)],
+});
+mk('p3-refuel', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24], carried: 10 }, lanterns: [{ id: 'L1', lit: true, fuel: 55 }] },
+  { frames: [{ tick: 0, interact: true }, { tick: 1, interact: false }, { tick: 9, interact: true }] }, {
+  note: 'Tick 1 fuel 54.983: used = min(10, ceil(45.017/10)=5) = 5 -> fuel min(100, 104.98) = 100, +25. Tick 10 fuel 99.85: used = ceil(0.015) = 1 -> 100, +5.',
+  args: { seed: 1, ticks: 20 },
+  events: [ev(1, 'refuel', { lantern_id: 'L1', amount: 5, fuel: 100 }), ev(10, 'refuel', { lantern_id: 'L1', amount: 1, fuel: 100 })],
+  no_events: ['deposit', 'lantern_lit'],
+  snapshots: [snap(20, 'player.carried', 4), snap(20, 'score', 30)],
+});
+mk('p3-relight', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24], carried: 7 }, lanterns: [{ id: 'L1', lit: false, ever_lit: true }] },
+  { frames: [{ tick: 0, interact: true }] }, {
+  note: 'A lantern that was lit before needs only relight_cost 5: deposit 5, lit with relight true, fuel 100, relit_count 1. Score 5*5 + 40 = 65. Capacity 10 + 2*1 = 12.',
+  args: { seed: 1, ticks: 10 },
+  events: [ev(1, 'deposit', { lantern_id: 'L1', amount: 5, deposited: 5 }), ev(1, 'lantern_lit', { lantern_id: 'L1', relight: true })],
+  snapshots: [snap(10, 'lanterns.0.relit_count', 1), snap(10, 'player.carried', 2), snap(10, 'score', 65), snap(10, 'player.capacity', 12), snap(0, 'player.capacity', 10)],
+});
+mk('p3-capacity', { ...OFF, shades: [], player: { carried: 19, successful_lights: 7 }, motes: [[0, 0, 0], [0.2, 0, 0]] }, null, {
+  note: 'Capacity = min(20, 10 + 2*7) = 20: picks 1 mote (19 -> 20), the second stays.',
+  args: { seed: 1, ticks: 10 },
+  events: [ev(1, 'mote_picked', { carried: 20 })],
+  event_count: { mote_picked: 1 },
+  snapshots: [snap(10, 'player.capacity', 20), snap(10, 'motes_active', 1)],
+});
+mk('p3-drain', { ...OFF, motes: [], player: P, lanterns: [{ id: 'L1', lit: true, fuel: 29 }], shades: [{ id: 'S1', pos: [0, 1, 20] }] }, null, {
+  note: 'Wander shade goes to the weak lantern (29 < 30) at 1.5 m/s: 5 m -> 2 m after 120 ticks -> drain. Fuel 1740 units - 1/tick - 5/tick from tick 121: tick 180 = 1740-180-300 = 1260 (21.0); out when 0 at tick 390. fuel_drain every 60 ticks of draining.',
+  args: { seed: 1, ticks: 400 },
+  events: [
+    ev(180, 'fuel_drain', { lantern_id: 'L1', shade_id: 'S1', fuel: 21 }),
+    ev(240, 'fuel_drain', { lantern_id: 'L1', shade_id: 'S1', fuel: 15 }),
+    ev(360, 'fuel_drain', { lantern_id: 'L1', shade_id: 'S1', fuel: 3 }),
+    ev(390, 'lantern_out', { lantern_id: 'L1' }),
+  ],
+  snapshots: [snap(110, 'shades.0.state', 'wander'), snap(130, 'shades.0.state', 'drain'), snap(400, 'shades.0.state', 'wander')],
+});
+mk('p3-drain-chase', { ...OFF, motes: [], player: { pos: [0, 0, 15] }, lanterns: [{ id: 'L1', lit: true, fuel: 20 }], shades: [{ id: 'S1', pos: [0, 1, 23], state: 'drain', target_lantern_id: 'L1' }] },
+  { frames: [{ tick: 0, move: [0, 1] }] }, {
+  note: 'Draining shade 8 m away; Mây walks +Z 0.1/tick -> within 6 m after 20 ticks -> chase.',
+  args: { seed: 1, ticks: 30 },
+  snapshots: [snap(10, 'shades.0.state', 'drain'), snap(30, 'shades.0.state', 'chase')],
+});
+mk('p3-pulse-drain', { ...OFF, motes: [], player: { pos: [0, 0, 20], carried: 3 }, lanterns: [{ id: 'L1', lit: true, fuel: 20 }], shades: [{ id: 'S1', pos: [0, 1, 23], state: 'drain', target_lantern_id: 'L1' }] },
+  { frames: [{ tick: 0, pulse: true }] }, {
+  note: 'Pulse hits a shade that was draining: +15 total (not +5); it becomes stunned.',
+  args: { seed: 1, ticks: 10 },
+  events: [ev(1, 'pulse', { stunned_ids: ['S1'] })],
+  snapshots: [snap(10, 'score', 15), snap(10, 'shades.0.state', 'stunned')],
+});
+mk('p3-refuel-evict', { ...OFF, motes: [], player: { pos: [0, 0, 24], carried: 10 }, lanterns: [{ id: 'L1', lit: true, fuel: 20 }], shades: [{ id: 'S1', pos: [1.5, 1, 24.5], state: 'drain', target_lantern_id: 'L1' }] },
+  { frames: [{ tick: 0, interact: true }] }, {
+  note: 'Tick 1 fuel = 20 - 6/60 = 19.9 -> used min(10, ceil(8.01)) = 9 -> 100. Zone is back (>= 30): the shade inside is pushed to the 6 m edge within 30 ticks, harmless, never hits.',
+  args: { seed: 1, ticks: 60 },
+  events: [ev(1, 'refuel', { lantern_id: 'L1', amount: 9, fuel: 100 })],
+  no_events: ['player_hit'],
+  xz_dist: [{ tick: 30, path: 'shades.0.pos', to: [0, 0, 25], min: 5.999 }, { tick: 60, path: 'shades.0.pos', to: [0, 0, 25], min: 5.999 }],
+});
+mk('p3-low-fuel-no-zone', { ...OFF, motes: [], player: { pos: [0, 0, 25] }, lanterns: [{ id: 'L1', lit: true, fuel: 29 }], shades: [{ id: 'S1', pos: [0, 1, 15] }] }, null, {
+  note: 'fuel < 30 removes the safe zone: the chasing shade (10 m away) must close 9 m at 4/60 m per tick = 135 ticks, then hits Mây standing at L1.',
+  args: { seed: 1, ticks: 200 },
+  events: [ev(135, 'player_hit', { by: 'shade', flames: 2, dropped: 0 })],
+});
+mk('p3-win-dawn', { ...OFF, motes: [], shades: [], player: P, time_left_s: 1, lanterns: ['L1', 'L2', 'L3'].map((id) => ({ id, lit: true })) }, null, {
+  note: 'Dawn at tick 60 with 3/5 lit (need ceil(0.6*5) = 3) -> won dawn_survived. Bonus 3 * (50 + floor(99.0)) + 3 flames * 50 = 447 + 150 = 597 (preset lanterns score nothing).',
+  args: { seed: 1, ticks: 100 },
+  events: [ev(60, 'game_over', { result: 'won', reason: 'dawn_survived' })],
+  end: { state: 'won', ticks: 60, score: 597 },
+});
+mk('p3-lose-dawn', { ...OFF, motes: [], shades: [], player: P, time_left_s: 1, lanterns: ['L1', 'L2'].map((id) => ({ id, lit: true })) }, null, {
+  note: 'Only 2/5 lit at dawn (< 3) -> lost dawn, no bonus.',
+  args: { seed: 1, ticks: 100 },
+  events: [ev(60, 'game_over', { result: 'lost', reason: 'dawn' })],
+  end: { state: 'lost', ticks: 60, score: 0 },
+});
+mk('p3-all-lit-continues', { ...OFF, motes: [], shades: [], player: { pos: [0, 0, 24], carried: 10 }, lanterns: ['L2', 'L3', 'L4', 'L5'].map((id) => ({ id, lit: true })) },
+  { frames: [{ tick: 0, interact: true }] }, {
+  note: 'Replaces p1-win: lighting the last lantern no longer ends the night.',
+  args: { seed: 1, ticks: 120 },
+  events: [ev(1, 'lantern_lit', { lantern_id: 'L1', relight: false })],
+  no_events: ['game_over'],
+  end: { state: 'playing', ticks: 120 },
+});
+mk('p3-no-flames-at-dawn', { ...OFF, motes: [], player: { flames: 1, invuln_ticks: 60 }, time_left_s: 1, lanterns: ['L1', 'L2', 'L3'].map((id) => ({ id, lit: true })), shades: [{ id: 'S1', pos: [0.5, 1, 0] }] }, null, {
+  note: 'Invuln ends at tick 60 = dawn tick; the shade hits then. No flames is checked first -> lost no_flames even with 3/5 lit.',
+  args: { seed: 1, ticks: 100 },
+  events: [ev(60, 'player_hit', { by: 'shade', flames: 0, dropped: 0 }), ev(60, 'game_over', { result: 'lost', reason: 'no_flames' })],
+  end: { state: 'lost', ticks: 60 },
+});
+mk('p3-bad-target', { ...OFF, shades: [{ pos: [1, 1, 1], state: 'drain', target_lantern_id: 'L9' }] }, null, {
+  note: 'target_lantern_id must be an existing lantern -> exit 2.',
   args: { seed: 1, ticks: 5 },
   exit_code: 2,
 });
