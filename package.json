@@ -5,7 +5,9 @@
   "type": "module",
   "description": "Đảo Đèn Lồng — game 3D góc nhìn thứ ba (Day 12 AI SDLC lab)",
   "license": "MIT",
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "npm run build:headless && npm run build:web",
     "build:headless": "esbuild src/headless/cli.ts --bundle --platform=node --format=esm --target=node18 --outfile=build/headless.mjs",
@@ -15,7 +17,8 @@
     "headless": "node build/headless.mjs",
     "typecheck": "tsc --noEmit",
     "test": "npm run build:headless --silent && tsc --noEmit && vitest run",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "shot": "node scripts/screenshot.mjs"
   },
   "dependencies": {
     "three": "0.170.0"
@@ -24,6 +27,7 @@
     "@types/node": "22.10.2",
     "@types/three": "0.170.0",
     "esbuild": "0.24.2",
+    "playwright": "^1.49.1",
     "typescript": "5.7.2",
     "vite": "6.0.7",
     "vitest": "2.1.8"

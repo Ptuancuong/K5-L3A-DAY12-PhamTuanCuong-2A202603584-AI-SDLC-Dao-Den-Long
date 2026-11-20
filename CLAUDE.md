@@ -1,0 +1,29 @@
+# Đảo Đèn Lồng — agent guide
+
+3D third-person game (TypeScript + Three.js + Vite) with a headless mode graded by Test Contract.
+Requirements: `docs/lab/phase-N-*.md` (PRD-0, tickets). Assumptions: `docs/notes/assumptions.md`.
+
+## Commands
+
+- `npm ci && npm run build` — build headless (`build/headless.mjs`) + web (`dist/`)
+- `npm test` — rebuild headless, typecheck, unit + scenario tests (must be green before finishing)
+- `npm run verify -- phase-N` — run all scenarios via the CLI, write evidence to `docs/proof/phase-N/`
+- `npm run shot -- phase-N` — screenshots of the real game (Playwright) into `docs/proof/phase-N/screenshots/`
+- `npm run dev` — play in the browser
+- Headless: `node build/headless.mjs --seed 1 --night 1 --ticks 600 --out out.jsonl [--scenario f] [--inputs f]`
+
+## Layout
+
+- `src/core/` pure deterministic rules. `src/render/` Three.js view only. `src/headless/` CLI.
+- `game.contract.json` is the ONLY source of tuning numbers; core imports it. Never hardcode a tuning value.
+- Non-contract constants live in `WORLD` in `src/core/config.ts` and must be listed in assumptions.md.
+- `tests/scenarios/<name>/{scenario,inputs,expect}.json` — expectations are computed by hand from the rules.
+
+## Rules
+
+- No `Math.random`, `Date`, `performance` or DOM in `src/core` (determinism).
+- Event/tick order is fixed (see `step()` comments). Changing it is a design change: note it in assumptions.md.
+- Never edit an `expect.json` just to match new output. If a rule changed, update it with the reason in the note
+  and in assumptions.md (retired tests go to `tests/scenarios/_retired/` with a reason).
+- Creative extras must not change headless output (gate them behind the render layer or a default-off flag).
+- Small commits, one change each. Do not commit `.env`, keys, `build/`, `dist/`.
