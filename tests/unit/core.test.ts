@@ -141,6 +141,32 @@ describe("safe radius", () => {
         );
     }
   });
+
+  it("a STUNNED shade inside the zone is pushed out on the tick the lantern is lit", () => {
+    // Coach answer CP1 #7: after a lantern is lit, no shade may stay inside safe_radius.
+    // Tick 0: pulse stuns S1 and pushes it to ~(3.78, 26.28), ~4 m from L1 (0,0,25).
+    // Tick 1: interact lights L1 while S1 is still stunned.
+    const w = createWorld({
+      seed: 1,
+      scenario: {
+        ...OFF,
+        motes: [],
+        player: { pos: [0, 0, 22.5], carried: 7 },
+        shades: [{ id: "S1", pos: [1, 1, 23.5] }],
+      },
+    });
+    step(w, { ...IDLE_INPUT, pulse: true });
+    const s = w.shades[0];
+    expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeLessThan(
+      TUNING.safe_radius,
+    );
+    step(w, { ...IDLE_INPUT, pulse: true, interact: true });
+    expect(w.lanterns[0].lit).toBe(true);
+    expect(w.tick < s.stunUntil).toBe(true);
+    expect(Math.hypot(s.pos[0], s.pos[2] - 25)).toBeGreaterThan(
+      TUNING.safe_radius,
+    );
+  });
 });
 
 describe("random spawning", () => {

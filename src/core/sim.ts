@@ -425,17 +425,19 @@ export function step(w: World, input: Input): GameEvent[] {
     return ev;
   }
 
-  // 4. Shades move (stunned ones stay put).
+  // 4. Shades move (stunned ones stay put). Every shade, stunned or not, is then kept out of
+  //    the lit-lantern zone, so a lantern lit this tick also clears shades already inside it.
   const sv = t.shade_speed / TICK_HZ;
   for (const s of w.shades) {
-    if (isStunned(w, s)) continue; // stunned in the resulting state => does not move
-    const dx = p.pos[0] - s.pos[0];
-    const dz = p.pos[2] - s.pos[2];
-    const d = Math.hypot(dx, dz);
-    if (d > 0) {
-      const m = Math.min(sv, d);
-      s.pos[0] += (dx / d) * m;
-      s.pos[2] += (dz / d) * m;
+    if (!isStunned(w, s)) {
+      const dx = p.pos[0] - s.pos[0];
+      const dz = p.pos[2] - s.pos[2];
+      const d = Math.hypot(dx, dz);
+      if (d > 0) {
+        const m = Math.min(sv, d);
+        s.pos[0] += (dx / d) * m;
+        s.pos[2] += (dz / d) * m;
+      }
     }
     keepOutOfLight(w, s);
   }
