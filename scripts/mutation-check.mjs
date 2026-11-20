@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { checkScenario, listScenarios, ROOT } from './scenario-lib.mjs';
 
-const phase = process.argv[2] ?? 'phase-3';
+const phase = process.argv[2] ?? 'phase-4';
 const file = join(ROOT, 'game.contract.json');
 const original = readFileSync(file, 'utf8');
 const MUTATIONS = [

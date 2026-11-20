@@ -1,6 +1,7 @@
 // Opens the BUILT game (dist/) in headless Chromium and saves screenshots as evidence.
 // Usage: npm run build && node scripts/screenshot.mjs [phase-N]
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
@@ -9,6 +10,11 @@ import { ROOT } from './scenario-lib.mjs';
 const phase = process.argv[2] ?? 'phase-2';
 const dir = join(ROOT, 'docs', 'proof', phase, 'screenshots');
 mkdirSync(dir, { recursive: true });
+
+// Leaderboard saves of this run go to a scratch folder (the dev/preview API writes to $DDL_SAVE_DIR).
+const saveDir = join(ROOT, 'tmp', 'shot-save');
+rmSync(saveDir, { recursive: true, force: true });
+process.env.DDL_SAVE_DIR = saveDir;
 
 const server = await preview({ root: ROOT, preview: { port: 4190, strictPort: false, open: false } });
 const url = server.resolvedUrls.local[0];
@@ -115,8 +121,106 @@ if (phase === 'phase-3') {
   await shot('p3-04-dawn-survived.png', 'Hết giờ với 3/5 đèn sáng → thắng dawn_survived (không còn thắng sớm)');
 }
 
+// ---- Phase 4 (Ticket-04) ----
+const extra = [];
+if (phase === 'phase-4') {
+  // Every visible text must be >= 18 px at 1280x720.
+  const audit = [];
+  async function fontAudit(where) {
+    const r = await page.evaluate(() => {
+      const bad = [];
+      let min = Infinity;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (!n.textContent.trim()) continue;
+        const el = n.parentElement;
+        const st = getComputedStyle(el);
+        if (!el.getClientRects().length || st.visibility === 'hidden' || Number(st.opacity) === 0) continue;
+        const fs = parseFloat(st.fontSize);
+        min = Math.min(min, fs);
+        if (fs < 18) bad.push(`${el.tagName.toLowerCase()}#${el.id}: ${fs}px "${n.textContent.trim().slice(0, 30)}"`);
+      }
+      return { min, bad };
+    });
+    audit.push(`| ${where} | ${r.min} px | ${r.bad.length ? r.bad.join('<br>') : 'không có'} |`);
+  }
+
+  await page.goto(`${url}?bench=1&seed=42&duration=5`);
+  await page.waitForTimeout(2500);
+  await shot('p4-01-bench.png', 'Cảnh benchmark chuẩn (seed 42): 200 Bóng Mực wander, 100 đom đóm, L1–L3 sáng, camera bay vòng r 30 m, Y 15 m');
+
+  await page.goto(`${url}?seed=1`);
+  await page.waitForTimeout(1000);
+  await shot('p4-02-menu.png', 'Menu chính có nút "Bảng xếp hạng"');
+  await fontAudit('Menu');
+  await page.click('#scr-menu [data-act="settings"]');
+  await page.waitForTimeout(300);
+  await page.click('#keymap button[data-action="jump"]');
+  await page.keyboard.press('KeyE');
+  await page.waitForTimeout(200);
+  await shot('p4-03-key-conflict.png', 'Đổi phím: gán "Nhảy" sang E bị từ chối, báo trùng với "Tương tác"; có "Khôi phục mặc định"; các tùy chọn phụ đề, giảm chuyển động, chữ lớn');
+  await fontAudit('Cài đặt');
+  await page.keyboard.press('KeyJ');
+  await page.waitForTimeout(200);
+  await shot('p4-04-key-rebound.png', '"Nhảy" đã đổi sang J (lưu localStorage)');
+  await page.goto(game(1, { ...OFF, random_shades: false }));
+  await page.waitForTimeout(1000);
+  await shot('p4-05-hud-rebound.png', 'HUD và gợi ý phím cập nhật theo phím mới (J nhảy)');
+  await page.goto(`${url}?seed=1`);
+  await page.waitForTimeout(500);
+  await page.click('#scr-menu [data-act="settings"]');
+  await page.click('#key-reset');
+  await page.waitForTimeout(200);
+  await shot('p4-06-key-reset.png', 'Khôi phục mặc định');
+
+  // Subtitles: shade spawn (sim tick 300 = 5 s) + edge arrow, last 10 s, lantern fuel < 30.
+  await page.goto(game(1, { random_drifters: false, time_left_s: 14.6, lanterns: [{ id: 'L1', lit: true, fuel: 34.7 }] }));
+  // software WebGL is slow, so the sim runs slower than real time: wait for the cues, not for a fixed time
+  await page.waitForFunction(() => document.querySelectorAll('#subs div').length >= 3, null, { timeout: 60000 });
+  await page.waitForTimeout(150);
+  await shot('p4-07-subtitles.png', 'Phụ đề: "Bóng Mực xuất hiện" (+ mũi tên tím ở mép màn hình chỉ hướng bóng mới khi nó ngoài khung nhìn), "Còn 10 giây", "Đèn L1 sắp cạn dầu"');
+  await fontAudit('Đang chơi (HUD + phụ đề)');
+  await page.goto(game(3, { ...OFF, wind_enabled: true, random_shades: false }));
+  await page.waitForFunction(() => document.getElementById('subs').textContent.includes('Gió'), null, { timeout: 180000, polling: 100 });
+  await shot('p4-08-wind-warning.png', 'Phụ đề "Gió sắp thổi!" 2 s trước cơn gió (Đêm 3)');
+
+  await page.goto(game(1, { ...OFF, random_shades: false, time_left_s: 40 }) + '&big=1');
+  await page.waitForTimeout(1000);
+  await shot('p4-09-large-text.png', 'Tùy chọn "Chữ lớn" (×1.25): cỡ chữ gốc 18 px → 22.5 px');
+
+  // Lose -> name entry -> leaderboard.
+  await page.goto(game(1, { ...OFF, random_shades: false, player: { flames: 1 }, shades: [{ id: 'S1', pos: [0, 1, 0.3] }] }));
+  await page.waitForTimeout(900);
+  await page.fill('#lb-name', 'ab');
+  await page.click('#lb-save');
+  await page.waitForTimeout(200);
+  await shot('p4-10-name-invalid.png', 'Thua Đêm 1 → ô nhập tên; tên "ab" bị từ chối (cần 3–12 ký tự)');
+  await fontAudit('Kết quả (thua) + ô nhập tên');
+  await page.fill('#lb-name', 'Mây_Đèn');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(500);
+  await shot('p4-11-name-saved.png', 'Lưu tên có dấu "Mây_Đèn" (điểm cộng tiếng Việt), báo hạng');
+  await page.goto(game(3, { ...OFF, random_shades: false, player: { pos: [-35, 0, -8] }, time_left_s: 1, lanterns: ['L1', 'L2', 'L3', 'L4', 'L5'].map((id) => ({ id, lit: true })) }));
+  await page.waitForTimeout(2500);
+  await page.fill('#lb-name', 'Cuong_2026');
+  await page.click('#lb-save');
+  await page.waitForTimeout(500);
+  await shot('p4-12-dawn-saved.png', 'Thắng Đêm 3 → Bình Minh → lưu tên (nights_won tính theo các Đêm đã thắng trong lượt)');
+  await page.goto(`${url}?seed=1`);
+  await page.waitForTimeout(500);
+  await page.click('#scr-menu [data-act="board"]');
+  await page.waitForTimeout(500);
+  await shot('p4-13-leaderboard.png', 'Màn Bảng xếp hạng từ menu chính (top 10, điểm giảm dần), lưu trên đĩa');
+  await fontAudit('Bảng xếp hạng');
+
+  const proof = join(ROOT, 'docs', 'proof', phase);
+  writeFileSync(join(proof, 'font-audit.md'), `# Cỡ chữ UI ở 1280×720 (Ticket-04 §4)\n\nĐo bằng \`getComputedStyle\` trên mọi nút chữ đang hiển thị (\`npm run shot -- phase-4\`). Yêu cầu: ≥ 18 px.\n\n| Màn hình | Nhỏ nhất | Chữ < 18 px |\n|---|---|---|\n${audit.join('\n')}\n`);
+  extra.push(() => execFileSync(process.execPath, [join(ROOT, 'build', 'serve.mjs'), '--export-leaderboard', join(proof, 'leaderboard-export.json')], { env: process.env, stdio: 'inherit' }));
+}
+
 await browser.close();
 await server.httpServer.close();
+for (const f of extra) f();
 writeFileSync(join(dir, 'README.md'), `# Screenshots — ${phase}\n\nTaken by \`npm run shot -- ${phase}\` (Playwright, headless Chromium, 1280×720, software WebGL).\n\n| File | Shows |\n|---|---|\n${log.join('\n')}\n`);
 if (errors.length) {
   console.error('page errors:\n' + errors.join('\n'));

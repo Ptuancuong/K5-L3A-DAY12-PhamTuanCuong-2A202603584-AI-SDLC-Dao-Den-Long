@@ -18,7 +18,7 @@ jobs:
       - run: npm test
       - name: Headless verify (scenarios + determinism) and proof matches committed evidence
         env:
-          PHASE: phase-3
+          PHASE: phase-4
         run: |
           node scripts/verify.mjs $PHASE
           git diff --exit-code -- docs/proof/$PHASE/verify-report.md docs/proof/$PHASE/runs
@@ -28,3 +28,10 @@ jobs:
           $CMD --seed 5 --night 1 --ticks 600 --out smoke.jsonl
           tail -1 smoke.jsonl | grep '"type":"end"'
           set +e; echo '{bad' > bad.json; $CMD --seed 1 --night 1 --ticks 5 --out x.jsonl --inputs bad.json; test $? -eq 2
+      - name: Contract v1.3 smoke (soak_cmd, run_cmd --export-leaderboard)
+        run: |
+          SOAK=$(node -p "require('./game.contract.json').soak_cmd")
+          $SOAK --seed 7 --nights 10 --out soak-ci.json
+          node -e "const s=require('./soak-ci.json'); console.log(s); if (s.crashes !== 0 || s.mem_end_mb > 1.2 * s.mem_start_mb) process.exit(1)"
+          RUN=$(node -p "require('./game.contract.json').run_cmd")
+          $RUN --export-leaderboard lb.json && node -e "const l=require('./lb.json'); if (!Array.isArray(l.entries)) process.exit(1)"
